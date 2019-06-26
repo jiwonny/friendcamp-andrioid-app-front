@@ -42,6 +42,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         // Show 2 total pages.
         ////////
+        /////
         return 3;
     }
 }
