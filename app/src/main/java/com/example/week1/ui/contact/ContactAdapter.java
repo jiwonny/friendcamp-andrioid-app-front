@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,11 +20,16 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     public static class ContactViewHolder extends RecyclerView.ViewHolder{
 
-        public TextView textView;
+        public TextView textView1;
+        public TextView textView2;
+        public ImageView imageView;
+
         public ContactViewHolder(View itemView){
             super(itemView);
 
-            textView = itemView.findViewById(R.id.contact_name);
+            textView1 = itemView.findViewById(R.id.contact_name);
+            textView2 = itemView.findViewById(R.id.contact_number);
+            imageView = itemView.findViewById(R.id.contact_image);
         }
     }
 
@@ -44,7 +51,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position){
         String text = mDataset.get(position);
-        holder.textView.setText(text);
+        holder.textView1.setText(text);
+
     }
 
     @Override
