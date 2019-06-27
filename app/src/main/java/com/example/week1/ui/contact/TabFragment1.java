@@ -33,7 +33,7 @@ import static android.app.Activity.RESULT_OK;
  */
 public class TabFragment1 extends Fragment {
 
-    public TabFragment1 () { }
+
 
     static final int REQUEST_SELECT_PHONE_NUMBER = 1;
     static final int MAX_PICK_CONTACT = 3;
