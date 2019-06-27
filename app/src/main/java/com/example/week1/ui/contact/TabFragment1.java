@@ -1,4 +1,4 @@
-package com.example.week1.ui.main;
+package com.example.week1.ui.contact;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,25 +11,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
+
+import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class TabFragment1 extends Fragment {
 
-
-    private PageViewModel pageViewModel;
-
     public TabFragment1 () { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        int index = 1;
-        pageViewModel.setIndex(index);
     }
 
     @Override
@@ -37,13 +35,19 @@ public class TabFragment1 extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment1, container, false);
-        final TextView textView = root.findViewById(R.id.section_label1);
-        pageViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+
+        ArrayList<String> list = new ArrayList<>();
+        for (int i=0; i<100; i++) {
+            list.add(String.format("TEXT %d", i));
+        }
+
+
+        RecyclerView recyclerView = root.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ContactAdapter adapter = new ContactAdapter(list);
+        recyclerView.setAdapter(adapter);
+
         return root;
     }
 }
