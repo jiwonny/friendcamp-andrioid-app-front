@@ -4,15 +4,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
+
+import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -34,16 +35,20 @@ public class TabFragment1 extends Fragment {
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tabfragment1, container, false);
-        final TextView textView = root.findViewById(R.id.section_label1);
-        pageViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        return root;
+            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // 리사이클러뷰에 표시할 데이터 리스트 생성.
+        View view =  inflater.inflate(R.layout.contacts, container, false);
+        ArrayList<String> list = new ArrayList<>();
+        for (int i=0; i<100; i++) {
+            list.add(String.format("TEXT %d", i)) ;
+        }
+        // 리사이클러뷰에 LinearLayoutManager 객체 지정.
+        RecyclerView recyclerView = view.findViewById(R.id.recycler1);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity())) ;
+
+        // 리사이클러뷰에 SimpleTextAdapter 객체 지정.
+        SimpleTextAdapter adapter = new SimpleTextAdapter(list) ;
+        recyclerView.setAdapter(adapter) ;
+        return view;
     }
 }
