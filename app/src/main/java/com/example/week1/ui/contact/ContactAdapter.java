@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,19 +15,24 @@ import java.util.ArrayList;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
 
-    private ArrayList<String> mDataset;
+    private ArrayList<ContactItem> mDataset;
 
     public static class ContactViewHolder extends RecyclerView.ViewHolder{
 
-        public TextView textView;
+        public TextView textView1;
+        public TextView textView2;
+        public ImageView imageView;
+
         public ContactViewHolder(View itemView){
             super(itemView);
 
-            textView = itemView.findViewById(R.id.contact_name);
+            textView1 = itemView.findViewById(R.id.contact_name);
+            textView2 = itemView.findViewById(R.id.contact_number);
+            imageView = itemView.findViewById(R.id.contact_image);
         }
     }
 
-    public ContactAdapter(ArrayList<String> list){
+    public ContactAdapter(ArrayList<ContactItem> list){
         mDataset= list;
     }
 
@@ -43,8 +49,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position){
-        String text = mDataset.get(position);
-        holder.textView.setText(text);
+            ContactItem contactItem = mDataset.get(position);
+            holder.textView1.setText(contactItem.getUser_Name());
+            holder.textView2.setText(contactItem.getUser_phNumber());
     }
 
     @Override
