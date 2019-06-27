@@ -54,9 +54,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
 
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
 
                 Snackbar.make(mainLayout, "Permission to Contacts was denied", Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
 
