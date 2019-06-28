@@ -148,7 +148,6 @@ public class TabFragment1 extends Fragment {
                 photoBytes = c.getBlob(0);
 
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
         } finally {
             c.close();
