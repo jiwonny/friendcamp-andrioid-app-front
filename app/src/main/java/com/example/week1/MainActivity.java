@@ -2,6 +2,8 @@ package com.example.week1;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,25 +22,24 @@ import android.view.View;
 
 import com.example.week1.ui.main.SectionsPagerAdapter;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int PERMISSIONS_REQUEST_CODE = 100;
+
+    SQLiteDatabase sqliteDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        View mainLayout = findViewById(R.id.main_layout);
-
         // Contacts permission request
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
                         PERMISSIONS_REQUEST_CODE);
-        } else{
-            inital_setting();
         }
-
 
     }
 
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         .setAction("Action", null).show();
             }
         });
+
+        sqliteDB = init_database();
     }
 
 
@@ -94,6 +97,27 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
 
             } } }
+
+    private SQLiteDatabase init_database() {
+
+        SQLiteDatabase db = null ;
+
+        File file = new File(getFilesDir(), "Database.db") ;
+
+        System.out.println("PATH : " + file.toString()) ;
+        try {
+            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
+        } catch (SQLiteException e) {
+            e.printStackTrace() ;
+        }
+
+        if (db == null) {
+            System.out.println("DB creation failed. " + file.getAbsolutePath()) ;
+        }
+
+        return db ;
+    }
+
 
 
 

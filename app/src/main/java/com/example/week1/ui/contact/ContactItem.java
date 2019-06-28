@@ -33,7 +33,6 @@ public class ContactItem implements Serializable {
     public void setUser_phNumber(String string){
         this.user_phNumber = string;
     }
-
     public void setUser_Name(String string){
         this.user_Name = string;
     }

@@ -3,6 +3,8 @@ package com.example.week1.ui.contact;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -17,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
 
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
@@ -26,34 +31,40 @@ import java.util.LinkedHashSet;
 
 public class TabFragment1 extends Fragment {
 
-    public TabFragment1 () {
-        TabFragment1 fragment = new TabFragment1();
-        Bundle bundle = new Bundle();
-        bundle
-    }
+    SQLiteDatabase sqliteDB ;
+
+    public TabFragment1 () {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); }
+        super.onCreate(savedInstanceState);
+        sqliteDB = call_database();
+        init_contact_tables();
+    }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment1, container, false);
 
+
         ArrayList<ContactItem> list;
 
         if (isFirstTime()) {
             list = getContactList();
         } else {
-            list = getContactList();
+            //list = getContactList();
+            list = load_contacts();
         }
 
-        RecyclerView recyclerView = root.findViewById(R.id.recycler);
+        RecyclerView recyclerView = root.findViewById(R.id.contact_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         ContactAdapter adapter = new ContactAdapter(list);
         recyclerView.setAdapter(adapter);
+
+        JSONObject j = JSON.SQLtoJSON(sqliteDB);
+        System.out.println(j.toString());
 
         return root;
     }
@@ -97,8 +108,11 @@ public class TabFragment1 extends Fragment {
                 contactItem.setUser_Name(cursor.getString(1));
                 contactItem.setPhoto_id(photo_id);
                 contactItem.setPerson_id(person_id);
-
                 hashlist.add(contactItem);
+
+                // put in database (name,phone)
+                insert_contact(cursor.getString(1),cursor.getString(0));
+
             } while (cursor.moveToNext());
         }
 
@@ -109,4 +123,72 @@ public class TabFragment1 extends Fragment {
         return contactItems;
     }
 
+    private SQLiteDatabase call_database() {
+
+        SQLiteDatabase db = null ;
+
+        File file = new File(getActivity().getFilesDir(), "Database.db") ;
+
+        System.out.println("PATH : " + file.toString()) ;
+        try {
+            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
+        } catch (SQLiteException e) {
+            e.printStackTrace() ;
+        }
+
+        if (db == null) {
+            System.out.println("DB call failed. " + file.getAbsolutePath()) ;
+        }
+        return db ;
+    }
+
+    private void init_contact_tables() {
+        if (sqliteDB != null) {
+            String sqlCreateTbl = "CREATE TABLE IF NOT EXISTS CONTACT_T (" +
+                    "ID "           + "INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "NAME "         + "TEXT," +
+                    "PHONE "        + "TEXT"  + ")" ;
+
+            //System.out.println(sqlCreateTbl) ;
+            sqliteDB.execSQL(sqlCreateTbl) ;
+        }
+    }
+
+    private void insert_contact(String name, String phone) {
+        if (sqliteDB != null) {
+
+            String sqlInsert = "INSERT INTO CONTACT_T " + "(NAME, PHONE) VALUES ('" + name + "','" + phone + "')";
+
+            System.out.println(sqlInsert) ;
+            sqliteDB.execSQL(sqlInsert) ;
+        }
+    }
+
+    public ArrayList<ContactItem> load_contacts() {
+
+        if (sqliteDB != null) {
+            String sqlQueryTbl = "SELECT * FROM CONTACT_T";
+            Cursor cursor = null;
+
+            cursor = sqliteDB.rawQuery(sqlQueryTbl, null);
+
+            LinkedHashSet<ContactItem> hashlist = new LinkedHashSet<>();
+
+            if (cursor.moveToFirst()) {
+                do {
+                    ContactItem contactItem = new ContactItem();
+
+                    contactItem.setUser_Name(cursor.getString(1));
+                    contactItem.setUser_phNumber(cursor.getString(2));
+                    contactItem.setId(cursor.getInt(0));
+                    hashlist.add(contactItem);
+
+                } while (cursor.moveToNext());
+            }
+
+            ArrayList<ContactItem> contactItems = new ArrayList<>(hashlist);
+            return contactItems;
+        }
+        return null;
+    }
 }
