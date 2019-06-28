@@ -26,6 +26,30 @@ public class TabFragment1 extends Fragment {
 
     public TabFragment1 () { }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState); }
+
+    @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.tabfragment1, container, false);
+
+        ArrayList<ContactItem> list = getContactList();
+
+        RecyclerView recyclerView = root.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        ContactAdapter adapter = new ContactAdapter(list);
+        recyclerView.setAdapter(adapter);
+
+        return root;
+    }
+
+    private Boolean firsttime = null;
+
+    //private
+
     public ArrayList<ContactItem> getContactList() {
 
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
@@ -40,6 +64,7 @@ public class TabFragment1 extends Fragment {
         Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, selectionArgs, sortOrder);
 
         LinkedHashSet<ContactItem> hashlist = new LinkedHashSet<>();
+
         if (cursor.moveToFirst()) {
             do {
                 long photo_id = cursor.getLong(2);
@@ -61,23 +86,4 @@ public class TabFragment1 extends Fragment {
         return contactItems;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); }
-
-    @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tabfragment1, container, false);
-
-        ArrayList<ContactItem> list = getContactList();
-
-        RecyclerView recyclerView = root.findViewById(R.id.recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        ContactAdapter adapter = new ContactAdapter(list);
-        recyclerView.setAdapter(adapter);
-
-        return root;
-    }
 }

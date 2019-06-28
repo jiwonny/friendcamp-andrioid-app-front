@@ -10,6 +10,7 @@ public class ContactItem implements Serializable {
     private int id;
 
     public ContactItem(){}
+
     public long getPhoto_id(){
         return photo_id;
     }
@@ -29,12 +30,6 @@ public class ContactItem implements Serializable {
     public String getUser_Name(){
         return user_Name;
     }
-    public void setId(int id){
-        this.id = id;
-    }
-    public int getId(){
-        return id;
-    }
     public void setUser_phNumber(String string){
         this.user_phNumber = string;
     }
@@ -42,6 +37,14 @@ public class ContactItem implements Serializable {
     public void setUser_Name(String string){
         this.user_Name = string;
     }
+
+    public void setId(int id){
+        this.id = id;
+    }
+    public int getId(){
+        return id;
+    }
+
     @Override
     public String toString() {
         return this.user_phNumber;
@@ -51,6 +54,7 @@ public class ContactItem implements Serializable {
     public int hashCode() {
         return getPhNumberChanged().hashCode();
     }
+
     public String getPhNumberChanged(){
         return user_phNumber.replace("-", "");
     }
@@ -59,7 +63,6 @@ public class ContactItem implements Serializable {
     public boolean equals(Object o) {
         if (o instanceof ContactItem)
             return getPhNumberChanged().equals(((ContactItem) o).getPhNumberChanged());
-
         return false;
     }
 }
