@@ -1,5 +1,7 @@
 package com.example.week1.ui.contact;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 
 //id 값은 리스트뷰의 position 값
@@ -8,6 +10,8 @@ public class ContactItem implements Serializable {
     private String user_phNumber, user_Name;
     private long photo_id=0, person_id=0;
     private int id;
+    private Bitmap photo;
+
 
     public ContactItem(){}
 
@@ -37,6 +41,13 @@ public class ContactItem implements Serializable {
         this.user_Name = string;
     }
 
+    public void setUser_photo(Bitmap photo){
+        this.photo = photo;
+    }
+    public Bitmap getUser_photo(){
+        return  photo;
+    }
+
     public void setId(int id){
         this.id = id;
     }
@@ -64,4 +75,7 @@ public class ContactItem implements Serializable {
             return getPhNumberChanged().equals(((ContactItem) o).getPhNumberChanged());
         return false;
     }
+
+
+
 }
