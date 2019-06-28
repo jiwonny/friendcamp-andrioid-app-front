@@ -1,5 +1,7 @@
 package com.example.week1.ui.contact;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +26,11 @@ import java.util.LinkedHashSet;
 
 public class TabFragment1 extends Fragment {
 
-    public TabFragment1 () { }
+    public TabFragment1 () {
+        TabFragment1 fragment = new TabFragment1();
+        Bundle bundle = new Bundle();
+        bundle
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,7 +41,13 @@ public class TabFragment1 extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment1, container, false);
 
-        ArrayList<ContactItem> list = getContactList();
+        ArrayList<ContactItem> list;
+
+        if (isFirstTime()) {
+            list = getContactList();
+        } else {
+            list = getContactList();
+        }
 
         RecyclerView recyclerView = root.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -46,9 +58,20 @@ public class TabFragment1 extends Fragment {
         return root;
     }
 
-    private Boolean firsttime = null;
+    private Boolean firstTime = null;
 
-    //private
+    private boolean isFirstTime(){
+        if (firstTime == null) {
+            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", Context.MODE_PRIVATE);
+            firstTime = mPreferences.getBoolean("firstTime", true);
+            if (firstTime) {
+                SharedPreferences.Editor editor = mPreferences.edit();
+                editor.putBoolean("firstTime", false);
+                editor.commit();
+            }
+        }
+        return firstTime;
+    }
 
     public ArrayList<ContactItem> getContactList() {
 
