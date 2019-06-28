@@ -1,9 +1,14 @@
 package com.example.week1.ui.contact;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
@@ -23,7 +29,6 @@ import java.util.LinkedHashSet;
  */
 
 public class TabFragment1 extends Fragment {
-
     public TabFragment1 () { }
 
     @Override
@@ -75,6 +80,9 @@ public class TabFragment1 extends Fragment {
                 contactItem.setPhoto_id(photo_id);
                 contactItem.setPerson_id(person_id);
 
+                Bitmap photo = loadContactPhoto(getActivity().getContentResolver(),person_id,photo_id);
+                contactItem.setUser_photo(photo);
+
                 hashlist.add(contactItem);
             } while (cursor.moveToNext());
         }
@@ -84,6 +92,60 @@ public class TabFragment1 extends Fragment {
             contactItems.get(i).setId(i);
         }
         return contactItems;
+    }
+
+    public Bitmap loadContactPhoto(ContentResolver cr, long id, long photo_id) {
+        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
+        InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
+        if (input != null)
+            return resizingBitmap(BitmapFactory.decodeStream(input));
+        else
+            Log.d("PHOTO","first try failed to load photo");
+
+        byte[] photoBytes = null;
+        Uri photoUri = ContentUris.withAppendedId(ContactsContract.Data.CONTENT_URI, photo_id);
+        Cursor c = cr.query(photoUri, new String[]{ContactsContract.CommonDataKinds.Photo.PHOTO}, null, null, null);
+        try {
+            if (c.moveToFirst())
+                photoBytes = c.getBlob(0);
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        } finally {
+            c.close();
+        }
+
+        if (photoBytes != null)
+            return resizingBitmap(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length));
+
+        else
+            Log.d("PHOTO", "second try also failed");
+        return null;
+    }
+
+    public Bitmap resizingBitmap(Bitmap oBitmap) {
+        if (oBitmap == null)
+            return null;
+        float width = oBitmap.getWidth();
+        float height = oBitmap.getHeight();
+        float resizing_size = 120;
+        Bitmap rBitmap = null;
+        if (width > resizing_size) {
+            float mWidth = (float) (width / 100);
+            float fScale = (float) (resizing_size / mWidth);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+
+        } else if (height > resizing_size) {
+            float mHeight = (float) (height / 100);
+            float fScale = (float) (resizing_size / mHeight);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+        }
+        //Log.d("rBitmap : " + width + "," + height);
+        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
+        return rBitmap;
     }
 
 }
