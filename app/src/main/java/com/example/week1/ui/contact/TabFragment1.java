@@ -178,6 +178,8 @@ public class TabFragment1 extends Fragment {
                     contactItem.setUser_phNumber(new_number);
 
                     db.update_contact(name,number,new_name,new_number);
+
+                    //TODO : ASCENDING ORDER WHEN EDIT
                     //ArrayList<ContactItem> new_contact_items = load_contacts();
                     //int new_pos = new_contact_items.indexOf(contactItem);
 
