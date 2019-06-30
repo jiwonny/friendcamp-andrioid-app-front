@@ -121,10 +121,6 @@ public class TabFragment1 extends Fragment {
             }
         });
 
-
-
-
-
         //JSON json = new JSON(getActivity());
         //JSONObject j = json.SQLtoJSON();
         //System.out.println(j.toString());
@@ -208,53 +204,6 @@ public class TabFragment1 extends Fragment {
         return firstTime;
     }
 
-
-/*
-    public ArrayList<ContactItem> getContactList() {
-
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        String[] projection = new String[]{
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.Contacts.PHOTO_ID,
-                ContactsContract.Contacts._ID
-        };
-        String[] selectionArgs = null;
-        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, selectionArgs, sortOrder);
-
-        LinkedHashSet<ContactItem> hashlist = new LinkedHashSet<>();
-
-        if (cursor.moveToFirst()) {
-            do {
-                long photo_id = cursor.getLong(2);
-                long person_id = cursor.getLong(3);
-                ContactItem contactItem = new ContactItem();
-                contactItem.setUser_phNumber(cursor.getString(0));
-                contactItem.setUser_Name(cursor.getString(1));
-                contactItem.setPhoto_id(photo_id);
-                contactItem.setPerson_id(person_id);
-
-                Bitmap photo = loadContactPhoto(getActivity().getContentResolver(),person_id,photo_id);
-                contactItem.setUser_photo(photo);
-
-
-                hashlist.add(contactItem);
-
-                // put in database (name,phone)
-                ContactDBAdapter db = new ContactDBAdapter(getActivity());
-                db.insert_contact(cursor.getString(1),cursor.getString(0));
-
-            } while (cursor.moveToNext());
-        }
-
-        ArrayList<ContactItem> contactItems = new ArrayList<>(hashlist);
-        for (int i = 0; i < contactItems.size(); i++) {
-            contactItems.get(i).setId(i);
-        }
-        return contactItems;
-    }
-*/
 
     public void getContactList() {
 

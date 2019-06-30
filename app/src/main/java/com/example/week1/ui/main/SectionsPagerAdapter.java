@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.week1.R;
 import com.example.week1.ui.contact.TabFragment1;
 import com.example.week1.ui.gallery.TabFragment2;
+import com.example.week1.ui.unsettled.TabFragment3;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to

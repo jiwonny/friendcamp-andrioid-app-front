@@ -68,7 +68,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                         onclick = true;
 
                         // call button
-
                         Button call_contact = (Button) add_layout.findViewById(R.id.call_contact);
                         call_contact.setOnClickListener(new Button.OnClickListener() {
                             @Override
@@ -101,7 +100,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                                 int pos = getAdapterPosition() ;
                                 if(mListener != null){
                                     mListener.onItemClick(view, pos, REQ_DELETE_CONTACT);
-                                    onclick= false;
                                 }
                             }
                         });
