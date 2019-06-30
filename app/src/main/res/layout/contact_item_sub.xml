@@ -8,27 +8,22 @@
 
     <Button
         android:id="@+id/call_contact"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginLeft="25sp"
         android:layout_weight="1"
         android:text="Call" />
 
     <Button
         android:id="@+id/edit_contact"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="50sp"
         android:layout_weight="1"
         android:text="@string/edit" />
 
     <Button
         android:id="@+id/delete_contact"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginLeft="50sp"
         android:layout_weight="1"
         android:text="@string/delete" />
 

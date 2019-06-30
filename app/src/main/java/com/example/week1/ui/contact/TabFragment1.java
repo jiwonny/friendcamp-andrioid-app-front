@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -28,7 +27,6 @@ import com.example.week1.R;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 
 /**
  * A placeholder fragment containing a simple view.

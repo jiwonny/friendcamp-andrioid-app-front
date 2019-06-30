@@ -12,10 +12,12 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.ui.contact.ContactDBHelper;
+import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -28,12 +30,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Contacts permission request
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
-                        PERMISSIONS_REQUEST_CODE);
-        } else{
+        // PERMISSIONS CHECK
+
+        String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+        if(!Function.hasPermissions(this, PERMISSIONS)){
+            ArrayList<String> remainingPermissions = new ArrayList<>();
+            for (String permission : PERMISSIONS){
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
+                    remainingPermissions.add(permission);
+                }
+            }
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+        } else {
             inital_setting();
         }
 
@@ -50,78 +58,41 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
     }
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
         View mainLayout = findViewById(R.id.main_layout);
-        switch(requestCode){
+        switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE: {
-                if (grandResults.length > 0 && grandResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)){
+                if (grandResults.length > 0) {
+                    for (int i = 0; i < grandResults.length; i++) {
 
-                        Snackbar.make(mainLayout, "Permission to Contacts was denied.\nRestart the App", Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
+                        if (grandResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[i])) {
+                                Snackbar.make(mainLayout, "Permissions were denied.\nRestart the App", Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
 
-                            @Override
-                            public void onClick(View v) {
-                                finish();
+                                    @Override
+                                    public void onClick(View v) {
+                                        finish();
+                                    }
+                                }).show();
+                            } else {
+                                Snackbar.make(mainLayout, "Permissions were denied.\nYou should get Permissions in Setting",
+                                        Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(View view) {
+                                        finish();
+                                    }
+                                }).show();
                             }
-                        }).show();
-                    } else {
-                        Snackbar.make(mainLayout, "Permission to Contacts was denied.\nYou should get Permission in Setting",
-                                Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
-
-                            @Override
-                            public void onClick(View view) {
-
-                                finish();
-                            }
-                        }).show();
+                        }
                     }
-                } else {
-                    inital_setting();
                 }
             }
+            inital_setting();
         }
     }
-/*
-    private void init_contact_tables() {
-        dbHelper = new ContactDBHelper(this) ;
-    }
-
-
-    private SQLiteDatabase init_database() {
-
-        SQLiteDatabase db = null ;
-
-        File file = new File(getFilesDir(), "Database.db") ;
-
-        System.out.println("PATH : " + file.toString()) ;
-        try {
-            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
-        } catch (SQLiteException e) {
-            e.printStackTrace() ;
-        }
-
-        if (db == null) {
-            System.out.println("DB creation failed. " + file.getAbsolutePath()) ;
-        }
-
-        return db ;
-    }
-
-*/
-
-
 }

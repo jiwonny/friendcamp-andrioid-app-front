@@ -1,9 +1,7 @@
 package com.example.week1.ui.gallery;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MergeCursor;
@@ -20,10 +18,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -42,7 +38,7 @@ public class TabFragment2 extends Fragment {
 
     public TabFragment2 () { }
 
-    static final int REQUEST_PERMISSION_KEY = 1;
+
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
@@ -55,10 +51,14 @@ public class TabFragment2 extends Fragment {
         pageViewModel.setIndex(index);
     }
 
+
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment2, container, false);
         galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
+
+        loadAlbumTask = new TabFragment2.LoadAlbum();
+        loadAlbumTask.execute();
 
         int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
         Resources resources = getActivity().getApplicationContext().getResources();
@@ -72,10 +72,6 @@ public class TabFragment2 extends Fragment {
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
-        String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if(!Function.hasPermissions(getActivity(), PERMISSIONS)){
-            ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, REQUEST_PERMISSION_KEY);
-        }
         return root;
     }
 
@@ -86,6 +82,7 @@ public class TabFragment2 extends Fragment {
             albumList.clear();
         }
 
+        //Generate image data
         protected String doInBackground(String... args) {
             String xml = "";
 
@@ -119,6 +116,7 @@ public class TabFragment2 extends Fragment {
             return xml;
         }
 
+        // Set Adapter
         @Override
         protected void onPostExecute(String xml) {
 
@@ -135,38 +133,6 @@ public class TabFragment2 extends Fragment {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode)
-        {
-            case REQUEST_PERMISSION_KEY: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    loadAlbumTask = new LoadAlbum();
-                    loadAlbumTask.execute();
-                } else
-                {
-                    Toast.makeText(getActivity(), "You must accept permissions.", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if(!Function.hasPermissions(getActivity(), PERMISSIONS)){
-            ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, REQUEST_PERMISSION_KEY);
-        }else{
-            loadAlbumTask = new LoadAlbum();
-            loadAlbumTask.execute();
-        }
-
-    }
 
     class AlbumAdapter extends BaseAdapter {
         private Activity activity;
