@@ -1,7 +1,9 @@
 package com.example.week1.ui.gallery;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MergeCursor;
@@ -36,7 +38,9 @@ public class TabFragment2 extends Fragment {
 
     private PageViewModel pageViewModel;
 
-    public TabFragment2 () { }
+    public static TabFragment2 newInstance() {
+        return new TabFragment2();
+    }
 
 
     LoadAlbum loadAlbumTask;
@@ -56,6 +60,8 @@ public class TabFragment2 extends Fragment {
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment2, container, false);
         galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
+
+        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
 
         loadAlbumTask = new TabFragment2.LoadAlbum();
         loadAlbumTask.execute();
@@ -86,33 +92,9 @@ public class TabFragment2 extends Fragment {
         protected String doInBackground(String... args) {
             String xml = "";
 
-            String path = null;
-            String album = null;
-            String timestamp = null;
-            String countPhoto = null;
-            Uri uriExternal = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            Uri uriInternal = android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
+            getPhotos();
+            albumList = load_photos();
 
-
-            String[] projection = { MediaStore.MediaColumns.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.MediaColumns.DATE_MODIFIED };
-            Cursor cursorExternal = getActivity().getContentResolver().query(uriExternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
-                    null, null);
-            Cursor cursorInternal = getActivity().getContentResolver().query(uriInternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
-                    null, null);
-            Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
-
-            while (cursor.moveToNext()) {
-
-                path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
-                album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-                timestamp = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
-                countPhoto = Function.getCount(getActivity().getApplicationContext(), album);
-
-                albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
-            }
-            cursor.close();
-            Collections.sort(albumList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
             return xml;
         }
 
@@ -131,6 +113,56 @@ public class TabFragment2 extends Fragment {
                 }
             });
         }
+    }
+
+    // check firstTime
+    private Boolean firstTime = null;
+
+    private boolean isFirstTime(){
+        if (firstTime == null) {
+            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", Context.MODE_PRIVATE);
+            firstTime = mPreferences.getBoolean("firstTime", true);
+            if (firstTime) {
+                SharedPreferences.Editor editor = mPreferences.edit();
+                editor.putBoolean("firstTime", false);
+                editor.commit();
+            }
+        }
+        return firstTime;
+    }
+
+    public void getPhotos(){
+        String path = null;
+        String album = null;
+        String timestamp = null;
+        Uri uriExternal = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Uri uriInternal = android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
+
+
+
+
+        String[] projection = { MediaStore.MediaColumns.DATA,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.MediaColumns.DATE_MODIFIED };
+        Cursor cursorExternal = getActivity().getContentResolver().query(uriExternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
+                null, null);
+        Cursor cursorInternal = getActivity().getContentResolver().query(uriInternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
+                null, null);
+        Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
+
+        while (cursor.moveToNext()) {
+
+            path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+            album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+            timestamp = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
+            //put in Database
+            GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
+            db.insert_photo(path,album,timestamp);
+        }
+    }
+
+    private ArrayList<HashMap<String, String>> load_photos(){
+        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
+        return db.retreive_photos_byAlbums();
     }
 
 

@@ -9,7 +9,7 @@ public class ContactDBCtrct {
 
     public static final String TBL_CONTACT = "CONTACT_T" ;
 
-    // CREATE TABLE IF NOT EXISTS CONTACT_T (NO INTEGER NOT NULL, NAME TEXT, PHONE TEXT, OVER20 INTEGER)
+    // CREATE TABLE IF NOT EXISTS CONTACT_T (NO INTEGER NOT NULL, NAME TEXT, PHONE TEXT)
     public static final String SQL_CREATE_TBL = "CREATE TABLE IF NOT EXISTS " + TBL_CONTACT +" "+
             "(" +
             COL_ID           + " INTEGER PRIMARY KEY AUTOINCREMENT" + ", " +

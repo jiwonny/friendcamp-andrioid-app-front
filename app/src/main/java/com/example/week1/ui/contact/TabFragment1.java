@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -39,16 +40,15 @@ public class TabFragment1 extends Fragment {
     static final int REQ_DELETE_CONTACT = 3;
     static final int REQ_CALL_CONTACT =4;
 
-    ArrayList<ContactItem> contact_items;
+    ArrayList<ContactItem> contact_items = new ArrayList<ContactItem>();
+    RecyclerView recyclerView;
     ContactAdapter adapter;
+    Loadcontacts loadcontactTask;
 
 
     public static TabFragment1 newInstance(){
         return new TabFragment1();
     }
-
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,17 +62,11 @@ public class TabFragment1 extends Fragment {
 
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
-
-        if (isFirstTime()) { getContactList(); }
-
-        // Load Contacts from DB
-        contact_items= load_contacts();
-
-        RecyclerView recyclerView = root.findViewById(R.id.contact_recycler);
+        recyclerView = root.findViewById(R.id.contact_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        adapter = new ContactAdapter(contact_items);
-        recyclerView.setAdapter(adapter);
+        loadcontactTask = new TabFragment1.Loadcontacts();
+        loadcontactTask.execute();
 
 
         // ADD CONTACT Button
@@ -85,39 +79,7 @@ public class TabFragment1 extends Fragment {
             }
         });
 
-        // EDIT & DELETE & CALL CONTACT
-        adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position, int request_code){
-                switch (request_code){
-                    case REQ_EDIT_CONTACT:{
-                        Intent intent = new Intent(getActivity(), Edit_Contact.class);
-                        intent.putExtra("position",position);
-                        startActivityForResult(intent, request_code);
-                        break;
-                    }
-                    case REQ_DELETE_CONTACT:{
-                        ContactDBAdapter db = new ContactDBAdapter(getActivity());
-                        ContactItem contactItem = contact_items.get(position);
-                        String name = contactItem.getUser_Name();
-                        String number = contactItem.getUser_phNumber();
 
-                        db.delete_contact(name,number);
-                        contact_items.remove(position);
-
-                        adapter.onActivityResult(REQ_DELETE_CONTACT,1);
-                        break;
-                    }
-                    case REQ_CALL_CONTACT:{
-                        ContactItem contactItem = contact_items.get(position);
-                        String number = contactItem.getPhNumberChanged();
-                        String tel ="tel:" + number;
-                        startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
-                        break;
-                    }
-                }
-            }
-        });
 
         //JSON json = new JSON(getActivity());
         //JSONObject j = json.SQLtoJSON();
@@ -125,7 +87,65 @@ public class TabFragment1 extends Fragment {
 
         return root;
     }
+    class Loadcontacts extends AsyncTask<String,Void,String>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            contact_items.clear();
+        }
 
+        @Override
+        protected String doInBackground(String... args) {
+            String xml = "";
+
+            if (isFirstTime()) { getContactList(); }
+
+            // Load Contacts from DB
+            contact_items= load_contacts();
+
+            return xml;
+        }
+
+        @Override
+        protected void onPostExecute(String xml) {
+            adapter = new ContactAdapter(contact_items);
+            recyclerView.setAdapter(adapter);
+
+            // EDIT & DELETE & CALL CONTACT
+            adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position, int request_code){
+                    switch (request_code){
+                        case REQ_EDIT_CONTACT:{
+                            Intent intent = new Intent(getActivity(), Edit_Contact.class);
+                            intent.putExtra("position",position);
+                            startActivityForResult(intent, request_code);
+                            break;
+                        }
+                        case REQ_DELETE_CONTACT:{
+                            ContactDBAdapter db = new ContactDBAdapter(getActivity());
+                            ContactItem contactItem = contact_items.get(position);
+                            String name = contactItem.getUser_Name();
+                            String number = contactItem.getUser_phNumber();
+
+                            db.delete_contact(name,number);
+                            contact_items.remove(position);
+
+                            adapter.onActivityResult(REQ_DELETE_CONTACT,1);
+                            break;
+                        }
+                        case REQ_CALL_CONTACT:{
+                            ContactItem contactItem = contact_items.get(position);
+                            String number = contactItem.getPhNumberChanged();
+                            String tel ="tel:" + number;
+                            startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     // get Result from add or edit contact
     @Override

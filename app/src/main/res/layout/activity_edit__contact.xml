@@ -40,7 +40,7 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:importantForAutofill="no"
-        android:inputType="textPersonName|phone"
+        android:inputType="phone"
         android:text="@string/number_edit" />
 
     <Button

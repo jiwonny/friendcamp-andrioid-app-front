@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     public void inital_setting(){
 
-        //init_contact_tables();
-
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);

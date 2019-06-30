@@ -1,28 +1,29 @@
-package com.example.week1.ui.contact;
+package com.example.week1.ui.gallery;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class ContactDBHelper extends SQLiteOpenHelper {
+public class GalleryDBHelper extends SQLiteOpenHelper {
 
     public static final int DB_VERSION = 1 ;
-    public static final String DBFILE_CONTACT = "Database.db" ;
+    public static final String DBFILE_GALLERY = "Database1.db" ;
 
-    public ContactDBHelper(Context context) {
-        super(context, DBFILE_CONTACT, null, DB_VERSION);
+    public GalleryDBHelper(Context context) {
+        super(context, DBFILE_GALLERY, null, DB_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        System.out.println(ContactDBCtrct.SQL_CREATE_TBL);
-        db.execSQL(ContactDBCtrct.SQL_CREATE_TBL) ;
+        System.out.println(GalleryDBCtrct.SQL_CREATE_TBL);
+        db.execSQL(GalleryDBCtrct.SQL_CREATE_TBL) ;
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(ContactDBCtrct.SQL_DROP_TBL) ;
-        db.execSQL(ContactDBCtrct.SQL_CREATE_TBL) ;
+        db.execSQL(GalleryDBCtrct.SQL_DROP_TBL) ;
+        db.execSQL(GalleryDBCtrct.SQL_CREATE_TBL) ;
     }
 
     @Override

@@ -98,6 +98,7 @@ public class ContactDBAdapter {
 
             } while (cursor.moveToNext());
         }
+        cursor.close();
         contactItems = new ArrayList<>(hashlist);
 
         helper.close();
