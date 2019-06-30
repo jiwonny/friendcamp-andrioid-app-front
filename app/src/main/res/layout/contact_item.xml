@@ -15,7 +15,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/add_sub"
         app:layout_constraintStart_toStartOf="@+id/contact_name"
         app:layout_constraintTop_toBottomOf="@+id/contact_name" />
 
@@ -40,9 +40,17 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/icons_user"
         android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/add_sub"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.384" />
+
+    <LinearLayout
+        android:id="@+id/add_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/contact_image"></LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

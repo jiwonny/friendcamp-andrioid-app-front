@@ -37,6 +37,8 @@ import java.util.LinkedHashSet;
 public class TabFragment1 extends Fragment {
 
     static final int REQ_ADD_CONTACT = 1 ;
+    static final int REQ_EDIT_CONTACT = 2 ;
+
     ArrayList<ContactItem> contact_items;
     ContactAdapter adapter;
 
@@ -51,8 +53,6 @@ public class TabFragment1 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -62,14 +62,11 @@ public class TabFragment1 extends Fragment {
 
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
+
+        if (isFirstTime()) { getContactList(); }
+
         // Load Contacts from DB
-        if (isFirstTime()) {
-            contact_items = getContactList();
-        } else{
-            contact_items= load_contacts();
-        }
-
-
+        contact_items= load_contacts();
 
         RecyclerView recyclerView = root.findViewById(R.id.contact_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -87,6 +84,18 @@ public class TabFragment1 extends Fragment {
                 startActivityForResult(intent, REQ_ADD_CONTACT);
             }
         });
+
+        // EDIT CONTACT
+        adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position, int request_code){
+                Intent intent = new Intent(getActivity(), Edit_Contact.class);
+                intent.putExtra("position",position);
+                startActivityForResult(intent, request_code);
+            }
+        });
+
+
 
 
 
@@ -118,10 +127,31 @@ public class TabFragment1 extends Fragment {
                     contact_items.add(contactItem);
 
                     adapter.onActivityResult(REQ_ADD_CONTACT,1);
-
+                    break;
                 }
             }
 
+            case REQ_EDIT_CONTACT:{
+                if (resultCode == Activity.RESULT_OK){
+                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                    ContactDBAdapter db = new ContactDBAdapter(getActivity());
+                    int pos = intent.getIntExtra("position",-1);
+
+                    System.out.println(String.format("pos : %d",pos));
+                    String name = intent.getStringExtra("contact_name");
+                    String number = intent.getStringExtra("contact_number");
+
+                    ContactItem contactItem = contact_items.get(pos);
+                    contactItem.setUser_Name(name);
+                    contactItem.setUser_phNumber(number);
+
+                    contact_items.set(pos, contactItem);
+
+                    adapter.onActivityResult(REQ_EDIT_CONTACT,1);
+                    break;
+                }
+
+            }
         }
     }
 
@@ -142,7 +172,7 @@ public class TabFragment1 extends Fragment {
     }
 
 
-
+/*
     public ArrayList<ContactItem> getContactList() {
 
         Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
@@ -186,6 +216,41 @@ public class TabFragment1 extends Fragment {
             contactItems.get(i).setId(i);
         }
         return contactItems;
+    }
+*/
+
+    public void getContactList() {
+
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String[] projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.Contacts.PHOTO_ID,
+                ContactsContract.Contacts._ID
+        };
+        String[] selectionArgs = null;
+        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, selectionArgs, sortOrder);
+
+        if (cursor.moveToFirst()) {
+            do {
+                long photo_id = cursor.getLong(2);
+                long person_id = cursor.getLong(3);
+                ContactItem contactItem = new ContactItem();
+                contactItem.setUser_phNumber(cursor.getString(0));
+                contactItem.setUser_Name(cursor.getString(1));
+                contactItem.setPhoto_id(photo_id);
+                contactItem.setPerson_id(person_id);
+
+                Bitmap photo = loadContactPhoto(getActivity().getContentResolver(),person_id,photo_id);
+                contactItem.setUser_photo(photo);
+
+                // put in database (name,phone)
+                ContactDBAdapter db = new ContactDBAdapter(getActivity());
+                db.insert_contact(cursor.getString(1),cursor.getString(0));
+
+            } while (cursor.moveToNext());
+        }
     }
 
     private ArrayList<ContactItem> load_contacts(){

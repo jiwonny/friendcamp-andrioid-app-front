@@ -22,8 +22,8 @@ public class Edit_Contact extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent();
-
+                Intent intent = getIntent();
+                
                 // Phot0 edit and deliver in ??
                 //TODO : edit photo in contact (get from Gallery??)
 
