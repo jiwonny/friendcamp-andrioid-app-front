@@ -7,8 +7,6 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -16,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,9 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
 
-import org.json.JSONObject;
-
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -37,15 +33,15 @@ import java.util.LinkedHashSet;
 
 public class TabFragment1 extends Fragment {
 
-    SQLiteDatabase sqliteDB ;
+    ContactDBHelper dbHelper = null ;
 
-    public TabFragment1 () {}
+    public static TabFragment1 newInstance(){
+        return new TabFragment1();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sqliteDB = call_database();
-        init_contact_tables();
     }
 
     @Override
@@ -53,23 +49,37 @@ public class TabFragment1 extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment1, container, false);
 
-        ArrayList<ContactItem> list = getContactList();
+        ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
+        // Load Contacts from DB
+        ArrayList<ContactItem> contact_items;
         if (isFirstTime()) {
-            list = getContactList();
-        } else {
-            //list = getContactList();
-            list = load_contacts();
+            contact_items = getContactList();
+        } else{
+            contact_items= load_contacts();
         }
+
+        // ADD CONTACT Button
+        Button add_contact = root.findViewById(R.id.add_contact);
+        add_contact.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View view){
+
+
+            }
+        });
+
+
 
         RecyclerView recyclerView = root.findViewById(R.id.contact_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ContactAdapter adapter = new ContactAdapter(list);
+        ContactAdapter adapter = new ContactAdapter(contact_items);
         recyclerView.setAdapter(adapter);
 
-        JSONObject j = JSON.SQLtoJSON(sqliteDB);
-        System.out.println(j.toString());
+        //JSON json = new JSON(getActivity());
+        //JSONObject j = json.SQLtoJSON();
+        //System.out.println(j.toString());
 
         return root;
     }
@@ -120,7 +130,8 @@ public class TabFragment1 extends Fragment {
                 hashlist.add(contactItem);
 
                 // put in database (name,phone)
-                insert_contact(cursor.getString(1),cursor.getString(0));
+                ContactDBAdapter db = new ContactDBAdapter(getActivity());
+                db.insert_contact(cursor.getString(1),cursor.getString(0));
 
             } while (cursor.moveToNext());
         }
@@ -130,6 +141,11 @@ public class TabFragment1 extends Fragment {
             contactItems.get(i).setId(i);
         }
         return contactItems;
+    }
+
+    private ArrayList<ContactItem> load_contacts(){
+        ContactDBAdapter db = new ContactDBAdapter(getActivity());
+        return db.retreive_all_contacts();
     }
 
     public Bitmap loadContactPhoto(ContentResolver cr, long id, long photo_id) {
@@ -185,72 +201,4 @@ public class TabFragment1 extends Fragment {
         return rBitmap;
     }
 
-    private SQLiteDatabase call_database() {
-
-        SQLiteDatabase db = null ;
-
-        File file = new File(getActivity().getFilesDir(), "Database.db") ;
-
-        System.out.println("PATH : " + file.toString()) ;
-        try {
-            db = SQLiteDatabase.openOrCreateDatabase(file, null) ;
-        } catch (SQLiteException e) {
-            e.printStackTrace() ;
-        }
-
-        if (db == null) {
-            System.out.println("DB call failed. " + file.getAbsolutePath()) ;
-        }
-        return db ;
-    }
-
-    private void init_contact_tables() {
-        if (sqliteDB != null) {
-            String sqlCreateTbl = "CREATE TABLE IF NOT EXISTS CONTACT_T (" +
-                    "ID "           + "INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "NAME "         + "TEXT," +
-                    "PHONE "        + "TEXT"  + ")" ;
-
-            //System.out.println(sqlCreateTbl) ;
-            sqliteDB.execSQL(sqlCreateTbl) ;
-        }
-    }
-
-    private void insert_contact(String name, String phone) {
-        if (sqliteDB != null) {
-
-            String sqlInsert = "INSERT INTO CONTACT_T " + "(NAME, PHONE) VALUES ('" + name + "','" + phone + "')";
-
-            System.out.println(sqlInsert) ;
-            sqliteDB.execSQL(sqlInsert) ;
-        }
-    }
-
-    public ArrayList<ContactItem> load_contacts() {
-
-        if (sqliteDB != null) {
-            String sqlQueryTbl = "SELECT * FROM CONTACT_T";
-            Cursor cursor = null;
-
-            cursor = sqliteDB.rawQuery(sqlQueryTbl, null);
-
-            LinkedHashSet<ContactItem> hashlist = new LinkedHashSet<>();
-
-            if (cursor.moveToFirst()) {
-                do {
-                    ContactItem contactItem = new ContactItem();
-
-                    contactItem.setUser_Name(cursor.getString(1));
-                    contactItem.setUser_phNumber(cursor.getString(2));
-                    contactItem.setId(cursor.getInt(0));
-                    hashlist.add(contactItem);
-
-                } while (cursor.moveToNext());
-            }
-
-            ArrayList<ContactItem> contactItems = new ArrayList<>(hashlist);
-            return contactItems;
-        }
-        return null;
-    }
 }

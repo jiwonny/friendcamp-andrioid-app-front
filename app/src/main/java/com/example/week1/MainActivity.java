@@ -2,8 +2,6 @@ package com.example.week1;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.view.View;
 
@@ -13,17 +11,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.week1.ui.contact.ContactDBHelper;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final int PERMISSIONS_REQUEST_CODE = 100;
+    private static final int PERMISSIONS_REQUEST_CODE = 10;
 
-    SQLiteDatabase sqliteDB;
+    ContactDBHelper dbHelper = null ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +33,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
                         PERMISSIONS_REQUEST_CODE);
+        } else{
+            inital_setting();
         }
 
     }
 
     public void inital_setting(){
+
+        //init_contact_tables();
+
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -58,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
-        sqliteDB = init_database();
     }
 
 
@@ -91,8 +93,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 } else {
                     inital_setting();
                 }
+            }
+        }
+    }
+/*
+    private void init_contact_tables() {
+        dbHelper = new ContactDBHelper(this) ;
+    }
 
-            } } }
 
     private SQLiteDatabase init_database() {
 
@@ -114,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         return db ;
     }
 
-
+*/
 
 
 }

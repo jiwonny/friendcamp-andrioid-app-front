@@ -21,8 +21,6 @@ import com.example.week1.ui.main.PageViewModel;
 
 public class TabFragment2 extends Fragment {
 
-    private PageViewModel pageViewModel;
-
     public TabFragment2 () { }
 
     @Override
@@ -37,8 +35,8 @@ public class TabFragment2 extends Fragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment2, container, false);
 
-        RecyclerView recyclerView = root.findViewById(R.id.gallery_recycler);
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        //RecyclerView recyclerView = root.findViewById(R.id.gallery_recycler);
+        //recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
 
 
 

@@ -1,5 +1,6 @@
 package com.example.week1.ui.contact;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -11,7 +12,18 @@ import java.util.LinkedHashSet;
 
 public class JSON {
 
-    protected static JSONObject SQLtoJSON(SQLiteDatabase sqliteDB){
+    Context c;
+    SQLiteDatabase db;
+    ContactDBHelper helper;
+
+    public JSON(Context c){
+        this.c =c;
+        helper = new ContactDBHelper(c);
+    }
+
+    protected JSONObject SQLtoJSON(){
+
+        db = helper.getReadableDatabase() ;
 
         JSONObject jsonMain = new JSONObject();
         JSONArray jsonArray = new JSONArray();
@@ -19,7 +31,7 @@ public class JSON {
         String sqlQueryTbl = "SELECT * FROM CONTACT_T";
 
         Cursor cursor = null;
-        cursor = sqliteDB.rawQuery(sqlQueryTbl, null);
+        cursor = db.rawQuery(sqlQueryTbl, null);
 
         if (cursor.moveToFirst()) {
             do{

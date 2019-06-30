@@ -1,6 +1,7 @@
 package com.example.week1.ui.contact;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.week1.R;
 
 import java.util.ArrayList;
+
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
     private ArrayList<ContactItem> mDataset;
@@ -49,10 +51,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position){
-            ContactItem contactItem = mDataset.get(position);
-            holder.textView1.setText(contactItem.getUser_Name());
-            holder.textView2.setText(contactItem.getUser_phNumber());
+        ContactItem contactItem = mDataset.get(position);
+        holder.textView1.setText(contactItem.getUser_Name());
+        holder.textView2.setText(contactItem.getUser_phNumber());
+        /*
+        if (contactItem.getUser_photo() != null) {
             holder.imageView.setImageBitmap(contactItem.getUser_photo());
+        } else{
+            holder.imageView.setImageResource(R.drawable.icons_user);
+        }*/
+        holder.imageView.setImageBitmap(contactItem.getUser_photo());
+
     }
     @Override
     public int getItemCount(){
