@@ -21,7 +21,7 @@ public class ContactDBCtrct {
     public static final String SQL_DROP_TBL = "DROP TABLE IF EXISTS " + TBL_CONTACT ;
 
     // SELECT * FROM CONTACT_T
-    public static final String SQL_SELECT = "SELECT * FROM " + TBL_CONTACT ;
+    public static final String SQL_SELECT = "SELECT * FROM " + TBL_CONTACT +" ORDER BY " + COL_NAME +" ASC";
 
     // INSERT OR REPLACE INTO CONTACT_T (NAME, PHONE) VALUES (x, x)
     public static final String SQL_INSERT = "INSERT OR REPLACE INTO " + TBL_CONTACT + " " +

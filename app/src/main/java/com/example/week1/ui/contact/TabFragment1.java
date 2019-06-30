@@ -1,6 +1,8 @@
 package com.example.week1.ui.contact;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -14,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -33,15 +36,23 @@ import java.util.LinkedHashSet;
 
 public class TabFragment1 extends Fragment {
 
-    ContactDBHelper dbHelper = null ;
+    static final int REQ_ADD_CONTACT = 1 ;
+    ArrayList<ContactItem> contact_items;
+    ContactAdapter adapter;
+
 
     public static TabFragment1 newInstance(){
         return new TabFragment1();
     }
 
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
 
     @Override
@@ -52,30 +63,32 @@ public class TabFragment1 extends Fragment {
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
         // Load Contacts from DB
-        ArrayList<ContactItem> contact_items;
         if (isFirstTime()) {
             contact_items = getContactList();
         } else{
             contact_items= load_contacts();
         }
 
-        // ADD CONTACT Button
-        Button add_contact = root.findViewById(R.id.add_contact);
-        add_contact.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View view){
-
-
-            }
-        });
-
 
 
         RecyclerView recyclerView = root.findViewById(R.id.contact_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ContactAdapter adapter = new ContactAdapter(contact_items);
+        adapter = new ContactAdapter(contact_items);
         recyclerView.setAdapter(adapter);
+
+
+        // ADD CONTACT Button
+        Button add_contact = root.findViewById(R.id.add_contact);
+        add_contact.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
+                startActivityForResult(intent, REQ_ADD_CONTACT);
+            }
+        });
+
+
 
         //JSON json = new JSON(getActivity());
         //JSONObject j = json.SQLtoJSON();
@@ -84,6 +97,35 @@ public class TabFragment1 extends Fragment {
         return root;
     }
 
+
+    // get Result from add or edit contact
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch(requestCode){
+            case REQ_ADD_CONTACT:{
+                if (resultCode == Activity.RESULT_OK){
+                    ContactDBAdapter db = new ContactDBAdapter(getActivity());
+
+                    String name = intent.getStringExtra("contact_name");
+                    String number = intent.getStringExtra("contact_number");
+
+                    ContactItem contactItem = new ContactItem();
+                    contactItem.setUser_Name(name);
+                    contactItem.setUser_phNumber(number);
+
+                    db.insert_contact(name,number);
+
+                    contact_items.add(contactItem);
+
+                    adapter.onActivityResult(REQ_ADD_CONTACT,1);
+
+                }
+            }
+
+        }
+    }
+
+    // check firstTime
     private Boolean firstTime = null;
 
     private boolean isFirstTime(){
@@ -98,6 +140,8 @@ public class TabFragment1 extends Fragment {
         }
         return firstTime;
     }
+
+
 
     public ArrayList<ContactItem> getContactList() {
 
@@ -127,6 +171,7 @@ public class TabFragment1 extends Fragment {
                 Bitmap photo = loadContactPhoto(getActivity().getContentResolver(),person_id,photo_id);
                 contactItem.setUser_photo(photo);
 
+
                 hashlist.add(contactItem);
 
                 // put in database (name,phone)
@@ -135,12 +180,6 @@ public class TabFragment1 extends Fragment {
 
             } while (cursor.moveToNext());
         }
-
-        ArrayList<ContactItem> contactItems = new ArrayList<>(hashlist);
-        for (int i = 0; i < contactItems.size(); i++) {
-            contactItems.get(i).setId(i);
-        }
-        return contactItems;
     }
 
     private ArrayList<ContactItem> load_contacts(){

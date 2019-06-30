@@ -67,4 +67,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     public int getItemCount(){
         return mDataset.size();
     }
+
+    public void onActivityResult(int requestCode, int resultCode) {
+        this.notifyDataSetChanged();
+    }
+
 }
