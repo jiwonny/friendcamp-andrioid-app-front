@@ -27,6 +27,9 @@ public class ContactDBCtrct {
     public static final String SQL_INSERT = "INSERT OR REPLACE INTO " + TBL_CONTACT + " " +
             "(" + COL_NAME + ", " + COL_PHONE  + ") VALUES " ;
 
+    // UPDATE CONTACT_T SET
+    public static final String SQL_UPDATE = "UPDATE " + TBL_CONTACT + " SET ";
+
     // DELETE FROM CONTACT_T
     public static final String SQL_DELETE = "DELETE FROM " + TBL_CONTACT ;
 

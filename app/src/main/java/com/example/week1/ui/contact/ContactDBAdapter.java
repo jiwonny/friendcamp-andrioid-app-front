@@ -30,10 +30,48 @@ public class ContactDBAdapter {
             db.execSQL(sqlInsert);
 
             return true;
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }finally {
+            helper.close();
+        }
+        return false;
+    }
+
+    // Upadate data from (name, phone) to (new_name, new_phone)
+    public boolean update_contact(String name, String phone, String new_name, String new_phone) {
+        try{
+            db = helper.getWritableDatabase();
+            String sqlUpdate = ContactDBCtrct.SQL_UPDATE +  ContactDBCtrct.COL_NAME     + " = " +   "'" + new_name + "', " +
+                                                            ContactDBCtrct.COL_PHONE    + " = " +   "'" + new_phone + "' " +
+                                                "WHERE " +
+                                                            ContactDBCtrct.COL_NAME     + " == " +   "'" + name + "' " +"AND "+
+                                                            ContactDBCtrct.COL_PHONE    + " == " +   "'" + phone + "' " ;
+            System.out.println(sqlUpdate);
+            db.execSQL(sqlUpdate);
+
+            return true;
+        }catch(SQLException e) {
+            e.printStackTrace();
+        } finally {
+            helper.close();
+        }
+        return false;
+    }
+
+    public boolean delete_contact(String name, String phone) {
+        try{
+            db=helper.getWritableDatabase();
+            String sqlDelete = ContactDBCtrct.SQL_DELETE + " WHERE " +
+                                            ContactDBCtrct.COL_NAME     + " == " +   "'" + name + "' " +"AND "+
+                                            ContactDBCtrct.COL_PHONE    + " == " +   "'" + phone + "' " ;
+            System.out.println(sqlDelete);
+            db.execSQL(sqlDelete);
+
+            return true;
+        } catch(SQLException e) {
+            e.printStackTrace();
+        } finally {
             helper.close();
         }
         return false;

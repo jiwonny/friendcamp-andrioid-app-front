@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,19 +24,23 @@ public class Edit_Contact extends AppCompatActivity {
             public void onClick(View view) {
 
                 Intent intent = getIntent();
-                
+                int pos = intent.getIntExtra("position",-1);
+
+                Intent intent_r = new Intent();
+                intent_r.putExtra("position", pos);
+
                 // Phot0 edit and deliver in ??
                 //TODO : edit photo in contact (get from Gallery??)
 
                 // Name edit and deliver in text
                 EditText editTextName = (EditText) findViewById(R.id.name_edit);
-                intent.putExtra("contact_name", editTextName.getText().toString());
+                intent_r.putExtra("contact_name", editTextName.getText().toString());
 
                 // Number edit and deliver in text
                 EditText editTextNumber = (EditText) findViewById(R.id.number_edit);
-                intent.putExtra("contact_number", editTextNumber.getText().toString());
+                intent_r.putExtra("contact_number", editTextNumber.getText().toString());
 
-                setResult(RESULT_OK, intent);
+                setResult(RESULT_OK, intent_r);
                 finish();
             }
         });

@@ -38,6 +38,8 @@ public class TabFragment1 extends Fragment {
 
     static final int REQ_ADD_CONTACT = 1 ;
     static final int REQ_EDIT_CONTACT = 2 ;
+    static final int REQ_DELETE_CONTACT = 3;
+    static final int REQ_CALL_CONTACT =4;
 
     ArrayList<ContactItem> contact_items;
     ContactAdapter adapter;
@@ -85,13 +87,37 @@ public class TabFragment1 extends Fragment {
             }
         });
 
-        // EDIT CONTACT
+        // EDIT & DELETE & CALL CONTACT
         adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position, int request_code){
-                Intent intent = new Intent(getActivity(), Edit_Contact.class);
-                intent.putExtra("position",position);
-                startActivityForResult(intent, request_code);
+                switch (request_code){
+                    case REQ_EDIT_CONTACT:{
+                        Intent intent = new Intent(getActivity(), Edit_Contact.class);
+                        intent.putExtra("position",position);
+                        startActivityForResult(intent, request_code);
+                        break;
+                    }
+                    case REQ_DELETE_CONTACT:{
+                        ContactDBAdapter db = new ContactDBAdapter(getActivity());
+                        ContactItem contactItem = contact_items.get(position);
+                        String name = contactItem.getUser_Name();
+                        String number = contactItem.getUser_phNumber();
+
+                        db.delete_contact(name,number);
+                        contact_items.remove(position);
+
+                        adapter.onActivityResult(REQ_DELETE_CONTACT,1);
+                        break;
+                    }
+                    case REQ_CALL_CONTACT:{
+                        ContactItem contactItem = contact_items.get(position);
+                        String number = contactItem.getPhNumberChanged();
+                        String tel ="tel:" + number;
+                        startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
+                        break;
+                    }
+                }
             }
         });
 
@@ -123,8 +149,11 @@ public class TabFragment1 extends Fragment {
                     contactItem.setUser_phNumber(number);
 
                     db.insert_contact(name,number);
+                    ArrayList<ContactItem> new_contact_items = load_contacts();
 
-                    contact_items.add(contactItem);
+                    int pos = new_contact_items.indexOf(contactItem);
+
+                    contact_items.add(pos, contactItem);
 
                     adapter.onActivityResult(REQ_ADD_CONTACT,1);
                     break;
@@ -133,24 +162,30 @@ public class TabFragment1 extends Fragment {
 
             case REQ_EDIT_CONTACT:{
                 if (resultCode == Activity.RESULT_OK){
-                    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
                     ContactDBAdapter db = new ContactDBAdapter(getActivity());
                     int pos = intent.getIntExtra("position",-1);
 
-                    System.out.println(String.format("pos : %d",pos));
-                    String name = intent.getStringExtra("contact_name");
-                    String number = intent.getStringExtra("contact_number");
+                    String new_name = intent.getStringExtra("contact_name");
+                    String new_number = intent.getStringExtra("contact_number");
 
                     ContactItem contactItem = contact_items.get(pos);
-                    contactItem.setUser_Name(name);
-                    contactItem.setUser_phNumber(number);
+
+                    String name = contactItem.getUser_Name();
+                    String number = contactItem.getUser_phNumber();
+
+                    contactItem.setUser_Name(new_name);
+                    contactItem.setUser_phNumber(new_number);
+
+                    db.update_contact(name,number,new_name,new_number);
+                    //ArrayList<ContactItem> new_contact_items = load_contacts();
+                    //int new_pos = new_contact_items.indexOf(contactItem);
 
                     contact_items.set(pos, contactItem);
 
                     adapter.onActivityResult(REQ_EDIT_CONTACT,1);
                     break;
                 }
-
             }
         }
     }

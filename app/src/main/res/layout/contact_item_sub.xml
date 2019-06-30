@@ -7,7 +7,7 @@
 
 
     <Button
-        android:id="@+id/call"
+        android:id="@+id/call_contact"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
