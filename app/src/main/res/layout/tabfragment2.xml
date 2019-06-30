@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.TabFragment2">
+    android:padding="5dp"
+    android:paddingLeft="0dp"
+    android:paddingTop="0dp"
+    android:paddingRight="0dp"
+    android:paddingBottom="0dp"
+    tools:context=".ui.gallery.TabFragment2">
 
-    <TextView
-        android:id="@+id/section_label2"
-        android:layout_width="149dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="204dp"
-        android:layout_marginTop="236dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/constraintLayout"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1"
-        android:layout_marginStart="204dp" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <GridView
+        android:id="@+id/galleryGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="100dp"
+        android:stretchMode="columnWidth"
+        android:numColumns="auto_fit"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true">
+    </GridView>
+</RelativeLayout>

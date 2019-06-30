@@ -1,4 +1,4 @@
-package com.example.week1.ui.main;
+package com.example.week1.ui.unsettled;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +13,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.week1.R;
+import com.example.week1.ui.main.PageViewModel;
+
 /**
  * A placeholder fragment containing a simple view.
  */
