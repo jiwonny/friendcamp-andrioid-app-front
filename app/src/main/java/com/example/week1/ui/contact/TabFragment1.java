@@ -180,6 +180,12 @@ public class TabFragment1 extends Fragment {
 
             } while (cursor.moveToNext());
         }
+
+        ArrayList<ContactItem> contactItems = new ArrayList<>(hashlist);
+        for (int i = 0; i < contactItems.size(); i++) {
+            contactItems.get(i).setId(i);
+        }
+        return contactItems;
     }
 
     private ArrayList<ContactItem> load_contacts(){
