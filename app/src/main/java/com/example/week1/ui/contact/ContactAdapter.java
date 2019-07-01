@@ -43,7 +43,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         public TextView textView1;
         public TextView textView2;
         public ImageView imageView;
-
         public ContactViewHolder(final View itemView){
             super(itemView);
 
