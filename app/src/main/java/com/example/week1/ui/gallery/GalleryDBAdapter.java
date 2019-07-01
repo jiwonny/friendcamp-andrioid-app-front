@@ -39,7 +39,7 @@ public class GalleryDBAdapter {
         return false;
     }
 
-    public boolean delete_contact(String path, String album, String time_stamp) {
+    public boolean delete_photo(String path, String album, String time_stamp) {
         try{
             db=helper.getWritableDatabase();
             String sqlDelete = GalleryDBCtrct.SQL_DELETE + " WHERE " +

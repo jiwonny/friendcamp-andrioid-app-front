@@ -47,20 +47,16 @@ import java.util.HashMap;
 public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private PageViewModel pageViewModel;
-    private static final int PERMISSIONS_REQUEST_CODE = 11;
+    private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
     static final int REQ_TAKE_CAMARA = 1 ;
     View root;
-
-    public static TabFragment2 newInstance() {
-        return new TabFragment2();
-    }
-
-
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
     CameraAction cameraAction;
     AlbumAdapter adapter;
+
+    public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,7 +101,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                             remainingPermissions.add(permission);
                         }
                     }
-                    ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+                    ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, PERMISSIONS_REQUEST_CODE_2);
                 } else{
                     CameraActivity();
                 }
@@ -115,7 +111,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     }
 
     // Camera Action
-    private void CameraActivity(){
+    public void CameraActivity(){
         try {
             cameraAction = new CameraAction();
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -286,47 +282,30 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         switch (requestCode) {
             case REQ_TAKE_CAMARA: {
                 if (resultCode == Activity.RESULT_OK) {
+                    GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
 
                     String path = cameraAction.get_Path();
                     String album = cameraAction.get_album();
                     String time = cameraAction.get_timestamp();
                     String timestamp = Function.converToTimeStamp(time).toString();
 
-                    //System.out.println(String.format("cccccccccccccccccc, %s,%s, %s", path, album, timestamp));
-
-                    GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
                     db.insert_photo(path, album, timestamp);
+                    String countPhoto = db.getCount(album);
+                    int i=-1;
 
                     for(HashMap<String, String> album_i :albumList){
-                        if (album_i.get(Function.KEY_ALBUM) == album){
-                         albumList.remove(album_i);
+                        if (album_i.get(Function.KEY_ALBUM).equals(album)){
+                            i = albumList.indexOf(album_i);
                         }
                     }
-                    String countPhoto = db.getCount(album);
-
-                    albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
+                    if(i != -1) {
+                        albumList.remove(i);
+                    }
+                    albumList.add(i,Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
                     adapter.onActivityResult(REQ_TAKE_CAMARA, 1);
                     break;
                 }
             }
         }
-    }
-
-    // Get Result from Permission reqeusts
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case PERMISSIONS_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    CameraActivity();
-                } else
-                {
-                    Toast.makeText(getActivity(), "You must accept permissions.", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-
     }
 }

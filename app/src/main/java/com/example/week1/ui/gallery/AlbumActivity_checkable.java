@@ -41,18 +41,16 @@ public class AlbumActivity_checkable extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_album);
+        setContentView(R.layout.activity_album_checkable);
 
-        TextView title = findViewById(R.id.title);
+        Intent intent = getIntent();
+        album_name = intent.getStringExtra("name");
+
+        TextView title = findViewById(R.id.title_album_);
         title.setText(album_name);
 
         Button button = findViewById(R.id.button_delete);
         button.setVisibility(View.VISIBLE);
-
-        Intent intent = getIntent();
-        album_name = intent.getStringExtra("name");
-        setTitle(album_name);
-
 
         galleryGridView = (GridView) findViewById(R.id.galleryGridView);
         int iDisplayWidth = getResources().getDisplayMetrics().widthPixels;
@@ -86,22 +84,20 @@ public class AlbumActivity_checkable extends AppCompatActivity {
                             String timestamp = imageList.get(i).get(Function.KEY_TIMESTAMP);
 
                             GalleryDBAdapter db = new GalleryDBAdapter(v.getContext());
-                            db.insert_photo(path, album, timestamp);
+                            db.delete_photo(path, album, timestamp);
 
                             File f = new File(path);
-                            f.delete();
+                            f.delete();  //TODO:
 
                             imageList.remove(i);
                         }
                     }
                     galleryGridView.clearChoices();
-
                     adapter.onActivityResult(REQ_DELETE_IMAGE, 1);
                 }
             }
 
         });
-
 
     }
     @Override

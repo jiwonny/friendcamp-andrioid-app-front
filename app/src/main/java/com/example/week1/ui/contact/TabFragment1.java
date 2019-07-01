@@ -47,9 +47,7 @@ public class TabFragment1 extends Fragment {
     Loadcontacts loadcontactTask;
 
 
-    public static TabFragment1 newInstance(){
-        return new TabFragment1();
-    }
+    public TabFragment1 (){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,7 +73,7 @@ public class TabFragment1 extends Fragment {
         add_contact.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View view){
-                Intent intent = new Intent(getActivity(), AddEvent.class) ;
+                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
                 startActivityForResult(intent, REQ_ADD_CONTACT);
             }
         });

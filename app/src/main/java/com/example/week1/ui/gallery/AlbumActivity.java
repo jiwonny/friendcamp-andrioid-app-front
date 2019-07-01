@@ -28,16 +28,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by SHAJIB on 7/16/2017.
- */
 
 public class AlbumActivity extends AppCompatActivity {
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
     String album_name = "";
     LoadAlbumImages loadAlbumTask;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +43,7 @@ public class AlbumActivity extends AppCompatActivity {
         Intent intent = getIntent();
         album_name = intent.getStringExtra("name");
 
-        TextView title = findViewById(R.id.title);
+        TextView title = findViewById(R.id.title_album);
         title.setText(album_name);
 
         Button button = findViewById(R.id.button_delete);
@@ -115,7 +111,6 @@ public class AlbumActivity extends AppCompatActivity {
             });
         }
     }
-
 
     private ArrayList<HashMap<String, String>> load_photos(String album_name) {
         GalleryDBAdapter db = new GalleryDBAdapter(this);

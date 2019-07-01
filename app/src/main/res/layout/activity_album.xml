@@ -8,36 +8,25 @@
     android:orientation="vertical"
     tools:context=".ui.gallery.AlbumActivity_checkable">
 
-
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content" >
+
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/title_album"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:minHeight="?actionBarSize"
-            android:padding="@dimen/appbar_padding"
-            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
-
-        <View
-            android:id="@+id/view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:fontFamily="serif-monospace"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
         <Button
             android:id="@+id/button_delete"
-            android:layout_width="119dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="right"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:text="@string/delete" />
-
-
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <GridView

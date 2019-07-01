@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +15,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.week1.ui.contact.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -22,13 +22,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int PERMISSIONS_REQUEST_CODE = 10;
+    private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
 
     ContactDBHelper dbHelper = null ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
 
         // PERMISSIONS CHECK
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     public void inital_setting(){
-
+        setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
-        View mainLayout = findViewById(R.id.main_layout);
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE: {
                 if (grandResults.length > 0) {
@@ -69,28 +69,28 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                         if (grandResults[i] != PackageManager.PERMISSION_GRANTED) {
                             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[i])) {
-                                Snackbar.make(mainLayout, "Permissions were denied.\nRestart the App", Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(View v) {
-                                        finish();
-                                    }
-                                }).show();
+                                Toast.makeText(this, "Permissions were denied.\nRestart the App", Toast.LENGTH_LONG).show();
+                                finish();
                             } else {
-                                Snackbar.make(mainLayout, "Permissions were denied.\nYou should get Permissions in Setting",
-                                        Snackbar.LENGTH_INDEFINITE).setAction("Confirm", new View.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(View view) {
-                                        finish();
-                                    }
-                                }).show();
+                                Toast.makeText(this, "Permissions were denied.\nYou should get Permissions in Setting", Toast.LENGTH_LONG).show();
+                                finish();
                             }
                         }
                     }
                 }
+                if(Function.hasPermissions(this, permissions)){
+                    inital_setting();
+                }
+                break;
             }
-            inital_setting();
+            case PERMISSIONS_REQUEST_CODE_2: {
+                if (grandResults.length > 0 && grandResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    //
+                } else {
+                    Toast.makeText(this, "You must accept permissions.", Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 }
