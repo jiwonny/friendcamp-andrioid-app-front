@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+
 public class ContactDBHelper extends SQLiteOpenHelper {
 
     public static final int DB_VERSION = 1 ;
@@ -17,6 +18,7 @@ public class ContactDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         System.out.println(ContactDBCtrct.SQL_CREATE_TBL);
         db.execSQL(ContactDBCtrct.SQL_CREATE_TBL) ;
+
     }
 
     @Override

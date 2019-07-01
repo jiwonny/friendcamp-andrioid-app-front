@@ -17,7 +17,6 @@ public class GalleryDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         System.out.println(GalleryDBCtrct.SQL_CREATE_TBL);
         db.execSQL(GalleryDBCtrct.SQL_CREATE_TBL) ;
-
     }
 
     @Override

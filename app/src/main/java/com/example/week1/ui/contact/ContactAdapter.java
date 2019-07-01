@@ -24,15 +24,19 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     private ArrayList<ContactItem> mDataset;
 
     // Set Listener
-    private static OnItemClickListener mListener = null ;
+
 
     public interface OnItemClickListener{
         void onItemClick(View v,int position, int request_code);
     }
 
+    private static OnItemClickListener mListener = null ;
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.mListener = listener ;
     }
+
+
 
     public static class ContactViewHolder extends RecyclerView.ViewHolder{
 

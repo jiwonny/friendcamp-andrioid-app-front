@@ -13,6 +13,7 @@ import android.util.DisplayMetrics;
 import androidx.core.app.ActivityCompat;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,6 +78,20 @@ public class Function {
         Date date = new Date(datetime);
         DateFormat formatter = new SimpleDateFormat("dd/MM HH:mm");
         return formatter.format(date);
+    }
+
+    public static Long converToTimeStamp(String time){
+        DateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        Date date = null;
+        try {
+            date = (Date)formatter.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        long output=date.getTime()/1000L;
+        String str=Long.toString(output);
+        long timestamp = Long.parseLong(str);
+        return timestamp;
     }
 
     public static float convertDpToPixel(float dp, Context context){

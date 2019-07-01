@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,15 +29,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by SHAJIB on 7/16/2017.
- */
-
-public class AlbumActivity extends AppCompatActivity {
+public class AlbumActivity_checkable extends AppCompatActivity {
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
     String album_name = "";
     LoadAlbumImages loadAlbumTask;
+    SingleAlbumAdapter_checkable adapter;
+    static final int REQ_DELETE_IMAGE =2;
 
 
     @Override
@@ -44,14 +43,16 @@ public class AlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album);
 
-        Intent intent = getIntent();
-        album_name = intent.getStringExtra("name");
-
         TextView title = findViewById(R.id.title);
         title.setText(album_name);
 
         Button button = findViewById(R.id.button_delete);
-        button.setVisibility(View.GONE);
+        button.setVisibility(View.VISIBLE);
+
+        Intent intent = getIntent();
+        album_name = intent.getStringExtra("name");
+        setTitle(album_name);
+
 
         galleryGridView = (GridView) findViewById(R.id.galleryGridView);
         int iDisplayWidth = getResources().getDisplayMetrics().widthPixels;
@@ -68,7 +69,45 @@ public class AlbumActivity extends AppCompatActivity {
         loadAlbumTask = new LoadAlbumImages();
         loadAlbumTask.execute();
 
+        // DELETE BUTTON
+        button.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v){
+                System.out.println("click click clickclickclickclickclickclickclickclickclickclickclickvv click");
+                SparseBooleanArray checkedItems = galleryGridView.getCheckedItemPositions();
 
+                if(checkedItems != null){
+
+                    int count = adapter.getCount();
+                    for (int i =count-1; i>=0;i--){
+                        if (checkedItems.get(i)){
+
+                            String path = imageList.get(i).get(Function.KEY_PATH);
+                            String album = imageList.get(i).get(Function.KEY_ALBUM);
+                            String timestamp = imageList.get(i).get(Function.KEY_TIMESTAMP);
+
+                            GalleryDBAdapter db = new GalleryDBAdapter(v.getContext());
+                            db.insert_photo(path, album, timestamp);
+
+                            File f = new File(path);
+                            f.delete();
+
+                            imageList.remove(i);
+                        }
+                    }
+                    galleryGridView.clearChoices();
+
+                    adapter.onActivityResult(REQ_DELETE_IMAGE, 1);
+                }
+            }
+
+        });
+
+
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        overridePendingTransition(0,0);
     }
 
 
@@ -90,29 +129,9 @@ public class AlbumActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String xml) {
 
-            SingleAlbumAdapter adapter = new SingleAlbumAdapter(AlbumActivity.this, imageList);
+            adapter = new SingleAlbumAdapter_checkable(AlbumActivity_checkable.this, imageList);
             galleryGridView.setAdapter(adapter);
 
-            galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        final int position, long id) {
-                    Intent intent = new Intent(AlbumActivity.this, GalleryPreview.class);
-                    intent.putExtra("path", imageList.get(+position).get(Function.KEY_PATH));
-                    startActivity(intent);
-                }
-            });
-
-            galleryGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                    Intent intent = new Intent(AlbumActivity.this, AlbumActivity_checkable.class);
-                    intent.putExtra("name",album_name);
-                    startActivity(intent);
-                    overridePendingTransition(0,0);
-                    return false;
-                }
-            });
         }
     }
 
@@ -124,10 +143,10 @@ public class AlbumActivity extends AppCompatActivity {
 
 }
 
-class SingleAlbumAdapter extends BaseAdapter {
+class SingleAlbumAdapter_checkable extends BaseAdapter {
     private Activity activity;
     private ArrayList<HashMap< String, String >> data;
-    public SingleAlbumAdapter(Activity a, ArrayList < HashMap < String, String >> d) {
+    public SingleAlbumAdapter_checkable(Activity a, ArrayList < HashMap < String, String >> d) {
         activity = a;
         data = d;
     }
@@ -149,8 +168,13 @@ class SingleAlbumAdapter extends BaseAdapter {
                     R.layout.single_album_row, parent, false);
 
             holder.galleryImage = (ImageView) convertView.findViewById(R.id.galleryImage);
+
             holder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox1);
-            holder.checkBox.setVisibility(View.INVISIBLE);
+            holder.checkBox.setVisibility(View.VISIBLE);
+
+            holder.checkBox.setChecked(((GridView)parent).isItemChecked(position));
+
+
 
             convertView.setTag(holder);
         } else {
@@ -169,12 +193,11 @@ class SingleAlbumAdapter extends BaseAdapter {
 
         } catch (Exception e) {}
         return convertView;
+
+
     }
-}
-
-
-class SingleAlbumViewHolder {
-    ImageView galleryImage;
-    CheckBox checkBox;
+    public void onActivityResult(int requestCode, int resultCode) {
+        this.notifyDataSetChanged();
+    }
 }
 

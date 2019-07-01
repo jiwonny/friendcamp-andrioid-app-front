@@ -61,37 +61,26 @@ public class GalleryDBAdapter {
     // Select * Group by Album
     public ArrayList<HashMap<String, String>> retreive_photos_byAlbums() {
 
-        String path = null;
-        String album = null;
-        String timestamp = null;
-        String countPhoto = null;
-
-
         ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
         SQLiteDatabase db = helper.getWritableDatabase();
-        String sqlGROUPBY = GalleryDBCtrct.SQL_SELECT + " GROUP BY " + GalleryDBCtrct.COL_ALBUM;
+        String sqlGROUPBY = GalleryDBCtrct.SQL_SELECT_1 + " GROUP BY " + GalleryDBCtrct.COL_ALBUM;
         System.out.println(sqlGROUPBY);
         Cursor cursor = db.rawQuery(sqlGROUPBY, null);
-
-        path = cursor.getString(0);
-        album = cursor.getString(1);
-        timestamp = cursor.getString(2);
-
-        System.out.println(path);
-        System.out.println(album);
-        System.out.println(timestamp);
 
         if (cursor.moveToFirst()) {
             do {
 
+                String path = null;
+                String album = null;
+                String timestamp = null;
+                String countPhoto = null;
+
                 path = cursor.getString(0);
                 album = cursor.getString(1);
                 timestamp = cursor.getString(2);
-
-                System.out.println(path);
-                System.out.println(album);
-                System.out.println(timestamp);
                 countPhoto = getCount(album);
+
+                System.out.println(String.format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, %s,%s, %s, %s ", path, album, timestamp, countPhoto));
 
                 albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
 
@@ -107,10 +96,6 @@ public class GalleryDBAdapter {
 
     public ArrayList<HashMap<String, String>> retreive_photos_inAlbum(String album_name) {
 
-        String path = null;
-        String album = null;
-        String timestamp = null;
-
         ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
         SQLiteDatabase db = helper.getWritableDatabase();
         String sqlWHERE = GalleryDBCtrct.SQL_SELECT + " WHERE " + GalleryDBCtrct.COL_ALBUM + " == " + "'"+album_name+"'";
@@ -119,9 +104,16 @@ public class GalleryDBAdapter {
 
         if (cursor.moveToFirst()) {
             do {
-                path = cursor.getString(0);
-                album = cursor.getString(1);
-                timestamp = cursor.getString(2);
+
+                String path = null;
+                String album = null;
+                String timestamp = null;
+
+                path = cursor.getString(1);
+                album = cursor.getString(2);
+                timestamp = cursor.getString(3);
+
+                System.out.println(String.format("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb, %s,%s, %s,", path, album, timestamp));
 
                 imageList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), null));
 
@@ -141,5 +133,6 @@ public class GalleryDBAdapter {
 
         return cursor.getCount()+" Photos";
     }
+
 
 }

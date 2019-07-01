@@ -27,6 +27,9 @@ public class GalleryDBCtrct {
     // SELECT * FROM CONTACT_T
     public static final String SQL_SELECT = "SELECT * FROM " + TBL_GALLERY ;
 
+    // SELECT
+    public static final String SQL_SELECT_1 = "SELECT " + COL_PATH + ", "+ COL_ALBUM + ", " + COL_TIMESTAMP + " FROM " + TBL_GALLERY;
+
     // INSERT OR REPLACE INTO CONTACT_T (NAME, PHONE) VALUES (x, x)
     public static final String SQL_INSERT = "INSERT OR REPLACE INTO " + TBL_GALLERY + " " +
             "(" + COL_PATH + ", " + COL_ALBUM  + ", " + COL_TIMESTAMP + ") VALUES " ;

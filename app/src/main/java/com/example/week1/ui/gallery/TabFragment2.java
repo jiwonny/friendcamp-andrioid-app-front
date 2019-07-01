@@ -1,9 +1,11 @@
 package com.example.week1.ui.gallery;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MergeCursor;
@@ -12,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,23 +23,33 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.ui.main.PageViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class TabFragment2 extends Fragment {
+public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private PageViewModel pageViewModel;
+    private static final int PERMISSIONS_REQUEST_CODE = 11;
+    static final int REQ_TAKE_CAMARA = 1 ;
+    View root;
 
     public static TabFragment2 newInstance() {
         return new TabFragment2();
@@ -46,6 +59,8 @@ public class TabFragment2 extends Fragment {
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
+    CameraAction cameraAction;
+    AlbumAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +73,7 @@ public class TabFragment2 extends Fragment {
 
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tabfragment2, container, false);
+        root = inflater.inflate(R.layout.tabfragment2, container, false);
         galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
 
         GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
@@ -78,9 +93,44 @@ public class TabFragment2 extends Fragment {
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
+        FloatingActionButton Start_Camera = root.findViewById(R.id.camera_button);
+        Start_Camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] PERMISSIONS = {Manifest.permission.CAMERA};
+                if(!Function.hasPermissions(getActivity(), PERMISSIONS)) {
+                    ArrayList<String> remainingPermissions = new ArrayList<>();
+                    for (String permission : PERMISSIONS) {
+                        if (ContextCompat.checkSelfPermission(getActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
+                            remainingPermissions.add(permission);
+                        }
+                    }
+                    ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, PERMISSIONS_REQUEST_CODE);
+                } else{
+                    CameraActivity();
+                }
+            }
+        });
         return root;
     }
 
+    // Camera Action
+    private void CameraActivity(){
+        try {
+            cameraAction = new CameraAction();
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File f = cameraAction.createImageFile(getActivity());
+            Uri uri = FileProvider.getUriForFile(getContext(), "com.example.week1", f);
+
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+            startActivityForResult(intent, REQ_TAKE_CAMARA);
+        }catch( IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    // Load Photos from DB and set adapter
     class LoadAlbum extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -92,7 +142,9 @@ public class TabFragment2 extends Fragment {
         protected String doInBackground(String... args) {
             String xml = "";
 
-            getPhotos();
+            if(isFirstTime()){
+                getPhotos();
+            }
             albumList = load_photos();
 
             return xml;
@@ -102,7 +154,7 @@ public class TabFragment2 extends Fragment {
         @Override
         protected void onPostExecute(String xml) {
 
-            AlbumAdapter adapter = new AlbumAdapter(getActivity(), albumList);
+            adapter = new AlbumAdapter(getActivity(), albumList);
             galleryGridView.setAdapter(adapter);
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
@@ -116,21 +168,21 @@ public class TabFragment2 extends Fragment {
     }
 
     // check firstTime
-    private Boolean firstTime = null;
-
+    private Boolean firstTime2 = null;
     private boolean isFirstTime(){
-        if (firstTime == null) {
-            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", Context.MODE_PRIVATE);
-            firstTime = mPreferences.getBoolean("firstTime", true);
-            if (firstTime) {
+        if (firstTime2 == null) {
+            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time2", Context.MODE_PRIVATE);
+            firstTime2 = mPreferences.getBoolean("firstTime2", true);
+            if (firstTime2) {
                 SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putBoolean("firstTime", false);
+                editor.putBoolean("firstTime2", false);
                 editor.commit();
             }
         }
-        return firstTime;
+        return firstTime2;
     }
 
+    // get Photos from Gallery(very first time)
     public void getPhotos(){
         String path = null;
         String album = null;
@@ -138,14 +190,11 @@ public class TabFragment2 extends Fragment {
         Uri uriExternal = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Uri uriInternal = android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
-
-
-
         String[] projection = { MediaStore.MediaColumns.DATA,
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.MediaColumns.DATE_MODIFIED };
-        Cursor cursorExternal = getActivity().getContentResolver().query(uriExternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
+        Cursor cursorExternal = getActivity().getContentResolver().query(uriExternal, projection, null,
                 null, null);
-        Cursor cursorInternal = getActivity().getContentResolver().query(uriInternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
+        Cursor cursorInternal = getActivity().getContentResolver().query(uriInternal, projection, null,
                 null, null);
         Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
 
@@ -160,6 +209,8 @@ public class TabFragment2 extends Fragment {
         }
     }
 
+
+    // generate Albumlist for adpater
     private ArrayList<HashMap<String, String>> load_photos(){
         GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
         return db.retreive_photos_byAlbums();
@@ -216,6 +267,11 @@ public class TabFragment2 extends Fragment {
             } catch (Exception e) {}
             return convertView;
         }
+
+        public void onActivityResult(int requestCode, int resultCode) {
+            this.notifyDataSetChanged();
+        }
+
     }
 
 
@@ -224,4 +280,53 @@ public class TabFragment2 extends Fragment {
         TextView gallery_count, gallery_title;
     }
 
+    // get result from Camera Action
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case REQ_TAKE_CAMARA: {
+                if (resultCode == Activity.RESULT_OK) {
+
+                    String path = cameraAction.get_Path();
+                    String album = cameraAction.get_album();
+                    String time = cameraAction.get_timestamp();
+                    String timestamp = Function.converToTimeStamp(time).toString();
+
+                    //System.out.println(String.format("cccccccccccccccccc, %s,%s, %s", path, album, timestamp));
+
+                    GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
+                    db.insert_photo(path, album, timestamp);
+
+                    for(HashMap<String, String> album_i :albumList){
+                        if (album_i.get(Function.KEY_ALBUM) == album){
+                         albumList.remove(album_i);
+                        }
+                    }
+                    String countPhoto = db.getCount(album);
+
+                    albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
+                    adapter.onActivityResult(REQ_TAKE_CAMARA, 1);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Get Result from Permission reqeusts
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case PERMISSIONS_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    CameraActivity();
+                } else
+                {
+                    Toast.makeText(getActivity(), "You must accept permissions.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+    }
 }
