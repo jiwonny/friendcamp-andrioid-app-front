@@ -1,11 +1,6 @@
 package com.example.week1.ui.contact;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +39,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         public TextView textView1;
         public TextView textView2;
         public ImageView imageView;
-
         public ContactViewHolder(final View itemView){
             super(itemView);
 

@@ -1,11 +1,11 @@
 package com.example.week1.ui.contact;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -25,10 +24,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
+import com.example.week1.ui.calendar.AddEvent;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -82,7 +81,7 @@ public class TabFragment1 extends Fragment {
         add_contact.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View view){
-                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
+                Intent intent = new Intent(getActivity(), AddEvent.class) ;
                 startActivityForResult(intent, REQ_ADD_CONTACT);
             }
         });
