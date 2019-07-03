@@ -3,7 +3,9 @@ package com.example.week1;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.persistence.ContactDBHelper;
@@ -66,6 +69,22 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         getMenuInflater().inflate(R.menu.appbar_action, menu) ;
 
         return true ;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search :
+                return true ;
+            case R.id.Heart :
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+                if( !drawer.isDrawerOpen(Gravity.LEFT)){
+                    drawer.openDrawer(Gravity.LEFT);
+                }
+                return true ;
+            default :
+                return super.onOptionsItemSelected(item) ;
+        }
     }
 
 
