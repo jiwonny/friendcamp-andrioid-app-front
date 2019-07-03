@@ -1,4 +1,4 @@
-package com.example.week1.ui.contact;
+package com.example.week1.persistence;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -20,6 +20,8 @@ public class JSON {
         this.c =c;
         helper = new ContactDBHelper(c);
     }
+
+    //TODO : JSON 이 필요 없을듯......
 
     protected JSONObject SQLtoJSON(){
 

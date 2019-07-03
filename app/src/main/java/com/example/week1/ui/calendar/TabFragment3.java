@@ -22,7 +22,6 @@ import com.example.week1.ui.calendar.decoraters.EventDecorator;
 import com.example.week1.ui.calendar.decoraters.OneDayDecorator;
 import com.example.week1.ui.calendar.decoraters.SaturdayDecorator;
 import com.example.week1.ui.calendar.decoraters.SundayDecorator;
-import com.example.week1.ui.main.PageViewModel;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
@@ -38,7 +37,6 @@ public class TabFragment3 extends Fragment {
     private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
     Cursor cursor;
     MaterialCalendarView materialCalendarView;
-    private PageViewModel pageViewModel;
 
     public TabFragment3() {
     }
@@ -46,28 +44,13 @@ public class TabFragment3 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        int index = 3;
-        pageViewModel.setIndex(index);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.activity_calendar, container, false);
-        ImageButton button1 = (ImageButton) root.findViewById(R.id.imageButton1);
-        button1.setOnClickListener(new Button.OnClickListener(){
-                @Override
-                public void onClick(View view){
 
-                    Intent intent = new Intent(getActivity(), AddEvent.class) ;
-                    startActivity(intent);
-                    //TODO
-                    /*
-                    startActivityForResult(intent, REQ_ADD_CALENDAR);
-                    */
-            }
-        });
 
         materialCalendarView = (MaterialCalendarView) root.findViewById(R.id.calendarView);
         materialCalendarView.state().edit()

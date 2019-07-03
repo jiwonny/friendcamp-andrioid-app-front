@@ -18,6 +18,12 @@ public class GalleryDBAdapter {
     SQLiteDatabase db;
     GalleryDBHelper helper;
 
+    static final String KEY_ALBUM = "album_name";
+    static final String KEY_PATH = "path";
+    static final String KEY_TIMESTAMP = "timestamp";
+    static final String KEY_TIME = "date";
+    static final String KEY_COUNT = "count";
+
     // Initialize DB helper and pass it a context
 
     public GalleryDBAdapter(Context c){
@@ -83,7 +89,7 @@ public class GalleryDBAdapter {
                 timestamp = cursor.getString(2);
                 countPhoto = getCount(album);
 
-                System.out.println(String.format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, %s,%s, %s, %s ", path, album, timestamp, countPhoto));
+                //System.out.println(String.format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, %s,%s, %s, %s ", path, album, timestamp, countPhoto));
 
                 albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
 
@@ -91,7 +97,7 @@ public class GalleryDBAdapter {
         }
         cursor.close();
         helper.close();
-        Collections.sort(albumList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
+        Collections.sort(albumList, new MapComparator(KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
         return albumList;
     }
 
@@ -125,7 +131,7 @@ public class GalleryDBAdapter {
 
         cursor.close();
         helper.close();
-        Collections.sort(imageList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
+        Collections.sort(imageList, new MapComparator(KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
         return imageList;
     }
 

@@ -17,6 +17,9 @@ public class Edit_Contact extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit__contact);
 
+        //TODO : Input Photo
+
+        // Input NAME
         final EditText editTextName = (EditText) findViewById(R.id.name_edit);
         editTextName.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -24,6 +27,8 @@ public class Edit_Contact extends AppCompatActivity {
                 editTextName.setSelection(0,editTextName.length());
             }
         });
+
+        //Input NUMBER
         final EditText editTextNumber = (EditText) findViewById(R.id.number_edit);
         editTextNumber.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -32,7 +37,7 @@ public class Edit_Contact extends AppCompatActivity {
             }
         });
 
-
+        // SAVE BUTTON
         Button buttonSave = (Button) findViewById(R.id.buttonsave);
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,11 +53,9 @@ public class Edit_Contact extends AppCompatActivity {
                 //TODO : edit photo in contact (get from Gallery??)
 
                 // Name edit and deliver in text
-
                 intent_r.putExtra("contact_name", editTextName.getText().toString());
 
                 // Number edit and deliver in text
-
                 intent_r.putExtra("contact_number", editTextNumber.getText().toString());
 
                 setResult(RESULT_OK, intent_r);

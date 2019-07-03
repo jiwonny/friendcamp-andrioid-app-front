@@ -40,7 +40,7 @@ public class ContactDBAdapter {
         return false;
     }
 
-    // Upadate data from (name, phone) to (new_name, new_phone)
+    // Update data from (name, phone) to (new_name, new_phone)
     public boolean update_contact(String name, String phone, String new_name, String new_phone) {
         try{
             db = helper.getWritableDatabase();
@@ -61,6 +61,7 @@ public class ContactDBAdapter {
         return false;
     }
 
+    // Delete (name, phone)
     public boolean delete_contact(String name, String phone) {
         try{
             db=helper.getWritableDatabase();
@@ -79,8 +80,8 @@ public class ContactDBAdapter {
         return false;
     }
 
-    // Select all and make Arraylist
 
+    // Select all and retreive ContactItem Arraylist
     public ArrayList<ContactItem> retreive_all_contacts() {
         ArrayList<ContactItem> contactItems;
         SQLiteDatabase db = helper.getWritableDatabase();

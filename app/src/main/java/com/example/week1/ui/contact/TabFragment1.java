@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
 import com.example.week1.persistence.ContactDBAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,10 +37,11 @@ import java.util.ArrayList;
 
 public class TabFragment1 extends Fragment {
 
-    static final int REQ_ADD_CONTACT = 1 ;
-    static final int REQ_EDIT_CONTACT = 2 ;
-    static final int REQ_DELETE_CONTACT = 3;
+    static final int REQ_ADD_CONTACT =1;
+    static final int REQ_EDIT_CONTACT =2;
+    static final int REQ_DELETE_CONTACT =3;
     static final int REQ_CALL_CONTACT =4;
+    static final int REQ_SYNC_CONTACT=5;
 
     ArrayList<ContactItem> contact_items = new ArrayList<ContactItem>();
     RecyclerView recyclerView;
@@ -78,7 +80,15 @@ public class TabFragment1 extends Fragment {
             }
         });
 
-
+        // SYNCHRONIZATION CONTACT Button
+        FloatingActionButton sync_contact = root.findViewById(R.id.sync_Button);
+        sync_contact.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                getContactList();
+                getActivity().recreate();
+            }
+        });
 
         //JSON json = new JSON(getActivity());
         //JSONObject j = json.SQLtoJSON();
@@ -86,6 +96,8 @@ public class TabFragment1 extends Fragment {
 
         return root;
     }
+
+    // Run LoadContacts in Background Thread
     class Loadcontacts extends AsyncTask<String,Void,String>{
         @Override
         protected void onPreExecute() {
@@ -97,7 +109,7 @@ public class TabFragment1 extends Fragment {
         protected String doInBackground(String... args) {
             String xml = "";
 
-            if (isFirstTime()) { getContactList(); }
+            //if (isFirstTime()) { getContactList(); }
 
             // Load Contacts from DB
             contact_items= load_contacts();
@@ -260,6 +272,8 @@ public class TabFragment1 extends Fragment {
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
         return db.retreive_all_contacts();
     }
+
+
 
     public Bitmap loadContactPhoto(ContentResolver cr, long id, long photo_id) {
         Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);

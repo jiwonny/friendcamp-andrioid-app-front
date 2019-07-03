@@ -33,7 +33,6 @@ import androidx.lifecycle.ViewModelProviders;
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.persistence.GalleryDBAdapter;
-import com.example.week1.ui.main.PageViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -43,7 +42,7 @@ import java.util.HashMap;
 
 public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private PageViewModel pageViewModel;
+
     private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
     static final int REQ_TAKE_CAMARA = 1 ;
     View root;
@@ -58,11 +57,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
-        int index = 2;
-        pageViewModel.setIndex(index);
     }
-
 
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

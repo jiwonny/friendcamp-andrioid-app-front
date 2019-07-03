@@ -10,4 +10,6 @@
     <string name="add_contact">Add Contact</string>
     <string name="name_edit"  >Name </string>
     <string name="number_edit">Phone Number</string>
+
+    <string name="facebook_app_id">Facebook App ID</string>
 </resources>

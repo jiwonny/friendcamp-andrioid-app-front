@@ -37,7 +37,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     }
 
 
-
+    // View Holder
     public static class ContactViewHolder extends RecyclerView.ViewHolder{
 
         public TextView textView1;
@@ -45,8 +45,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         public ImageView imageView;
         public ContactViewHolder(final View itemView){
             super(itemView);
-
-
 
             textView1 = itemView.findViewById(R.id.contact_name);
             textView2 = itemView.findViewById(R.id.contact_number);
@@ -65,7 +63,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                         addView.addView(add_layout);
                         onclick = true;
 
-                        // call button
+                        // Call Button
                         Button call_contact = (Button) add_layout.findViewById(R.id.call_contact);
                         call_contact.setOnClickListener(new Button.OnClickListener() {
                             @Override
@@ -78,7 +76,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                         });
 
 
-                        // edit button
+                        // Edit Button
                         Button edit_contact = (Button) add_layout.findViewById(R.id.edit_contact);
                         edit_contact.setOnClickListener(new Button.OnClickListener() {
                             @Override
@@ -90,7 +88,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
                             }
                         });
 
-                        // delete button
+                        // Delete Button
                         Button delete_contact = (Button) add_layout.findViewById(R.id.delete_contact);
                         delete_contact.setOnClickListener(new Button.OnClickListener() {
                             @Override
@@ -111,10 +109,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         }
     }
 
+
+    // Set Dataset
     public ContactAdapter(ArrayList<ContactItem> list){
         mDataset= list;
     }
 
+
+    // Create View Holder
     @Override
     public ContactAdapter.ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         Context context = parent.getContext();
@@ -126,6 +128,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         return vh;
     }
 
+    // Bind View Holder
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position){
         ContactItem contactItem = mDataset.get(position);
@@ -135,6 +138,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     }
 
+    // Get Item Count
     @Override
     public int getItemCount(){
         return mDataset.size();

@@ -2,7 +2,7 @@ package com.example.week1.ui.gallery;
 
 import java.util.Comparator;
 import java.util.HashMap;
-class MapComparator implements Comparator<HashMap<String, String>>
+public class MapComparator implements Comparator<HashMap<String, String>>
 {
     private final String key;
     private final String order;

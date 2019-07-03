@@ -15,13 +15,4 @@
         app:mcv_selectionColor="#a9dbf0cb"
         app:mcv_showOtherDates="defaults" />
 
-    <ImageButton
-        android:id="@+id/imageButton1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
-        android:focusableInTouchMode="true"
-        android:padding="0dp"
-        android:src="@drawable/imgbtn_states" />
-
 </LinearLayout>

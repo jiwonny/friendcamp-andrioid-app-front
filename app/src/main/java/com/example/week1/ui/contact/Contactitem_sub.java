@@ -14,6 +14,7 @@ public class Contactitem_sub extends LinearLayout {
         init(context);
     }
 
+    // Generate 3 Buttons View(Call, Edit, Delete)
     private View init(Context context){
         LayoutInflater inflater =(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View root = inflater.inflate(R.layout.contact_item_sub, this, true);

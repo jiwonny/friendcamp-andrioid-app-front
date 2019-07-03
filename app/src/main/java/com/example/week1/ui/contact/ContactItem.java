@@ -4,41 +4,50 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
-//id 값은 리스트뷰의 position 값
-//연락처의 사진을 가져오기위해선 photo_id, person_id 필요
+
 public class ContactItem implements Serializable {
-    private String user_phNumber, user_Name;
-    private long photo_id=0, person_id=0;
+    private String User_phNumber;
+    private String User_Name;
     private int id;
     private Bitmap photo;
+
+    private long photo_id=0, person_id=0; // this for identifying photo
 
 
     public ContactItem(){}
 
-    public long getPhoto_id(){
-        return photo_id;
+    public void setId(int id){
+        this.id = id;
     }
-    public long getPerson_id(){
-        return person_id;
+    public int getId(){
+        return id;
     }
+
+    public void setUser_Name(String string){
+        this.User_Name = string;
+    }
+    public void setUser_phNumber(String string){
+        this.User_phNumber = string;
+    }
+    public String getUser_Name(){
+        return User_Name;
+    }
+    public String getUser_phNumber(){
+        return User_phNumber;
+    }
+
+
     public void setPhoto_id(long id){
         this.photo_id = id;
     }
     public void setPerson_id(long id){
         this.person_id = id;
     }
-
-    public String getUser_phNumber(){
-        return user_phNumber;
+    public long getPhoto_id(){
+        return photo_id;
     }
-    public String getUser_Name(){
-        return user_Name;
-    }
-    public void setUser_phNumber(String string){
-        this.user_phNumber = string;
-    }
-    public void setUser_Name(String string){
-        this.user_Name = string;
+    public long getPerson_id(){
+        return person_id;
     }
 
     public void setUser_photo(Bitmap photo){
@@ -48,25 +57,19 @@ public class ContactItem implements Serializable {
         return  photo;
     }
 
-    public void setId(int id){
-        this.id = id;
-    }
-    public int getId(){
-        return id;
+    // "010-1234-5678" to "010-1234-5678"
+    public String getPhNumberChanged(){
+        return User_phNumber.replace("-", "");
     }
 
     @Override
     public String toString() {
-        return this.user_phNumber;
+        return this.User_phNumber;
     }
 
     @Override
     public int hashCode() {
         return getPhNumberChanged().hashCode();
-    }
-
-    public String getPhNumberChanged(){
-        return user_phNumber.replace("-", "");
     }
 
     @Override
@@ -75,7 +78,4 @@ public class ContactItem implements Serializable {
             return getPhNumberChanged().equals(((ContactItem) o).getPhNumberChanged());
         return false;
     }
-
-
-
 }
