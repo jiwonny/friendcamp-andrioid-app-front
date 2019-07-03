@@ -14,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -34,14 +32,13 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
+import com.example.week1.persistence.GalleryDBAdapter;
 import com.example.week1.ui.main.PageViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -300,6 +297,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                     }
                     if(i != -1) {
                         albumList.remove(i);
+                    } else {
+                        i = albumList.size();
                     }
                     albumList.add(i,Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
                     adapter.onActivityResult(REQ_TAKE_CAMARA, 1);

@@ -1,4 +1,4 @@
-package com.example.week1.ui.contact;
+package com.example.week1.persistence;
 
 public class ContactDBCtrct {
 

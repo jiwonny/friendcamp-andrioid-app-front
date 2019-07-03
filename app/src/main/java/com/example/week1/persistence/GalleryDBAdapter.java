@@ -1,9 +1,12 @@
-package com.example.week1.ui.gallery;
+package com.example.week1.persistence;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.week1.ui.gallery.Function;
+import com.example.week1.ui.gallery.MapComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;

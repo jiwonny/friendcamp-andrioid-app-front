@@ -1,4 +1,4 @@
-package com.example.week1.ui.gallery;
+package com.example.week1.persistence;
 
 public class GalleryDBCtrct {
 

@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
-import com.example.week1.ui.calendar.AddEvent;
+import com.example.week1.persistence.ContactDBAdapter;
 
 import java.io.InputStream;
 import java.util.ArrayList;

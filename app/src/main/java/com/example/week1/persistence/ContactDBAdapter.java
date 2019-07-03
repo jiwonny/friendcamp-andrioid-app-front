@@ -1,9 +1,11 @@
-package com.example.week1.ui.contact;
+package com.example.week1.persistence;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.week1.ui.contact.ContactItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

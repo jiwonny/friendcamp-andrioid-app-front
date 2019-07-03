@@ -1,4 +1,4 @@
-package com.example.week1.ui.contact;
+package com.example.week1.persistence;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

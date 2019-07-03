@@ -3,7 +3,6 @@ package com.example.week1;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,7 +11,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.week1.ui.contact.ContactDBHelper;
+import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
