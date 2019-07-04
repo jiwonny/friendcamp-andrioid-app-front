@@ -1,6 +1,7 @@
 package com.example.week1;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -86,7 +87,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search :
-
+                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_up_info,R.anim.no_change);
                 return true ;
             case R.id.Heart :
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);

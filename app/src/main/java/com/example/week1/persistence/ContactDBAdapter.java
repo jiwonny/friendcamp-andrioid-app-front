@@ -9,6 +9,7 @@ import com.example.week1.ui.contact.ContactItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.Random;
 
 public class ContactDBAdapter {
 
@@ -108,4 +109,22 @@ public class ContactDBAdapter {
         return contactItems;
     }
 
+    // Select part of contact list randomly(??)
+    public ArrayList<ContactItem> retreive_rand_contacts(int number){
+        ArrayList<ContactItem> contactItems;
+        contactItems = this.retreive_all_contacts();
+        ArrayList<ContactItem> resultItems = new ArrayList<>();
+        resultItems.clear();
+
+        if(contactItems.size() < number){
+            return contactItems;
+        }
+
+        Random random = new Random();
+        for(int cnt = 0 ; cnt < number ; cnt ++){
+            resultItems.add( contactItems.get(random.nextInt(number)));
+        }
+
+
+    }
 }
