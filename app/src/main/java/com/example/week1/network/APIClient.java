@@ -2,21 +2,10 @@ package com.example.week1.network;
 
 import android.content.Context;
 
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import okhttp3.ConnectionSpec;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,9 +36,12 @@ public class APIClient {
 
     public APIClient(Context context, String ip, int port) {
         String baseUrl = String.format("http://%s:%d", ip, port);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .build();
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
@@ -58,7 +50,6 @@ public class APIClient {
         apiService = create(ApiService.class);
         return this;
     }
-
 
     /*
      * Create an implementation of the API endpoints defined by the {@code service} interface.
@@ -70,6 +61,7 @@ public class APIClient {
         return retrofit.create(service);
     }
 
+    /* GET implementation */
     public void getUserfromID(String Login_id, final APICallback callback){
         apiService.getUserfromID(Login_id).enqueue(new Callback<User>() {
             @Override
@@ -88,6 +80,26 @@ public class APIClient {
         });
     }
 
+    public void getImage(String url, final APICallback callback){
+        apiService.getImage(url).enqueue(new Callback<Image>() {
+            @Override
+            public void onResponse(Call<Image> call, Response<Image> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response.body());
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Image> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    /* POST implementation */
+
     public void post_User(User user, final APICallback callback){
         apiService.post_User(user).enqueue(new Callback<User>() {
             @Override
@@ -102,6 +114,24 @@ public class APIClient {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    public void uploadImage(MultipartBody.Part file, RequestBody login_id, RequestBody image_id, final APICallback callback){
+        apiService.uploadImage(file, login_id, image_id).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()){
+                    callback.onSuccess(response.code(),  response);
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 callback.onError(t);
             }
         });

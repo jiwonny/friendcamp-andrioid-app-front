@@ -1,9 +1,15 @@
 package com.example.week1.network;
 
+import java.util.ArrayList;
+
 public class User {
     String Login_id;
     String Name;
     String Number;
+    String Profile_image_id;
+    ArrayList<User> Friends;
+
+
 
     public String getLogin_id() {
         return Login_id;
@@ -27,5 +33,21 @@ public class User {
 
     public void setNumber(String number) {
         Number = number;
+    }
+
+    public String getProfile_image_id() {
+        return Profile_image_id;
+    }
+
+    public void setProfile_image_id(String profile_image_id) {
+        Profile_image_id = profile_image_id;
+    }
+
+    public ArrayList<User> getFriends() {
+        return Friends;
+    }
+
+    public void setFriends(ArrayList<User> friends) {
+        Friends = friends;
     }
 }

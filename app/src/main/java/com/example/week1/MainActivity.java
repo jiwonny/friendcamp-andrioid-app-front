@@ -2,14 +2,19 @@ package com.example.week1;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -19,6 +24,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.Image;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
@@ -26,7 +32,12 @@ import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -71,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
-        apiClient = APIClient.getInstance(this, "143.248.38.203",4500).createBaseApi();
+        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
 
     }
 
@@ -103,35 +114,81 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.TEST) {
-            User user = new User();
-            user.setLogin_id("idididid");
-            user.setName("namenamename");
-            user.setNumber("000-0000-0000");
-            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+        switch (id) {
+            case R.id.TEST: {
+                User user = new User();
+                user.setLogin_id("idididid");
+                user.setName("namenamename");
+                user.setNumber("000-0000-0000");
+                Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+                System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
 
-            apiClient.post_User(user, new APICallback() {
-                @Override
-                public void onError(Throwable t) {
-                    Log.e("LOG", t.toString());
-                }
+                apiClient.post_User(user, new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("LOG", t.toString());
+                    }
 
-                @Override
-                public void onSuccess(int code, Object receivedData) {
-                    User data = (User) receivedData;
-                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
-                }
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        User data = (User) receivedData;
+                        Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
+                    }
 
-                @Override
-                public void onFailure(int code) {
-                    Log.e("FAIL", String.format("code : %d", code));
-                }
-            });
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("FAIL", String.format("code : %d", code));
+                    }
+                });
+                break;
+            }
+            case R.id.Image_TEST: {
+                Log.d("test", "clickclickclick");
+                apiClient.getImage("http://143.248.39.49:4500/Images", new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("LOG", t.toString());
+                    }
 
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        Image data = (Image) receivedData;
+                        Log.d("data"," aaaaaaaaaaaaaaaaa");
+                        String image = data.getImg();
+                        Log.d("data",image);
+                        Log.d("data",String.format("%d",image.length()));
+                        Log.d("data",String.format("%s",image.substring(image.length()-12)));
+                        image.replace(" ","+");
+                        image.replace("_","/");
+                        image.replace("-","+");
+                        image.split("=");
+                        byte[] decodedString = Base64.decode(image, Base64.URL_SAFE );
+                        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        showImage(bmp);
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("erroe", "image load fail");
+                    }
+                });
+            }
         }
         return false;
     }
+
+    AlertDialog dlg;
+    public void showImage(Bitmap bmp){
+        ImageView img = new ImageView(this);
+        img.setImageBitmap(bmp);
+        dlg = new AlertDialog.Builder(this)
+                .setView(img)
+                .setTitle("image test")
+                .setCancelable(true)
+                .show();
+    }
+
+
 
 
     @Override
@@ -168,3 +225,4 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 }
+

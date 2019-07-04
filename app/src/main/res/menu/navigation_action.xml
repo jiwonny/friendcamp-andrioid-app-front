@@ -7,4 +7,11 @@
         android:id = "@+id/TEST"
         android:title="test"
         android:icon="@drawable/baseline_favorite_border_24" />
+
+    <item
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id = "@+id/Image_TEST"
+        android:title="test"
+        android:icon="@drawable/baseline_favorite_border_24" />
 </menu>
