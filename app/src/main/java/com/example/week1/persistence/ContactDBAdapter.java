@@ -125,6 +125,6 @@ public class ContactDBAdapter {
             resultItems.add( contactItems.get(random.nextInt(number)));
         }
 
-
+        return resultItems;
     }
 }
