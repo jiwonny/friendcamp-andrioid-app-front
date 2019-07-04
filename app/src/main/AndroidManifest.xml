@@ -32,7 +32,7 @@
 
         <activity android:name=".ui.contact.Edit_Contact"></activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -42,7 +42,11 @@
             </intent-filter>
         </activity>
 
+
         <activity android:name=".SearchActivity"
+            android:configChanges="orientation|screenSize"/>
+
+        <activity android:name=".MainActivity"
             android:configChanges="orientation|screenSize"/>
 
         <activity android:name=".ui.gallery.AlbumActivity"
