@@ -5,6 +5,7 @@ import android.content.Context;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -14,6 +15,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,12 +46,10 @@ public class APIClient {
 
 
     public APIClient(Context context, String ip, int port) {
-        String baseUrl = String.format("https://%s:%d", ip, port);
-        OkHttpClient.Builder client = configureClient(new OkHttpClient().newBuilder());
+        String baseUrl = String.format("http://%s:%d", ip, port);
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .client(client.build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
@@ -59,45 +59,6 @@ public class APIClient {
         return this;
     }
 
-    public static OkHttpClient.Builder configureClient(final OkHttpClient.Builder builder) {
-        final TrustManager[] certs = new TrustManager[]{new X509TrustManager() {
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-
-            @Override
-            public void checkServerTrusted(final X509Certificate[] chain,
-                                           final String authType) throws CertificateException {
-            }
-
-            @Override
-            public void checkClientTrusted(final X509Certificate[] chain,
-                                           final String authType) throws CertificateException {
-            }
-        }};
-
-        SSLContext ctx = null;
-        try {
-            ctx = SSLContext.getInstance("TLS");
-            ctx.init(null, certs, new SecureRandom());
-        } catch (final java.security.GeneralSecurityException ex) {
-        }
-
-        try {
-            final HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-                @Override
-                public boolean verify(final String hostname, final SSLSession session) {
-                    return true;
-                }
-            };
-            builder.sslSocketFactory(ctx.getSocketFactory()).hostnameVerifier(hostnameVerifier);
-        } catch (final Exception e) {
-        }
-
-        return builder;
-    }
 
     /*
      * Create an implementation of the API endpoints defined by the {@code service} interface.
