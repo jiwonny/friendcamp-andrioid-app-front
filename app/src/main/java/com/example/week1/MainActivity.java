@@ -3,6 +3,7 @@ package com.example.week1;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,17 +17,22 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.week1.network.APICallback;
+import com.example.week1.network.APIClient;
+import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, NavigationView.OnNavigationItemSelectedListener {
     private static final int PERMISSIONS_REQUEST_CODE = 10;
     private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
+    APIClient apiClient;
 
     ContactDBHelper dbHelper = null ;
 
@@ -62,6 +68,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
 
+        NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        apiClient = APIClient.getInstance(this, "143.248.38.203",4500).createBaseApi();
+
     }
 
     @Override
@@ -75,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search :
+
                 return true ;
             case R.id.Heart :
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
@@ -85,6 +97,40 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             default :
                 return super.onOptionsItemSelected(item) ;
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.TEST) {
+            User user = new User();
+            user.setLogin_id("idididid");
+            user.setName("namenamename");
+            user.setNumber("000-0000-0000");
+            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+
+            apiClient.post_User(user, new APICallback() {
+                @Override
+                public void onError(Throwable t) {
+                    Log.e("LOG", t.toString());
+                }
+
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    User data = (User) receivedData;
+                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
+                }
+
+                @Override
+                public void onFailure(int code) {
+                    Log.e("FAIL", String.format("code : %d", code));
+                }
+            });
+
+        }
+        return false;
     }
 
 
