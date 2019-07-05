@@ -2,7 +2,7 @@ package com.example.week1.network;
 
 import java.io.File;
 
-public class Image {
+public class Image_f {
     String Login_id;
     String Image_id;
     String url;

@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -127,11 +126,11 @@ public class APIClient {
 
 
     /* POST implementation */
-
+    /*
     public void req_uploadImage( String login_id , final APICallback callback){
         {
             try {
-                Response<Image> response = apiService.req_uploadImage(login_id).execute();
+                Response<Image_f> response = apiService.req_uploadImage(login_id).execute();
                 if (response.isSuccessful()) {
                     callback.onSuccess(response.code(), response.body());
                 } else {
@@ -142,9 +141,10 @@ public class APIClient {
             }
         }
     }
+    */
 
-    public void uploadImage(MultipartBody.Part file, String login_id, String image_id, final APICallback callback){
-        apiService.uploadImage(file, login_id, image_id).enqueue(new Callback<ResponseBody>() {
+    public void uploadImage(MultipartBody.Part file, String login_id, final APICallback callback){
+        apiService.uploadImage(file, login_id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()){

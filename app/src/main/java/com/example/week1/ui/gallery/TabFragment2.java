@@ -30,12 +30,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.Image_f;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -92,13 +92,42 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
+
         Button upload_image = root.findViewById(R.id.button_upload);
         upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
+                new AsyncTask<Void, Void, Boolean>() {
+                    @Override
+                    protected Boolean doInBackground(Void... params) {
+                        apiClient.req_uploadImage("login_id", new APICallback() {
+                            @Override
+                            public void onError(Throwable t) { }
+                            @Override
+                            public void onSuccess(int code, Object receivedData) {
+                                Image_f data = (Image_f) receivedData;
+                                image_id = data.getImage_id();
+                            }
+                            @Override
+                            public void onFailure(int code) {
+                                Log.e("FAIL", String.format("code : %d", code));
+                            }
+                        });
+                        return true;
+                    }
+                    @Override
+                    protected void onPostExecute(Boolean s) {
+                        super.onPostExecute(s);
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                        startActivityForResult(intent, REQ_PICK_IMAGE);
+                    }
+                }.execute();
+            }
+            */
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-
                 startActivityForResult(intent, REQ_PICK_IMAGE);
             }
         });
@@ -294,6 +323,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
+            // TODO : CAMERA FIX , SERVER
             case REQ_TAKE_CAMARA: {
                 if (resultCode == Activity.RESULT_OK) {
                     GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
@@ -336,7 +366,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                         String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
                         cursor.close();
                         Log.d("path",path);
-                        uploadImageToServer(path);
+
+                        uploadImageToServer(path, "login_id");
 
                     } finally {
                         if (cursor != null) {
@@ -348,18 +379,16 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         }
     }
 
-    public void uploadImageToServer(String filePath){
+    public void uploadImageToServer(String filePath, String login_id){
         //Create a file object using file path
         File file = new File(filePath);
         // Create a request body with file and image media type
         RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
         // Create MultipartBody.Part using file request-body,file name and part name
         MultipartBody.Part part = MultipartBody.Part.createFormData("Gallery", file.getName(), fileReqBody);
-        //Create request body with text description and text media type
-        RequestBody login_id = RequestBody.create(MediaType.parse("text/plain"), "login_id");
-        RequestBody image_id = RequestBody.create(MediaType.parse("text/plain"), "image_id");
 
-        apiClient.uploadImage(part, "login_id", "image_id", new APICallback() {
+
+        apiClient.uploadImage(part, login_id, new APICallback() {
             @Override
             public void onError(Throwable t) {
                 Log.e("LOG", t.toString());
