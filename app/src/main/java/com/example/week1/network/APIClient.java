@@ -63,6 +63,7 @@ public class APIClient {
         return retrofit.create(service);
     }
 
+    /* Contact */
     /* GET implementation */
     public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
         try {
@@ -77,23 +78,6 @@ public class APIClient {
         }
     }
 
-    public void getImage(String url, final APICallback callback){
-        apiService.getImage(url).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response);
-                } else {
-                    callback.onFailure(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
-    }
 
     /* POST implementation */
 
@@ -116,7 +100,50 @@ public class APIClient {
         });
     }
 
-    public void uploadImage(MultipartBody.Part file, RequestBody login_id, RequestBody image_id, final APICallback callback){
+
+    /* Gallery */
+    /* GET implementation */
+
+
+    public void getImage(String url,String image_name ,final APICallback callback){
+        apiService.getImage(url, image_name).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response);
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+
+
+
+    /* POST implementation */
+
+    public void req_uploadImage( String login_id , final APICallback callback){
+        {
+            try {
+                Response<Image> response = apiService.req_uploadImage(login_id).execute();
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response.body());
+                } else {
+                    callback.onFailure(response.code());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uploadImage(MultipartBody.Part file, String login_id, String image_id, final APICallback callback){
         apiService.uploadImage(file, login_id, image_id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

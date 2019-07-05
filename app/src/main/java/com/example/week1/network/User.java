@@ -7,7 +7,7 @@ public class User {
     String Name;
     String Number;
     String Profile_image_id;
-    ArrayList<String> Friends;
+    ArrayList<User> Friends;
 
 
 
@@ -43,11 +43,11 @@ public class User {
         Profile_image_id = profile_image_id;
     }
 
-    public ArrayList<String> getFriends() {
+    public ArrayList<User> getFriends() {
         return Friends;
     }
 
-    public void setFriends(ArrayList<String> friends) {
+    public void setFriends(ArrayList<User> friends) {
         Friends = friends;
     }
 }

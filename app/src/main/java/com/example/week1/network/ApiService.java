@@ -21,26 +21,31 @@ import retrofit2.http.Url;
 
 public interface ApiService {
 
-    public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-
-
-
-
-    @GET("/Users/{Name}/{Phone}")
+    /* Contact */
+    @GET("/Users/Name/{Name}/Phone/{Phone}")
     Call <User> getUserfrom_Name_Number(@Path("Name") String Name, @Path("Phone") String Phone);
-
-    @GET
-    Call <ResponseBody> getImage(@Url String url);
 
     @POST("/Users")
     Call <User> post_User(@Body User user);
 
+
+
+
+
+
+    /* Gallery */
+    @GET("/Gallery/Login_id/{Login_id}/Image_id/{Image_id}")
+    Call <String> getURlofImage(@Path("Login_id") String login_id, @Path("Image_id") String image_id);
+
+    @GET("/{ImageName}")
+    Call <ResponseBody> getImage(@Url String url, @Path("ImageName") String image_name);
+
+    @POST("/Gallery/Login_id/{Login_id}")
+    Call <Image> req_uploadImage(@Path("Login_id") String login_id);
+
     @Multipart
-    @POST("/Gallery")
-    Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Part("Login_id") RequestBody login_id, @Part("Image_id") RequestBody image_id);
+    @POST("/Gallery/{Login_id}/{Image_id}")
+    Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Path("Login_id") String login_id, @Path("Image_id") String image_id);
 
 
 

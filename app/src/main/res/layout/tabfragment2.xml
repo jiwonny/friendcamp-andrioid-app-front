@@ -11,18 +11,31 @@
     android:paddingRight="0dp"
     android:paddingBottom="0dp"
     tools:context=".ui.gallery.TabFragment2">
-
-    <GridView
-        android:id="@+id/galleryGridView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_centerHorizontal="true"
-        android:columnWidth="100dp"
-        android:horizontalSpacing="5dp"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="5dp"></GridView>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_upload"
+            android:text="upload"/>
+
+        <GridView
+            android:id="@+id/galleryGridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:columnWidth="100dp"
+            android:horizontalSpacing="5dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp"></GridView>
+
+
+    </LinearLayout>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/camera_button"

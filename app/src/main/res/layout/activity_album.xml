@@ -28,7 +28,6 @@
             android:text="@string/delete" />
     </RelativeLayout>
 
-
     <GridView
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
