@@ -132,6 +132,8 @@ public class TabFragment1 extends Fragment {
                         case REQ_EDIT_CONTACT:{
                             Intent intent = new Intent(getActivity(), Edit_Contact.class);
                             intent.putExtra("position",position);
+                            intent.putExtra("name", contact_items.get(position).getUser_Name());
+                            intent.putExtra("number", contact_items.get(position).getUser_phNumber());
                             startActivityForResult(intent, request_code);
                             break;
                         }

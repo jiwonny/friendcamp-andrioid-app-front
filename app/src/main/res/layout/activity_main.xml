@@ -15,6 +15,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
+
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -40,6 +41,13 @@
         android:id = "@+id/NavigationView"
         app:menu="@menu/navigation_action">
 
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_log_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="30dp" />
     </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>
