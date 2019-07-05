@@ -75,11 +75,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
-        LoginButton logoutButton = findViewById(R.id.facebook_log_button);
+
 
         apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
 
-
+        LoginButton logoutButton = findViewById(R.id.facebook_log_button);
         //---logout manager-----
         logoutButton.setOnClickListener(new View.OnClickListener(){
             @Override
