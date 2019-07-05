@@ -116,9 +116,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         switch (id) {
             case R.id.TEST: {
+                /*
                 User user = new User();
-                user.setLogin_id("idididid");
-                user.setName("namenamename");
+                user.setLogin_id("id");
+                user.setName("name");
                 user.setNumber("000-0000-0000");
                 Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
                 System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
@@ -140,11 +141,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         Log.e("FAIL", String.format("code : %d", code));
                     }
                 });
-                break;
-            }
-            case R.id.Image_TEST: {
-                Log.d("test", "clickclickclick");
-                apiClient.getImage("http://143.248.39.49:4500/Images", new APICallback() {
+                */
+                /*
+                apiClient.getUserfromID("id", "000-0000-0000", new APICallback() {
                     @Override
                     public void onError(Throwable t) {
                         Log.e("LOG", t.toString());
@@ -152,19 +151,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                     @Override
                     public void onSuccess(int code, Object receivedData) {
-                        Image data = (Image) receivedData;
-                        Log.d("data"," aaaaaaaaaaaaaaaaa");
-                        String image = data.getImg();
-                        Log.d("data",image);
-                        Log.d("data",String.format("%d",image.length()));
-                        Log.d("data",String.format("%s",image.substring(image.length()-12)));
-                        image.replace(" ","+");
-                        image.replace("_","/");
-                        image.replace("-","+");
-                        image.split("=");
-                        byte[] decodedString = Base64.decode(image, Base64.URL_SAFE );
-                        Bitmap bmp = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        showImage(bmp);
+                        User data = (User) receivedData;
+                        Log.d("user", String.format(" data %s %s %s   11111111111111111111111", data.getLogin_id(), data.getName(), data.getNumber()));
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("FAIL", String.format("code : %d", code));
+                    }
+                });
+                */
+                break;
+            }
+            case R.id.Image_TEST: {
+                Log.d("test", "clickclickclick");
+                apiClient.getImage("http://143.248.39.49:4500/happy_dog.jpg", new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("LOG", t.toString());
+                    }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        Response<ResponseBody> data = (Response<ResponseBody>) receivedData;
+                        InputStream is = data.body().byteStream();
+                        Bitmap bmp = BitmapFactory.decodeStream(is);
+                        Bitmap r_bmp = resizingBitmap(bmp);
+                        showImage(r_bmp);
                     }
 
                     @Override
@@ -186,6 +199,29 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 .setTitle("image test")
                 .setCancelable(true)
                 .show();
+    }
+    public Bitmap resizingBitmap(Bitmap oBitmap) {
+        if (oBitmap == null)
+            return null;
+        float width = oBitmap.getWidth();
+        float height = oBitmap.getHeight();
+        float resizing_size = 120;
+        Bitmap rBitmap = null;
+        if (width > resizing_size) {
+            float mWidth = (float) (width / 100);
+            float fScale = (float) (resizing_size / mWidth);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+
+        } else if (height > resizing_size) {
+            float mHeight = (float) (height / 100);
+            float fScale = (float) (resizing_size / mHeight);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+        }
+        //Log.d("rBitmap : " + width + "," + height);
+        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
+        return rBitmap;
     }
 
 

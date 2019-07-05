@@ -3,6 +3,7 @@ package com.example.week1.persistence;
 public class ContactDBCtrct {
 
     public static final String COL_ID = "NO" ;
+    public static final String COL_LOGIN_ID = "LOGIN_ID" ;
     public static final String COL_NAME = "NAME" ;
     public static final String COL_PHONE = "PHONE" ;
 
@@ -13,6 +14,7 @@ public class ContactDBCtrct {
     public static final String SQL_CREATE_TBL = "CREATE TABLE IF NOT EXISTS " + TBL_CONTACT +" "+
             "(" +
             COL_ID           + " INTEGER PRIMARY KEY AUTOINCREMENT" + ", " +
+            COL_LOGIN_ID     + " TEXT"                              + ", " +
             COL_NAME         + " TEXT"                              + ", " +
             COL_PHONE        + " TEXT"                              +
             ")" ;
@@ -23,9 +25,9 @@ public class ContactDBCtrct {
     // SELECT * FROM CONTACT_T
     public static final String SQL_SELECT = "SELECT * FROM " + TBL_CONTACT +" ORDER BY " + COL_NAME +" ASC";
 
-    // INSERT OR REPLACE INTO CONTACT_T (NAME, PHONE) VALUES (x, x)
+    // INSERT OR REPLACE INTO CONTACT_T (LOGIN_ID, NAME, PHONE) VALUES (x, x, x)
     public static final String SQL_INSERT = "INSERT OR REPLACE INTO " + TBL_CONTACT + " " +
-            "(" + COL_NAME + ", " + COL_PHONE  + ") VALUES " ;
+            "(" + COL_LOGIN_ID + ", "+ COL_NAME + ", " + COL_PHONE  + ") VALUES " ;
 
     // UPDATE CONTACT_T SET
     public static final String SQL_UPDATE = "UPDATE " + TBL_CONTACT + " SET ";

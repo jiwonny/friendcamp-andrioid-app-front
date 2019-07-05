@@ -2,6 +2,8 @@ package com.example.week1.network;
 
 import android.content.Context;
 
+import java.io.IOException;
+
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -62,37 +64,32 @@ public class APIClient {
     }
 
     /* GET implementation */
-    public void getUserfromID(String Login_id, final APICallback callback){
-        apiService.getUserfromID(Login_id).enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response.body());
-                } else {
-                    callback.onFailure(response.code());
-                }
+    public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
+        try {
+            Response<User> response = apiService.getUserfrom_Name_Number(name, number).execute();
+            if (response.isSuccessful()) {
+                callback.onSuccess(response.code(), response.body());
+            } else {
+                callback.onFailure(response.code());
             }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void getImage(String url, final APICallback callback){
-        apiService.getImage(url).enqueue(new Callback<Image>() {
+        apiService.getImage(url).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<Image> call, Response<Image> response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response.body());
+                    callback.onSuccess(response.code(), response);
                 } else {
                     callback.onFailure(response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<Image> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 callback.onError(t);
             }
         });

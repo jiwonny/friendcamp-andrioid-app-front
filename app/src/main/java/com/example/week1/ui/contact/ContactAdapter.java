@@ -134,8 +134,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
         ContactItem contactItem = mDataset.get(position);
         holder.textView1.setText(contactItem.getUser_Name());
         holder.textView2.setText(contactItem.getUser_phNumber());
-        holder.imageView.setImageBitmap(contactItem.getUser_photo());
-
     }
 
     // Get Item Count

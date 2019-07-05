@@ -6,12 +6,10 @@ import java.io.Serializable;
 
 
 public class ContactItem implements Serializable {
+    private int id;
+    private String User_Login_Id;
     private String User_phNumber;
     private String User_Name;
-    private int id;
-    private Bitmap photo;
-
-    private long photo_id=0, person_id=0; // this for identifying photo
 
 
     public ContactItem(){}
@@ -23,6 +21,13 @@ public class ContactItem implements Serializable {
         return id;
     }
 
+
+    public String getUser_Login_Id() {
+        return User_Login_Id;
+    }
+    public void setUser_Login_Id(String user_Login_Id) {
+        User_Login_Id = user_Login_Id;
+    }
     public void setUser_Name(String string){
         this.User_Name = string;
     }
@@ -37,27 +42,7 @@ public class ContactItem implements Serializable {
     }
 
 
-    public void setPhoto_id(long id){
-        this.photo_id = id;
-    }
-    public void setPerson_id(long id){
-        this.person_id = id;
-    }
-    public long getPhoto_id(){
-        return photo_id;
-    }
-    public long getPerson_id(){
-        return person_id;
-    }
-
-    public void setUser_photo(Bitmap photo){
-        this.photo = photo;
-    }
-    public Bitmap getUser_photo(){
-        return  photo;
-    }
-
-    // "010-1234-5678" to "010-1234-5678"
+    // "010-1234-5678" to "01012345678"
     public String getPhNumberChanged(){
         return User_phNumber.replace("-", "");
     }

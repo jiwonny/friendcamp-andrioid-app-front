@@ -8,6 +8,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
@@ -19,13 +21,19 @@ import retrofit2.http.Url;
 
 public interface ApiService {
 
+    public static final Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("https://api.github.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
 
 
-    @GET("/Users/{Login_id}")
-    Call <User> getUserfromID(@Query("Login_id") String Login_id);
+
+
+    @GET("/Users/{Name}/{Phone}")
+    Call <User> getUserfrom_Name_Number(@Path("Name") String Name, @Path("Phone") String Phone);
 
     @GET
-    Call <Image> getImage(@Url String url);
+    Call <ResponseBody> getImage(@Url String url);
 
     @POST("/Users")
     Call <User> post_User(@Body User user);

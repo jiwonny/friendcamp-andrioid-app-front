@@ -24,10 +24,10 @@ public class ContactDBAdapter {
     }
 
     // Insert data to DB
-    public boolean insert_contact(String name, String phone) {
+    public boolean insert_contact(String login_id, String name, String phone) {
         try {
             db = helper.getWritableDatabase();
-            String sqlInsert = ContactDBCtrct.SQL_INSERT + "(" + "'" + name + "'" + "," + "'" + phone + "'" + ")";
+            String sqlInsert = ContactDBCtrct.SQL_INSERT + "(" + "'" + login_id + "'" + ","+ "'" + name + "'" + "," + "'" + phone + "'" + ")";
             System.out.println(sqlInsert);
             db.execSQL(sqlInsert);
 
@@ -94,8 +94,8 @@ public class ContactDBAdapter {
                 ContactItem contactItem = new ContactItem();
 
                 contactItem.setId(cursor.getInt(0));
-                contactItem.setUser_Name(cursor.getString(1));
-                contactItem.setUser_phNumber(cursor.getString(2));
+                contactItem.setUser_Name(cursor.getString(2));
+                contactItem.setUser_phNumber(cursor.getString(3));
 
                 hashlist.add(contactItem);
 

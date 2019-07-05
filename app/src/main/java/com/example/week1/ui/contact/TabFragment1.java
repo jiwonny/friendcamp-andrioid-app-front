@@ -25,11 +25,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
+import com.example.week1.network.APICallback;
+import com.example.week1.network.APIClient;
+import com.example.week1.network.ApiService;
+import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+
+import retrofit2.Call;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -47,6 +53,8 @@ public class TabFragment1 extends Fragment {
     RecyclerView recyclerView;
     ContactAdapter adapter;
     Loadcontacts loadcontactTask;
+    Sync_contacts synchronization;
+    APIClient apiClient;
 
 
     public TabFragment1 (){ }
@@ -54,21 +62,13 @@ public class TabFragment1 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
     }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.tabfragment1, container, false);
-
-        ContactDBAdapter db = new ContactDBAdapter(getActivity());
-
-        recyclerView = root.findViewById(R.id.contact_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        loadcontactTask = new TabFragment1.Loadcontacts();
-        loadcontactTask.execute();
-
 
         // ADD CONTACT Button
         Button add_contact = root.findViewById(R.id.add_contact);
@@ -85,14 +85,16 @@ public class TabFragment1 extends Fragment {
         sync_contact.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View view){
-                getContactList();
-                getActivity().recreate();
+                synchronization = new TabFragment1.Sync_contacts();
+                synchronization.execute();
             }
         });
 
-        //JSON json = new JSON(getActivity());
-        //JSONObject j = json.SQLtoJSON();
-        //System.out.println(j.toString());
+        recyclerView = root.findViewById(R.id.contact_recycler);
+
+        loadcontactTask = new TabFragment1.Loadcontacts();
+        loadcontactTask.execute();
+
 
         return root;
     }
@@ -109,8 +111,6 @@ public class TabFragment1 extends Fragment {
         protected String doInBackground(String... args) {
             String xml = "";
 
-            //if (isFirstTime()) { getContactList(); }
-
             // Load Contacts from DB
             contact_items= load_contacts();
 
@@ -119,7 +119,9 @@ public class TabFragment1 extends Fragment {
 
         @Override
         protected void onPostExecute(String xml) {
+            Log.d("main","generate recycleview 11111111111111111111111111111111111111111111111111111111");
             adapter = new ContactAdapter(contact_items);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
 
             // EDIT & DELETE & CALL CONTACT
@@ -158,6 +160,7 @@ public class TabFragment1 extends Fragment {
         }
     }
 
+
     // get Result from add or edit contact
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -173,7 +176,8 @@ public class TabFragment1 extends Fragment {
                     contactItem.setUser_Name(name);
                     contactItem.setUser_phNumber(number);
 
-                    db.insert_contact(name,number);
+                    //TODO : CHECK & FIX
+                    db.insert_contact("aa" ,name,number);
                     ArrayList<ContactItem> new_contact_items = load_contacts();
 
                     int pos = new_contact_items.indexOf(contactItem);
@@ -233,40 +237,59 @@ public class TabFragment1 extends Fragment {
         return firstTime;
     }
 
+    class Sync_contacts extends AsyncTask<String,Void,String> {
 
-    public void getContactList() {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
 
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        String[] projection = new String[]{
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.Contacts.PHOTO_ID,
-                ContactsContract.Contacts._ID
-        };
-        String[] selectionArgs = null;
-        String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, selectionArgs, sortOrder);
+        @Override
+        protected String doInBackground(String... args) {
 
-        if (cursor.moveToFirst()) {
-            do {
-                long photo_id = cursor.getLong(2);
-                long person_id = cursor.getLong(3);
-                ContactItem contactItem = new ContactItem();
-                contactItem.setUser_phNumber(cursor.getString(0));
-                contactItem.setUser_Name(cursor.getString(1));
-                contactItem.setPhoto_id(photo_id);
-                contactItem.setPerson_id(person_id);
+            String xml = "";
+            final Uri[] uri = {ContactsContract.CommonDataKinds.Phone.CONTENT_URI};
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            };
+            final String[][] selectionArgs = {null};
+            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+            Cursor cursor = getActivity().getContentResolver().query(uri[0], projection, null, selectionArgs[0], sortOrder);
 
-                Bitmap photo = loadContactPhoto(getActivity().getContentResolver(),person_id,photo_id);
-                contactItem.setUser_photo(photo);
-
-                // put in database (name,phone)
-                ContactDBAdapter db = new ContactDBAdapter(getActivity());
-                db.insert_contact(cursor.getString(1),cursor.getString(0));
-
-            } while (cursor.moveToNext());
+            ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
+            ContactDBAdapter db = new ContactDBAdapter(getActivity());
+            if (cursor.moveToFirst()) {
+                do {
+                    String Name = cursor.getString(1);
+                    String phNumber = cursor.getString(0);
+                    phNumber.replace("-", "");
+                    apiClient.getUserfrom_Name_Number(Name, phNumber, new APICallback() {
+                        @Override
+                        public void onError(Throwable t) { }
+                        @Override
+                        public void onSuccess(int code, Object receivedData) {
+                            User data = (User) receivedData;
+                            String login_id = data.getLogin_id();
+                            String name = data.getName();
+                            String number = data.getNumber();
+                            db.insert_contact(login_id,name,number);
+                        }
+                        @Override
+                        public void onFailure(int code) {
+                            Log.e("FAIL", String.format("code : %d", code));
+                        }
+                    });
+                } while (cursor.moveToNext());
+            }
+            return xml;
+        }
+        @Override
+        protected void onPostExecute(String xml) {
+            getActivity().recreate();
         }
     }
+
 
     private ArrayList<ContactItem> load_contacts(){
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
