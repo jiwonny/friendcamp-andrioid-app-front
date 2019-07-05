@@ -85,7 +85,10 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
 
-        loginButton.registerCallback(callbackManager,
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        if(!isLoggedIn){
+            loginButton.registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
@@ -143,6 +146,14 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                         // App code
                     }
                 });
+        }
+        else{
+            Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(loginIntent);
+            finish();
+        }
+
+
 
 
 

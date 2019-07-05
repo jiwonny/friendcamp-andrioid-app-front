@@ -2,6 +2,7 @@ package com.example.week1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,5 +22,8 @@ public class InsertNumberActivity extends AppCompatActivity {
 
         TextView tvEmail = findViewById(R.id.tv_email);
         tvEmail.setText(user_email);
+
+        EditText etNumber = findViewById(R.id.tv_number);
+
     }
 }
