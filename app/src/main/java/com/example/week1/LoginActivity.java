@@ -3,6 +3,7 @@ package com.example.week1;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -90,6 +91,16 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
 
+        //저장된 값을 불러오기 위해 같은 네임파일을 찾음.
+        SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
+
+
+        //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+        SharedPreferences.Editor editor = sf.edit();
+
+
+
+
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
 
@@ -141,12 +152,19 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                 super.onPostExecute(s);
                                                 if (check){
                                                     Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                                    editor.putString("currentUser_email",Login_Id); // key, value를 이용하여 저장하는 형태
+                                                    editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
+                                                    editor.commit();
                                                     startActivity(mainIntent);
+
                                                     finish();
                                                 } else {
                                                     Intent insertIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
                                                     insertIntent.putExtra("user_email", Login_Id);
                                                     insertIntent.putExtra("user_name", Name);
+                                                    editor.putString("currentUser_email",Login_Id); // key, value를 이용하여 저장하는 형태
+                                                    editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
+                                                    editor.commit();
                                                     startActivity(insertIntent);
                                                     finish();
                                                 }

@@ -2,6 +2,7 @@ package com.example.week1;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.view.View;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,6 +41,8 @@ import com.facebook.FacebookException;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -74,6 +78,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
+
+        TextView tv_name = headerLayout.findViewById(R.id.tv_name);
+        TextView tv_email = headerLayout.findViewById(R.id.tv_email);
+
+
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        String user_email = sf.getString("currentUser_email", "");
+        String user_name = sf.getString("currentUser_name", "");
+
+        tv_name.setText(user_email);
+        tv_email.setText(user_name);
 
 
 
