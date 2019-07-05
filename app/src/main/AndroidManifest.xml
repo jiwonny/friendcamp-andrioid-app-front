@@ -46,6 +46,9 @@
         <activity android:name=".SearchActivity"
             android:configChanges="orientation|screenSize"/>
 
+        <activity android:name=".InsertNumberActivity"
+            android:configChanges="orientation|screenSize"/>
+
         <activity android:name=".MainActivity"
             android:configChanges="orientation|screenSize"/>
 

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -25,7 +26,17 @@ import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -48,16 +59,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar tb = (Toolbar) findViewById(R.id.app_toolbar);
         setSupportActionBar(tb);
 
-        CallbackManager callbackManager;
-        callbackManager = CallbackManager.Factory.create();
-
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
+        LoginButton logoutButton = findViewById(R.id.facebook_log_button);
+
+
+        //---logout manager-----
+        logoutButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                LoginManager.getInstance().logOut();
+                Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(logoutIntent);
+                return;
+            }
+        });
+
         apiClient = APIClient.getInstance(this, "143.248.38.203",4500).createBaseApi();
+
 
 
     }

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -34,8 +35,10 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -47,7 +50,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
+public class LoginActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener{
     private static final int PERMISSIONS_REQUEST_CODE = 10;
     private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
 
@@ -75,19 +78,14 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
     public void inital_setting(){
         setContentView(R.layout.activity_login);
+        FacebookSdk.sdkInitialize(this.getApplicationContext());
 
+        //  to handle login responses by calling CallbackManager.Factory.create.
         callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        loginButton.setReadPermissions("email");
 
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
-
-        if(isLoggedIn){
-            Intent loginIntent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(loginIntent);
-            return;
-        }
-
-        LoginManager.getInstance().registerCallback(callbackManager,
+        loginButton.registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
@@ -95,19 +93,33 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
                         GraphRequest request;
                         request = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-
                             @Override
                             public void onCompleted(JSONObject user, GraphResponse response) {
                                 if (response.getError() != null) {
 
                                 } else {
+
+                                    //-----email이랑 이름 받아오는 부분--------
                                     Log.i("TAG", "user: " + user.toString());
-                                    Log.i("TAG", "AccessToken: " + loginResult.getAccessToken().getToken());
+//                                    Log.d("Success", String.valueOf(Profile.getCurrentProfile().getProfilePictureUri(200, 200)));
+                                    //Log.i("TAG", "AccessToken: " + loginResult.getAccessToken().getToken());
                                     setResult(RESULT_OK);
 
-                                    Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(i);
-                                    finish();
+                                    try{
+                                        String user_email = user.getString("email");
+                                        String user_name = user.getString("name");
+                                        //TODO : 만약 email 이 server db 에 존재하면 mainactivity 로 이동. 존재하지 않으면 insertnumberactivity 이동
+
+                                        Intent i = new Intent(getApplicationContext(), InsertNumberActivity.class);
+
+                                        i.putExtra("user_email", user_email);
+                                        i.putExtra("user_name", user_name);
+                                        startActivity(i);
+                                        finish();
+
+                                    }catch(Exception e){
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         });
@@ -134,15 +146,26 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
 
 
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
+        //LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.login_button://페이스북 로그인 버튼
+                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email","user_friends"));
+                break;//페이스북 로그인 버튼
+        }
+
+
+    }
 
 
 
