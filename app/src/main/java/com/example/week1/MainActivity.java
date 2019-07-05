@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -30,7 +29,6 @@ import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -116,51 +114,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         switch (id) {
             case R.id.TEST: {
-                /*
-                User user = new User();
-                user.setLogin_id("id");
-                user.setName("name");
-                user.setNumber("000-0000-0000");
-                Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-                System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-
-                apiClient.post_User(user, new APICallback() {
-                    @Override
-                    public void onError(Throwable t) {
-                        Log.e("LOG", t.toString());
-                    }
-
-                    @Override
-                    public void onSuccess(int code, Object receivedData) {
-                        User data = (User) receivedData;
-                        Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
-                    }
-
-                    @Override
-                    public void onFailure(int code) {
-                        Log.e("FAIL", String.format("code : %d", code));
-                    }
-                });
-                */
-                /*
-                apiClient.getUserfromID("id", "000-0000-0000", new APICallback() {
-                    @Override
-                    public void onError(Throwable t) {
-                        Log.e("LOG", t.toString());
-                    }
-
-                    @Override
-                    public void onSuccess(int code, Object receivedData) {
-                        User data = (User) receivedData;
-                        Log.d("user", String.format(" data %s %s %s   11111111111111111111111", data.getLogin_id(), data.getName(), data.getNumber()));
-                    }
-
-                    @Override
-                    public void onFailure(int code) {
-                        Log.e("FAIL", String.format("code : %d", code));
-                    }
-                });
-                */
                 break;
             }
             case R.id.Image_TEST: {
