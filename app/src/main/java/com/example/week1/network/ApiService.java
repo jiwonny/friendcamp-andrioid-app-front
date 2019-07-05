@@ -21,16 +21,13 @@ import retrofit2.http.Url;
 
 public interface ApiService {
 
-    public static final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
 
-
-
-
-    @GET("/Users/{Name}/{Phone}")
+    @GET("/Users/Name/{Name}/Phone/{Phone}")
     Call <User> getUserfrom_Name_Number(@Path("Name") String Name, @Path("Phone") String Phone);
+
+
+    @GET("/Users/Name/{Name}/Login_id/{Login_id}")
+    Call <User> getUserfrom_Name_LoginId(@Path("Name") String Name, @Path("Login_id") String Login_id);
 
     @GET
     Call <ResponseBody> getImage(@Url String url);

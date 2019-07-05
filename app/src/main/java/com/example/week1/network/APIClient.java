@@ -77,6 +77,19 @@ public class APIClient {
         }
     }
 
+    public void getUserfrom_Name_LoginId(String Name, String Login_Id ,final APICallback callback) {
+        try {
+            Response<User> response = apiService.getUserfrom_Name_LoginId(Name, Login_Id).execute();
+            if (response.isSuccessful()) {
+                callback.onSuccess(response.code(), response.body());
+            } else {
+                callback.onFailure(response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getImage(String url, final APICallback callback){
         apiService.getImage(url).enqueue(new Callback<ResponseBody>() {
             @Override

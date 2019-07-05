@@ -59,7 +59,7 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
         ContactSearchViewHolder ViewHolder = (ContactSearchViewHolder) holder;
         ViewHolder.name_search.setText(contactItem.getUser_Name());
         ViewHolder.number_search.setText(contactItem.getUser_phNumber());
-        ViewHolder.image_search.setImageBitmap(contactItem.getUser_photo());
+
 
     }
 
