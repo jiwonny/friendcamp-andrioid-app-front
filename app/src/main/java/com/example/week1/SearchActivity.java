@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,19 +18,22 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactItem;
 import com.example.week1.ui.contact.ContactSearchAdapter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     EditText editSearch;
     ContactSearchAdapter contactSearchAdapter;
-    ArrayList<ContactItem> contact_items_search = new ArrayList<ContactItem>();
+    ArrayList<User> contact_items_search = new ArrayList<User>();
     ArrayList<ContactItem> temp_items = new ArrayList<ContactItem>();
     APIClient apiClient;
 
@@ -47,7 +51,7 @@ public class SearchActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        contact_items_search = load_init_contacts(10);
+//        contact_items_search = load_init_contacts(10);
         temp_items = load_all_contacts();
 
         //contact_items_search : 처음에 검색되는 items
@@ -113,18 +117,41 @@ public class SearchActivity extends AppCompatActivity {
         // 문자 입력을 할때..
         else
         {
-            // 리스트의 모든 데이터를 검색한다.
-            for(int i = 0;i < temp_items.size(); i++)
-            {
-                // arraylist의 모든 데이터에 입력받은 단어(charText)가 포함되어 있으면 true를 반환한다.
-                if (temp_items.get(i).getUser_Name().toLowerCase().replaceAll(" ", "").contains(charText))
-                {
-                    // 검색된 데이터를 리스트에 추가한다.
-                    contact_items_search.add(temp_items.get(i));
+//            // 리스트의 모든 데이터를 검색한다.
+//            for(int i = 0;i < temp_items.size(); i++)
+//            {
+//                // arraylist의 모든 데이터에 입력받은 단어(charText)가 포함되어 있으면 true를 반환한다.
+//                if (temp_items.get(i).getUser_Name().toLowerCase().replaceAll(" ", "").contains(charText))
+//                {
+//                    // 검색된 데이터를 리스트에 추가한다.
+//                    contact_items_search.add(temp_items.get(i));
+//                }
+//            }
+            Log.d("searchText", charText);
+            apiClient.getUserfrom_LoginId(charText, new APICallback() {
+                @Override
+                public void onError(Throwable t) {
+                    Log.e("Error", "error in char");
                 }
-            }
+
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    List<User> users = (List<User>)receivedData;
+                    Log.d("search", "hh "+ users);
+                    for(User user : users){
+                        Log.d("search", "11111111111111111111111111111111111111111111111111111111111111111");
+                        contact_items_search.add(user);
+                    }
+
+                    // 리스트 데이터가 변경되었으므로 아답터를 갱신하여 검색된 데이터를 화면에 보여준다.
+                    contactSearchAdapter.notifyDataSetChanged();
+                }
+                @Override
+                public void onFailure(int code) {
+                    Log.e("Failr", "failin char");
+                }
+            });
         }
-        // 리스트 데이터가 변경되었으므로 아답터를 갱신하여 검색된 데이터를 화면에 보여준다.
-        contactSearchAdapter.notifyDataSetChanged();
+
     }
 }

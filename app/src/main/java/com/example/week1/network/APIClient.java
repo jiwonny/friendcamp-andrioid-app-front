@@ -3,6 +3,7 @@ package com.example.week1.network;
 import android.content.Context;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -88,6 +89,24 @@ public class APIClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getUserfrom_LoginId(String Login_id, final APICallback callback){
+        apiService.getUserfrom_LoginId(Login_id).enqueue(new Callback <List<User>>() {
+            @Override
+            public void onResponse(Call <List<User>> call, Response <List<User>> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response.body());
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call <List<User>> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
     }
 
     public void getImage(String url, final APICallback callback){

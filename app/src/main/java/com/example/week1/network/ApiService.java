@@ -33,6 +33,8 @@ public interface ApiService {
     @GET
     Call <ResponseBody> getImage(@Url String url);
 
+    @GET("/Users/search/{Login_id}")
+    Call <List<User>> getUserfrom_LoginId(@Path("Login_id") String Login_id);
 
     @POST("/Users")
     Call <User> post_User(@Body User user);

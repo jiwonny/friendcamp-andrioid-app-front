@@ -13,11 +13,12 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.R;
+import com.example.week1.network.User;
 
 import java.util.ArrayList;
 
 public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-    private ArrayList<ContactItem> mDataset;
+    private ArrayList<User> mDataset;
 
 
     public static class ContactSearchViewHolder extends RecyclerView.ViewHolder{
@@ -37,7 +38,7 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     // Set Dataset
-    public ContactSearchAdapter(ArrayList<ContactItem> list){
+    public ContactSearchAdapter(ArrayList<User> list){
         mDataset= list;
     }
 
@@ -54,11 +55,11 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
     //Bind View Holder
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ContactItem contactItem = mDataset.get(position);
+        User user = mDataset.get(position);
 
         ContactSearchViewHolder ViewHolder = (ContactSearchViewHolder) holder;
-        ViewHolder.name_search.setText(contactItem.getUser_Name());
-        ViewHolder.number_search.setText(contactItem.getUser_phNumber());
+        ViewHolder.name_search.setText(user.getName());
+        ViewHolder.number_search.setText(user.getNumber());
 
 
     }
