@@ -33,7 +33,11 @@ import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 
@@ -184,7 +188,9 @@ public class TabFragment1 extends Fragment {
 
                     int pos = new_contact_items.indexOf(contactItem);
 
+
                     contact_items.add(pos, contactItem);
+
 
                     adapter.onActivityResult(REQ_ADD_CONTACT,1);
                     break;
@@ -225,7 +231,8 @@ public class TabFragment1 extends Fragment {
 
     // check firstTime
     private Boolean firstTime = null;
-
+    User current_user = new User();
+    ArrayList<User> current_user_friends = new ArrayList<User>();
     private boolean isFirstTime(){
         if (firstTime == null) {
             SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", Context.MODE_PRIVATE);
@@ -261,6 +268,42 @@ public class TabFragment1 extends Fragment {
 
             ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
             ContactDBAdapter db = new ContactDBAdapter(getActivity());
+
+            //------현재 user 정보 불러오기-------
+            SharedPreferences sf = getActivity().getSharedPreferences("userFile", Context.MODE_PRIVATE);
+            String current_login_id = sf.getString("currentUser_email", "");
+            String current_name = sf.getString("currentUser_name", "");
+
+
+            apiClient.getUserfrom_Name_LoginId(current_name, current_login_id, new APICallback() {
+                @Override
+                public void onError(Throwable t) { }
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    current_user = (User) receivedData;
+                    Log.d("current_friend", "hi "+ current_user.getFriends());
+                    Log.d("current", "current user 넣기"+current_user.getName());
+
+                    if(current_user.getFriends() == null){
+                        return;
+                    }else{
+                        Iterator iterator = current_user.getFriends().iterator();
+
+                        while(iterator.hasNext()){
+                            current_user_friends.add((User) iterator.next());
+                        }
+
+                    }
+
+
+                }
+                @Override
+                public void onFailure(int code) {
+                }
+            });
+
+            //------현재 user 정보 불러오기 끝----
+
             if (cursor.moveToFirst()) {
                 do {
                     String Name = cursor.getString(1);
@@ -272,10 +315,22 @@ public class TabFragment1 extends Fragment {
                         @Override
                         public void onSuccess(int code, Object receivedData) {
                             User data = (User) receivedData;
-                            String login_id = data.getLogin_id();
-                            String name = data.getName();
-                            String number = data.getNumber();
-                            db.insert_contact(login_id,name,number);
+                            String login_id = data.getLogin_id(); // 불러오는 login_id
+
+                            int checkDuplicate = -1;
+                            for(User user : current_user_friends){
+                                if(user.getLogin_id().equals(login_id)){
+                                    checkDuplicate ++;
+                                    break;
+                                }
+                                else continue;
+                            }
+
+                            if(checkDuplicate == -1){
+                                Log.i("D", "Theres no duplicate");
+                                current_user_friends.add(data);
+                            }
+
                         }
                         @Override
                         public void onFailure(int code) {
@@ -284,6 +339,36 @@ public class TabFragment1 extends Fragment {
                     });
                 } while (cursor.moveToNext());
             }
+
+            // ------ 서버 디비에 넣기 위한 작업 ----------
+            current_user.setFriends(current_user_friends);
+
+            for(User user : current_user_friends){
+                String login_id = user.getLogin_id();
+                String name = user.getName();
+                String number = user.getNumber();
+                db.insert_contact(login_id,name,number);
+            }
+
+
+            // 서버 디비에 친구목록 추가
+            apiClient.update_User(current_login_id, current_user, new APICallback() {
+                @Override
+                public void onError(Throwable t) { }
+
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    User data = (User) receivedData;
+                    Log.d("Success_add", data.getName());
+                }
+
+                @Override
+                public void onFailure(int code) {
+                    Log.e("FRIEND ADD FAIL", String.format("code : %d", code));
+                }
+            });
+
+            // ----------서버 디비 넣기 작업 끝 -----------
             return xml;
         }
         @Override

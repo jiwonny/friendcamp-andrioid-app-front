@@ -14,7 +14,7 @@ public class ContactDBCtrct {
     public static final String SQL_CREATE_TBL = "CREATE TABLE IF NOT EXISTS " + TBL_CONTACT +" "+
             "(" +
             COL_ID           + " INTEGER PRIMARY KEY AUTOINCREMENT" + ", " +
-            COL_LOGIN_ID     + " TEXT"                              + ", " +
+            COL_LOGIN_ID     + " TEXT UNIQUE"                              + ", " +
             COL_NAME         + " TEXT"                              + ", " +
             COL_PHONE        + " TEXT"                              +
             ")" ;

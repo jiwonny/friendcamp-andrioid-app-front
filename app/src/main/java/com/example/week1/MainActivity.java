@@ -1,7 +1,11 @@
 package com.example.week1;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -9,22 +13,49 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.view.View;
+import android.view.Window;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
+import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
+import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -34,9 +65,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ContactDBHelper dbHelper = null ;
 
+    String user_name;
+    String user_id;
+    String user_number;
+    String user_profile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        user_id = sf.getString("currentUser_email", "");
+        user_name = sf.getString("currentUser_name", "");
+        user_number = sf.getString("currentUser_number", "");
+        user_profile = sf.getString("currentuser_profile","");
+
+        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        ContactDBAdapter db = new ContactDBAdapter(this);
+
+
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
@@ -49,23 +96,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
+
+        TextView current_name = headerLayout.findViewById(R.id.current_name);
+        TextView current_email = headerLayout.findViewById(R.id.current_id);
+        TextView current_number = headerLayout.findViewById(R.id.current_number);
+        current_name.setText(user_id);
+        current_email.setText(user_name);
+        current_number.setText(user_number);
 
 
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
 
+        //---logout manager-----//
         LoginButton logoutButton = findViewById(R.id.facebook_log_button);
-        //---logout manager-----
         logoutButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 LoginManager.getInstance().logOut();
+
+                SharedPreferences.Editor editor = sf.edit();
+                editor.clear();
+                editor.commit();
+
+                if(db.drop_contact()){
+                    Log.d("drop_table", "dropdrop");
+                }else{
+                    Log.d("drop_table", "drop_실패!");
+                }
+
+
                 Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(logoutIntent);
                 return;
             }
         });
-
-
     }
 
     @Override
@@ -135,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
         return rBitmap;
     }
+
 
 
 

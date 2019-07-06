@@ -36,7 +36,7 @@
         android:layout_height="match_parent"
         android:weightSum="100"
         android:layout_gravity="start"
-        android:background="#e49e9e"
+        android:background="#FFFFFF"
         android:gravity="center"
         android:id = "@+id/NavigationView"
         app:menu="@menu/navigation_action">
@@ -45,7 +45,7 @@
             android:id="@+id/facebook_log_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="bottom|center"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="30dp" />
     </com.google.android.material.navigation.NavigationView>
