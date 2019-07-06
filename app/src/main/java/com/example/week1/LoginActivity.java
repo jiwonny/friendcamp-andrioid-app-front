@@ -81,8 +81,14 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
 
     }
+
     public Boolean check = true;
-    public String phNumber;
+    public String c_login_Id;
+    public String c_name;
+    public String c_phNumber;
+    public String c_profile;
+
+
     public void inital_setting(){
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
@@ -95,12 +101,8 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         //저장된 값을 불러오기 위해 같은 네임파일을 찾음.
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
 
-
         //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
         SharedPreferences.Editor editor = sf.edit();
-
-
-
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -123,24 +125,20 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                     setResult(RESULT_OK);
 
                                     try{
-                                        String Login_Id = user.getString("email");
-                                        String Name = user.getString("name");
-
+                                        c_login_Id = user.getString("email");
+                                        c_name = user.getString("name");
 
                                         new AsyncTask<Void, Void, Boolean>() {
                                             @Override
                                             protected Boolean doInBackground(Void... params) {
-                                                apiClient.getUserfrom_Name_LoginId(Name, Login_Id, new APICallback() {
+                                                apiClient.getUserfrom_Name_LoginId(c_name, c_login_Id, new APICallback() {
 
                                                     @Override
                                                     public void onError(Throwable t) { }
                                                     @Override
                                                     public void onSuccess(int code, Object receivedData) {
                                                         User data = (User) receivedData;
-                                                        Log.i("check", "ssssssssssssss");
-                                                        Log.i("user_name", data.getName());
-
-                                                        phNumber = data.getNumber();
+                                                        c_phNumber = data.getNumber();
                                                         check = true;
                                                     }
                                                     @Override
@@ -155,27 +153,26 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                             protected void onPostExecute(Boolean s) {
                                                 super.onPostExecute(s);
                                                 if (check){
-                                                    editor.putString("currentUser_email",Login_Id); // key, value를 이용하여 저장하는 형태
-                                                    editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
-                                                    editor.putString("currentUser_number", phNumber); // key, value를 이용하여 저장하는 형태
+                                                    editor.putString("currentUser_email",c_login_Id);
+                                                    editor.putString("currentUser_name", c_name);
+                                                    editor.putString("currentUser_number", c_phNumber);
+                                                    editor.putString("currentUser_profile", c_profile);
                                                     editor.commit();
                                                     Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     startActivity(mainIntent);
 
                                                 } else {
                                                     Intent insertIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
-                                                    insertIntent.putExtra("user_email", Login_Id);
-                                                    insertIntent.putExtra("user_name", Name);
-                                                    editor.putString("currentUser_email",Login_Id); // key, value를 이용하여 저장하는 형태
-                                                    editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
+                                                    insertIntent.putExtra("user_email", c_login_Id);
+                                                    insertIntent.putExtra("user_name", c_name);
+                                                    editor.putString("currentUser_email",c_login_Id); // key, value를 이용하여 저장하는 형태
+                                                    editor.putString("currentUser_name", c_name); // key, value를 이용하여 저장하는 형태
                                                     editor.commit();
                                                     startActivity(insertIntent);
 
                                                 }
                                             }
                                         }.execute();
-
-
 
                                     }catch(Exception e){
                                         e.printStackTrace();
@@ -210,9 +207,6 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         }
 
 
-
-
-
         //LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
     }
 
@@ -233,8 +227,6 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
 
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {

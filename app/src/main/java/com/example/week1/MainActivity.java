@@ -30,6 +30,7 @@ import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.Image;
 import com.example.week1.network.User;
+import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
@@ -64,9 +65,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ContactDBHelper dbHelper = null ;
 
+    String user_name;
+    String user_id;
+    String user_number;
+    String user_profile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        user_id = sf.getString("currentUser_email", "");
+        user_name = sf.getString("currentUser_name", "");
+        user_number = sf.getString("currentUser_number", "");
+        user_profile = sf.getString("currentuser_profile","");
+
+        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        ContactDBAdapter db = new ContactDBAdapter(this);
+
+
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
@@ -81,34 +98,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
 
-        TextView tv_name = headerLayout.findViewById(R.id.tv_name);
-        TextView tv_email = headerLayout.findViewById(R.id.tv_email);
+        TextView current_name = headerLayout.findViewById(R.id.current_name);
+        TextView current_email = headerLayout.findViewById(R.id.current_id);
+        TextView current_number = headerLayout.findViewById(R.id.current_number);
+        current_name.setText(user_id);
+        current_email.setText(user_name);
+        current_number.setText(user_number);
 
 
-        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
-        String user_email = sf.getString("currentUser_email", "");
-        String user_name = sf.getString("currentUser_name", "");
-
-        tv_name.setText(user_email);
-        tv_email.setText(user_name);
-
-
-
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
-
+        //---logout manager-----//
         LoginButton logoutButton = findViewById(R.id.facebook_log_button);
-        //---logout manager-----
         logoutButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 LoginManager.getInstance().logOut();
+
+                SharedPreferences.Editor editor = sf.edit();
+                editor.clear();
+                editor.commit();
+
+                if(db.drop_contact()){
+                    Log.d("drop_table", "dropdrop");
+                }else{
+                    Log.d("drop_table", "drop_실패!");
+                }
+
+
                 Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(logoutIntent);
                 return;
             }
         });
-
-
     }
 
     @Override

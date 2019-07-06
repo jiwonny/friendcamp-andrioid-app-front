@@ -39,8 +39,6 @@
         android:background="#FFFFFF"
         android:gravity="center"
         android:id = "@+id/NavigationView"
-
-        app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/navigation_action">
 
         <com.facebook.login.widget.LoginButton
