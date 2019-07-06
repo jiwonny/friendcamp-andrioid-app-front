@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactSearchAdapter;
@@ -64,7 +65,10 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ContactDBAdapter db = new ContactDBAdapter(this);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
         // PERMISSIONS CHECK
 
         String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};

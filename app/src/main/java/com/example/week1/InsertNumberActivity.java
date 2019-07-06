@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 
 public class InsertNumberActivity extends AppCompatActivity{
@@ -22,7 +23,10 @@ public class InsertNumberActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insertnum);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
 
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
         //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.

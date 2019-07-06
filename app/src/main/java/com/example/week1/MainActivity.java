@@ -29,6 +29,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
@@ -80,8 +81,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
         user_profile = sf.getString("currentuser_profile",null);
-
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
 
 
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(logoutIntent);
+
                 return;
             }
         });

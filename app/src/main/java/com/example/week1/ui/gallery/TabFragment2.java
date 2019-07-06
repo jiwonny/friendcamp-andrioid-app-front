@@ -40,6 +40,7 @@ import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -75,13 +76,15 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     String user_id;
     String user_number;
     String user_profile;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
 
     public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
 
         SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
@@ -272,7 +275,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
 
                             String login_id = image_f.getLogin_id();
-                            String url = String.format("http://%s:%d/%s", "143.248.39.49",4500, image_f.getUrl());
+                            String url = String.format("http://%s:%d/%s", address ,4500, image_f.getUrl());
                             String file = image_f.getUrl();
                             String timestamp = image_f.getTimestamp();
 
@@ -432,7 +435,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             @Override
             public void onSuccess(int code, Object receivedData) {
                 //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
+                String url =  String.format("http://%s:%d/%s", address ,4500,  user_id+'_'+file.getName());
                 albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
 
                 Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));

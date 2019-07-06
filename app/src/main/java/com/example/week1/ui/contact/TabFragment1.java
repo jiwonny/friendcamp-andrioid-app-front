@@ -28,6 +28,7 @@ import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.ApiService;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -61,14 +62,15 @@ public class TabFragment1 extends Fragment {
     Loadcontacts loadcontactTask;
     Sync_contacts synchronization;
     APIClient apiClient;
-
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
 
     public TabFragment1 (){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
 
     }
 
