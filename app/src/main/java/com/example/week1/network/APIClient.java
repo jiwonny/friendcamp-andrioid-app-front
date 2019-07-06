@@ -147,5 +147,23 @@ public class APIClient {
         });
     }
 
+    /* PUT implementation */
+
+    public void update_User(String Login_id, User user, final APICallback callback){
+        apiService.update_User(Login_id, user).enqueue(new Callback<User>(){
+            @Override
+            public void onResponse(Call<User> call, Response<User> response){
+                if(response.isSuccessful()){
+                    callback.onSuccess(response.code(), response.body());
+                }else{
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t){callback.onError(t);}
+        });
+    }
+
 
 }

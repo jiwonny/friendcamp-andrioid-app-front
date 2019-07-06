@@ -17,6 +17,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.week1.network.APIClient;
+import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactItem;
 import com.example.week1.ui.contact.ContactSearchAdapter;
@@ -29,12 +31,13 @@ public class SearchActivity extends AppCompatActivity {
     ContactSearchAdapter contactSearchAdapter;
     ArrayList<ContactItem> contact_items_search = new ArrayList<ContactItem>();
     ArrayList<ContactItem> temp_items = new ArrayList<ContactItem>();
+    APIClient apiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-
+        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
 
         //------- Recycler View ---------
         RecyclerView.LayoutManager mLayoutManager;
@@ -92,6 +95,7 @@ public class SearchActivity extends AppCompatActivity {
         return db.retreive_rand_contacts(number);
     }
 
+
     public void search(String charText) {
 
         // 문자 입력시마다 리스트를 지우고 새로 뿌려준다.
@@ -104,7 +108,7 @@ public class SearchActivity extends AppCompatActivity {
 
         // 문자 입력이 없을때는 모든 데이터를 보여준다.
         if (charText.length() == 0) {
-            contact_items_search.addAll(temp_items);
+            contact_items_search.addAll(contact_items_search);
         }
         // 문자 입력을 할때..
         else

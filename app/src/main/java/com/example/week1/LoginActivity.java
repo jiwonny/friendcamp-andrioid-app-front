@@ -81,7 +81,8 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
 
     }
-    public Boolean check;
+    public Boolean check = true;
+    public String phNumber;
     public void inital_setting(){
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
@@ -125,6 +126,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                         String Login_Id = user.getString("email");
                                         String Name = user.getString("name");
 
+
                                         new AsyncTask<Void, Void, Boolean>() {
                                             @Override
                                             protected Boolean doInBackground(Void... params) {
@@ -137,6 +139,8 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                         User data = (User) receivedData;
                                                         Log.i("check", "ssssssssssssss");
                                                         Log.i("user_name", data.getName());
+
+                                                        phNumber = data.getNumber();
                                                         check = true;
                                                     }
                                                     @Override
@@ -151,13 +155,13 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                             protected void onPostExecute(Boolean s) {
                                                 super.onPostExecute(s);
                                                 if (check){
-                                                    Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     editor.putString("currentUser_email",Login_Id); // key, value를 이용하여 저장하는 형태
                                                     editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
+                                                    editor.putString("currentUser_number", phNumber); // key, value를 이용하여 저장하는 형태
                                                     editor.commit();
+                                                    Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     startActivity(mainIntent);
 
-                                                    finish();
                                                 } else {
                                                     Intent insertIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
                                                     insertIntent.putExtra("user_email", Login_Id);
@@ -166,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     editor.putString("currentUser_name", Name); // key, value를 이용하여 저장하는 형태
                                                     editor.commit();
                                                     startActivity(insertIntent);
-                                                    finish();
+
                                                 }
                                             }
                                         }.execute();

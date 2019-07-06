@@ -14,6 +14,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -32,8 +33,12 @@ public interface ApiService {
     @GET
     Call <ResponseBody> getImage(@Url String url);
 
+
     @POST("/Users")
     Call <User> post_User(@Body User user);
+
+    @PUT("/Users/Login_id/{Login_id}")
+    Call <User>  update_User(@Path("Login_id") String Login_id, @Body User user);
 
     @Multipart
     @POST("/Gallery")

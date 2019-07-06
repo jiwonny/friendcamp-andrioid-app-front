@@ -1,6 +1,7 @@
 package com.example.week1;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +23,10 @@ public class InsertNumberActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insertnum);
         apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+
+        SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
+        //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+        SharedPreferences.Editor editor = sf.edit();
 
         Intent userIntent = getIntent();
         String user_name = userIntent.getStringExtra("user_name");
@@ -48,7 +53,11 @@ public class InsertNumberActivity extends AppCompatActivity{
                     user.setName(user_name);
                     user.setLogin_id(user_email);
                     String user_phNumber = etNumber.getText().toString().replace("-", "");
+
                     user.setNumber(user_phNumber);
+
+                    editor.putString("currentUser_number", user_phNumber);
+                    editor.commit();
 
                     apiClient.post_User(user, new APICallback() {
                         @Override
