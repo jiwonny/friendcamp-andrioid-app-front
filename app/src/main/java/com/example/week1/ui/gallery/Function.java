@@ -25,11 +25,11 @@ import java.util.HashMap;
 public class Function {
 
 
-    static final String KEY_ALBUM = "album_name";
-    static final String KEY_PATH = "path";
+    static final String KEY_LOGIN_ID = "login_id";
+    static final String KEY_URL = "url";
+    static final String KEY_FILE = "file";
     static final String KEY_TIMESTAMP = "timestamp";
-    static final String KEY_TIME = "date";
-    static final String KEY_COUNT = "count";
+
 
 
     public static  boolean hasPermissions(Context context, String... permissions) {
@@ -44,14 +44,13 @@ public class Function {
     }
 
 
-    public static HashMap<String, String> mappingInbox(String album, String path, String timestamp, String time, String count)
+    public static HashMap<String, String> mappingInbox(String login_id, String url, String file, String timestamp)
     {
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put(KEY_ALBUM, album);
-        map.put(KEY_PATH, path);
+        map.put(KEY_LOGIN_ID, login_id);
+        map.put(KEY_URL, url);
+        map.put(KEY_FILE, file);
         map.put(KEY_TIMESTAMP, timestamp);
-        map.put(KEY_TIME, time);
-        map.put(KEY_COUNT, count);
         return map;
     }
 

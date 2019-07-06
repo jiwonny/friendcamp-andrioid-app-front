@@ -3,6 +3,7 @@ package com.example.week1.network;
 import android.content.Context;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -62,7 +63,7 @@ public class APIClient {
         return retrofit.create(service);
     }
 
-    /* Contact */
+    /* -------------------------------------- < Contact > -------------------------------------- */
     /* GET implementation */
     public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
         try {
@@ -100,9 +101,8 @@ public class APIClient {
     }
 
 
-    /* Gallery */
+    /* -------------------------------------- < Gallery > -------------------------------------- */
     /* GET implementation */
-
 
     public void getImage(String url,String image_name ,final APICallback callback){
         apiService.getImage(url, image_name).enqueue(new Callback<ResponseBody>() {
@@ -122,29 +122,44 @@ public class APIClient {
         });
     }
 
+    public void getImageList(String login_id, final APICallback callback){
+        try {
+            Response<List<Image_f>> response = apiService.getImageList(login_id).execute();
+            if (response.isSuccessful()) {
+                callback.onSuccess(response.code(), response.body());
+            } else {
+                callback.onFailure(response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-
+    }
 
     /* POST implementation */
-    /*
-    public void req_uploadImage( String login_id , final APICallback callback){
-        {
-            try {
-                Response<Image_f> response = apiService.req_uploadImage(login_id).execute();
-                if (response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response.body());
-                } else {
-                    callback.onFailure(response.code());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    */
 
     public void uploadImage(MultipartBody.Part file, String login_id, final APICallback callback){
         apiService.uploadImage(file, login_id).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()){
+                    callback.onSuccess(response.code(),  response);
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    /* DELETE implementation */
+
+    public void deleteImage(String login_id, String url, final APICallback callback){
+        apiService.deleteImage(login_id,url).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()){

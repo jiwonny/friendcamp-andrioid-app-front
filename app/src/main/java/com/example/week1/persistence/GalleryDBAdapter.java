@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.gallery.MapComparator;
@@ -32,10 +33,10 @@ public class GalleryDBAdapter {
     }
 
     // Insert data to DB
-    public boolean insert_photo(String path, String album, String time_stamp) {
+    public boolean insert_photo(String login_id, String url, String file, String time_stamp) {
         try {
             db = helper.getWritableDatabase();
-            String sqlInsert = GalleryDBCtrct.SQL_INSERT + "(" + "'" + path + "'" + "," + "'" + album + "'" +","+"'" + time_stamp + "'" + ")";
+            String sqlInsert = GalleryDBCtrct.SQL_INSERT + "(" + "'" + login_id + "'" + "," + "'" + url + "'" +","+ "'" + file + "'" +","+"'" + time_stamp + "'" + ")";
             System.out.println(sqlInsert);
             db.execSQL(sqlInsert);
 
@@ -48,13 +49,13 @@ public class GalleryDBAdapter {
         return false;
     }
 
-    public boolean delete_photo(String path, String album, String time_stamp) {
+    public boolean delete_photo(String login_id, String url, String time_stamp) {
         try{
             db=helper.getWritableDatabase();
             String sqlDelete = GalleryDBCtrct.SQL_DELETE + " WHERE " +
-                                    GalleryDBCtrct.COL_PATH     + " == " +   "'" + path + "' " +"AND "+
-                                    GalleryDBCtrct.COL_ALBUM    + " == " +   "'" + album + "' " +"AND "+
-                                    GalleryDBCtrct.COL_TIMESTAMP   + " == " +   "'" + time_stamp + "' ";
+                                    GalleryDBCtrct.COL_LOGIN_ID     + " == " +   "'" + login_id     + "' " +"AND "+
+                                    GalleryDBCtrct.COL_URL          + " == " +   "'" + url          + "' " +"AND "+
+                                    GalleryDBCtrct.COL_TIMESTAMP    + " == " +   "'" + time_stamp   + "' ";
             System.out.println(sqlDelete);
             db.execSQL(sqlDelete);
 
@@ -67,6 +68,32 @@ public class GalleryDBAdapter {
         return false;
     }
 
+    // Select ALl
+    public ArrayList<HashMap<String, String>> sellect_all(){
+        ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String sqlSelect = GalleryDBCtrct.SQL_SELECT;
+        Log.d("SQL", sqlSelect);
+        Cursor cursor = db.rawQuery(sqlSelect, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String login_id = cursor.getString(1);
+                String url = cursor.getString(2);
+                String file = cursor.getString(3);
+                String timestamp = cursor.getString(4);
+
+
+                imageList.add(Function.mappingInbox(login_id, url, file, timestamp));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+        helper.close();
+        Log.d("length", String.format("aaaaaaaaaaaaaa : %d aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", imageList.size() ));
+        return imageList;
+    }
+
+/*
     // Select * Group by Album
     public ArrayList<HashMap<String, String>> retreive_photos_byAlbums() {
 
@@ -134,14 +161,14 @@ public class GalleryDBAdapter {
         Collections.sort(imageList, new MapComparator(KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
         return imageList;
     }
+    */
 
     public String getCount(String album_name){
         SQLiteDatabase db = helper.getWritableDatabase();
-        String sqlSelect1 = GalleryDBCtrct.SQL_SELECT + " WHERE " + GalleryDBCtrct.COL_ALBUM + " == " + "'"+album_name+"'";
+        String sqlSelect1 = GalleryDBCtrct.SQL_SELECT + " WHERE " + GalleryDBCtrct.COL_LOGIN_ID + " == " + "'"+album_name+"'";
         Cursor cursor = db.rawQuery(sqlSelect1,null);
 
         return cursor.getCount()+" Photos";
     }
-
 
 }

@@ -3,6 +3,7 @@ package com.example.week1.ui.gallery;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -15,7 +16,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,8 +27,10 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -43,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -54,6 +60,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
     static final int REQ_TAKE_CAMARA = 1 ;
     static final int REQ_PICK_IMAGE = 2 ;
+    static final int REQ_DELETE =3 ;
     View root;
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
@@ -73,59 +80,11 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.tabfragment2, container, false);
-        galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
-
-        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-
-        loadAlbumTask = new TabFragment2.LoadAlbum();
-        loadAlbumTask.execute();
-
-        int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
-        Resources resources = getActivity().getApplicationContext().getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = iDisplayWidth / (metrics.densityDpi / 160f);
-
-        if(dp < 360)
-        {
-            dp = (dp - 17) / 2;
-            float px = Function.convertDpToPixel(dp, getActivity().getApplicationContext());
-            galleryGridView.setColumnWidth(Math.round(px));
-        }
-
 
         Button upload_image = root.findViewById(R.id.button_upload);
         upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                new AsyncTask<Void, Void, Boolean>() {
-                    @Override
-                    protected Boolean doInBackground(Void... params) {
-                        apiClient.req_uploadImage("login_id", new APICallback() {
-                            @Override
-                            public void onError(Throwable t) { }
-                            @Override
-                            public void onSuccess(int code, Object receivedData) {
-                                Image_f data = (Image_f) receivedData;
-                                image_id = data.getImage_id();
-                            }
-                            @Override
-                            public void onFailure(int code) {
-                                Log.e("FAIL", String.format("code : %d", code));
-                            }
-                        });
-                        return true;
-                    }
-                    @Override
-                    protected void onPostExecute(Boolean s) {
-                        super.onPostExecute(s);
-                        Intent intent = new Intent(Intent.ACTION_PICK);
-                        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-                        startActivityForResult(intent, REQ_PICK_IMAGE);
-                    }
-                }.execute();
-            }
-            */
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
                 startActivityForResult(intent, REQ_PICK_IMAGE);
@@ -150,6 +109,25 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                 }
             }
         });
+
+
+        galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
+
+        int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
+        Resources resources = getActivity().getApplicationContext().getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float dp = iDisplayWidth / (metrics.densityDpi / 160f);
+
+        if(dp < 360)
+        {
+            dp = (dp - 17) / 2;
+            float px = Function.convertDpToPixel(dp, getActivity().getApplicationContext());
+            galleryGridView.setColumnWidth(Math.round(px));
+        }
+
+        loadAlbumTask = new TabFragment2.LoadAlbum();
+        loadAlbumTask.execute();
+
         return root;
     }
 
@@ -160,9 +138,9 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File f = cameraAction.createImageFile(getActivity());
             Uri uri = FileProvider.getUriForFile(getContext(), "com.example.week1", f);
+            //TODO: 사진 갤러리에도 반영
 
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
             startActivityForResult(intent, REQ_TAKE_CAMARA);
         }catch( IOException e){
             e.printStackTrace();
@@ -180,81 +158,136 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         //Generate image data
         protected String doInBackground(String... args) {
             String xml = "";
-
-            if(isFirstTime()){
-                getPhotos();
-            }
-            albumList = load_photos();
+            getPhotosfromServer();
 
             return xml;
         }
-
         // Set Adapter
         @Override
         protected void onPostExecute(String xml) {
-
+            albumList = load_photos();
             adapter = new AlbumAdapter(getActivity(), albumList);
             galleryGridView.setAdapter(adapter);
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
                                         final int position, long id) {
-                    Intent intent = new Intent(getActivity(), AlbumActivity.class);
-                    intent.putExtra("name", albumList.get(+position).get(Function.KEY_ALBUM));
-                    startActivity(intent);
+                    Intent intent = new Intent(getActivity(), GalleryPreview.class);
+                    intent.putExtra("url", albumList.get(+position).get(Function.KEY_URL));
+                    startActivityForResult(intent, REQ_DELETE);
                 }
             });
+
+            galleryGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
+
+                    String file = albumList.get(+position).get(Function.KEY_FILE);
+
+                    AlertDialog.Builder alt_bld = new AlertDialog.Builder(view.getContext());
+                    alt_bld.setMessage("Do you want to delete the photo?").setCancelable(
+                            false).setPositiveButton("Yes",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //TODO : PUT CURRENT LOGIN ID
+                                    apiClient.deleteImage("login_id", file, new APICallback() {
+                                        @Override
+                                        public void onError(Throwable t) {
+
+                                            Toast.makeText(view.getContext(), "NETWORK NOT CONNECTED", Toast.LENGTH_SHORT).show();
+                                            Log.e("LOG", t.toString());
+                                        }
+
+                                        @Override
+                                        public void onSuccess(int code, Object receivedData) {
+
+                                            Toast.makeText(view.getContext(), "DELETE SUCCESS", Toast.LENGTH_SHORT).show();
+
+                                            int i =0;
+                                            for(HashMap<String, String> album : albumList){
+                                                if( album.get(Function.KEY_FILE).equals(file)){
+                                                    break;
+                                                }
+                                                i++;
+                                            }
+
+                                            albumList.remove(i);
+                                            adapter.onActivityResult(1,1);
+                                        }
+
+                                        @Override
+                                        public void onFailure(int code) {
+
+                                            Toast.makeText(view.getContext(), "DELETE FAIL", Toast.LENGTH_SHORT).show();
+                                            Log.e("FAIL", String.format("code : %d", code));
+                                        }
+                                    });
+                                }
+                            }).setNegativeButton("No",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = alt_bld.create();
+                    // Title for AlertDialog
+                    alert.setTitle("DELETE");
+                    // Icon for AlertDialog
+                    alert.show();
+                    return true;
+                }
+            });
+
         }
     }
 
-    // check firstTime
-    private Boolean firstTime2 = null;
-    private boolean isFirstTime(){
-        if (firstTime2 == null) {
-            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time2", Context.MODE_PRIVATE);
-            firstTime2 = mPreferences.getBoolean("firstTime2", true);
-            if (firstTime2) {
-                SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putBoolean("firstTime2", false);
-                editor.commit();
+    // get Photos from Server
+    public void getPhotosfromServer(){
+
+        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                // TODO : PUT CURRENT LOGIN ID
+                apiClient.getImageList("login_id", new APICallback() {
+                    @Override
+                    public void onError(Throwable t) { }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        List<Image_f> data = (List<Image_f>) receivedData;
+                        Log.d("Load", "Start-------------------------------------------"+data);
+                        for( Image_f image_f : data){
+
+
+                            String login_id = image_f.getLogin_id();
+                            String url = String.format("http://%s:%d/%s", "143.248.39.49",4500, image_f.getUrl());
+                            String file = image_f.getUrl();
+                            String timestamp = image_f.getTimestamp();
+
+                            Log.d("Load", String.format("id : %s, url : %s , timestamp : %s", login_id,url, timestamp));
+
+                            db.insert_photo(login_id,url, file, timestamp);
+                        }
+                    }
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("FAIL", String.format("code : %d", code));
+                    }
+                });
+                return null;
             }
-        }
-        return firstTime2;
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+            }
+        }.execute();
     }
-
-    // get Photos from Gallery(very first time)
-    public void getPhotos(){
-        String path = null;
-        String album = null;
-        String timestamp = null;
-        Uri uriExternal = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Uri uriInternal = android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
-
-        String[] projection = { MediaStore.MediaColumns.DATA,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.MediaColumns.DATE_MODIFIED };
-        Cursor cursorExternal = getActivity().getContentResolver().query(uriExternal, projection, null,
-                null, null);
-        Cursor cursorInternal = getActivity().getContentResolver().query(uriInternal, projection, null,
-                null, null);
-        Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
-
-        while (cursor.moveToNext()) {
-
-            path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
-            album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
-            timestamp = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
-            //put in Database
-            GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-            db.insert_photo(path,album,timestamp);
-        }
-    }
-
 
     // generate Albumlist for adpater
     private ArrayList<HashMap<String, String>> load_photos(){
         GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-        return db.retreive_photos_byAlbums();
+        return db.sellect_all();
     }
-
 
     class AlbumAdapter extends BaseAdapter {
         private Activity activity;
@@ -281,27 +314,21 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                         R.layout.album_row, parent, false);
 
                 holder.galleryImage = (ImageView) convertView.findViewById(R.id.galleryImage);
-                holder.gallery_count = (TextView) convertView.findViewById(R.id.gallery_count);
-                holder.gallery_title = (TextView) convertView.findViewById(R.id.gallery_title);
 
                 convertView.setTag(holder);
             } else {
                 holder = (AlbumViewHolder) convertView.getTag();
             }
+
             holder.galleryImage.setId(position);
-            holder.gallery_count.setId(position);
-            holder.gallery_title.setId(position);
 
             HashMap < String, String > song = new HashMap < String, String > ();
             song = data.get(position);
             try {
-                holder.gallery_title.setText(song.get(Function.KEY_ALBUM));
-                holder.gallery_count.setText(song.get(Function.KEY_COUNT));
 
                 Glide.with(activity)
-                        .load(new File(song.get(Function.KEY_PATH))) // Uri of the picture
+                        .load( song.get(Function.KEY_URL) ) // Url of the picture
                         .into(holder.galleryImage);
-
 
             } catch (Exception e) {}
             return convertView;
@@ -313,10 +340,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
     }
 
-
     class AlbumViewHolder {
         ImageView galleryImage;
-        TextView gallery_count, gallery_title;
     }
 
     // get result from Camera Action
@@ -326,31 +351,11 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             // TODO : CAMERA FIX , SERVER
             case REQ_TAKE_CAMARA: {
                 if (resultCode == Activity.RESULT_OK) {
-                    GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-
                     String path = cameraAction.get_Path();
-                    String album = cameraAction.get_album();
-                    String time = cameraAction.get_timestamp();
-                    String timestamp = Function.converToTimeStamp(time).toString();
+                    uploadImageToServer(path, "login_id");
 
-                    db.insert_photo(path, album, timestamp);
-                    String countPhoto = db.getCount(album);
-                    int i=-1;
-
-                    for(HashMap<String, String> album_i :albumList){
-                        if (album_i.get(Function.KEY_ALBUM).equals(album)){
-                            i = albumList.indexOf(album_i);
-                        }
-                    }
-                    if(i != -1) {
-                        albumList.remove(i);
-                    } else {
-                        i = albumList.size();
-                    }
-                    albumList.add(i,Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
-                    adapter.onActivityResult(REQ_TAKE_CAMARA, 1);
-                    break;
                 }
+                break;
             }
             case REQ_PICK_IMAGE: {
                 if (resultCode == Activity.RESULT_OK){
@@ -361,12 +366,12 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                         assert photoUri != null;
                         cursor = getActivity().getContentResolver().query(photoUri, proj, null, null, null);
                         assert cursor != null;
-                        Log.d("path","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                         cursor.moveToNext();
                         String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
                         cursor.close();
                         Log.d("path",path);
 
+                        // TODO : PUT CURRENT LOGIN ID
                         uploadImageToServer(path, "login_id");
 
                     } finally {
@@ -374,6 +379,24 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                             cursor.close();
                         }
                     }
+                }
+                break;
+            }
+            case REQ_DELETE: {
+                if (resultCode == Activity.RESULT_OK){
+                    String url = intent.getStringExtra("url");
+                    String login_id = intent.getStringExtra("login_id");
+
+                    int i =0;
+                    for(HashMap<String, String> album : albumList){
+                        if( album.get(Function.KEY_URL).equals(url)){
+                            break;
+                        }
+                        i++;
+                    }
+
+                    albumList.remove(i);
+                    adapter.onActivityResult(1,1);
                 }
             }
         }
@@ -386,6 +409,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
         // Create MultipartBody.Part using file request-body,file name and part name
         MultipartBody.Part part = MultipartBody.Part.createFormData("Gallery", file.getName(), fileReqBody);
+        Log.d("filename", file.getName());
 
 
         apiClient.uploadImage(part, login_id, new APICallback() {
@@ -396,9 +420,13 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
             @Override
             public void onSuccess(int code, Object receivedData) {
-                Log.d("Success", "ggggggggggggggggggggggggggggggggggggggoooooooooooooooooooooooooooooooooooooodddddddddddddd!!");
-            }
+                //TODO : PUT SERVER URL
+                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  file.getName());
+                albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
 
+                Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));
+                adapter.onActivityResult(1,1);
+            }
             @Override
             public void onFailure(int code) {
                 Log.e("FAIL", String.format("code : %d", code));

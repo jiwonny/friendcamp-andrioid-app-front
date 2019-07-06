@@ -1,9 +1,12 @@
 package com.example.week1.network;
 
+import java.util.List;
+
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -27,21 +30,21 @@ public interface ApiService {
 
 
     /* Gallery */
-    @GET("/Gallery/Login_id/{Login_id}/Image_id/{Image_id}")
-    Call <String> getURlofImage(@Path("Login_id") String login_id, @Path("Image_id") String image_id);
 
     @GET("/{ImageName}")
     Call <ResponseBody> getImage(@Url String url, @Path("ImageName") String image_name);
 
-    /*
-    @POST("/Gallery/Login_id/{Login_id}")
-    Call <Image_f> req_uploadImage(@Path("Login_id") String login_id);
-    */
+    @GET("/Gallery/getImageList/{Login_id}")
+    Call <List<Image_f>> getImageList(@Path("Login_id") String login_id);
+
 
 
     @Multipart
     @POST("/Gallery/{Login_id}")
     Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Path("Login_id") String login_id);
+
+    @DELETE("/Gallery/delete/{Login_id}/{url}")
+    Call <ResponseBody> deleteImage(@Path("Login_id") String login_id, @Path("url") String url);
 
 
 }

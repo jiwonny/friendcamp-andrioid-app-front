@@ -11,21 +11,22 @@
     android:paddingRight="0dp"
     android:paddingBottom="0dp"
     tools:context=".ui.gallery.TabFragment2">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <Button
+
+        <include
+            layout="@layout/tab2profile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_upload"
-            android:text="upload"/>
+            android:layout_height="wrap_content" />
+
 
         <GridView
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
             android:columnWidth="100dp"
             android:horizontalSpacing="5dp"
@@ -33,9 +34,7 @@
             android:stretchMode="columnWidth"
             android:verticalSpacing="5dp"></GridView>
 
-
     </LinearLayout>
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/camera_button"
@@ -43,8 +42,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:layout_marginTop="16dp"
         android:clickable="true"
+        android:focusable="true"
         android:src="@android:drawable/ic_menu_camera"
-        android:focusable="true" />
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
