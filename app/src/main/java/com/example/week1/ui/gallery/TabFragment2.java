@@ -91,6 +91,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             }
         });
 
+
         FloatingActionButton Start_Camera = root.findViewById(R.id.camera_button);
         Start_Camera.setOnClickListener(new View.OnClickListener() {
             @Override
