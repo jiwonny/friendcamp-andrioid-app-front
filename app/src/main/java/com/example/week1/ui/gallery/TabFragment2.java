@@ -54,6 +54,8 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestPermissionsResultCallback {
 
 
@@ -69,12 +71,23 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     AlbumAdapter adapter;
     APIClient apiClient;
 
+    String user_name;
+    String user_id;
+    String user_number;
+    String user_profile;
+
     public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+
+        SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+        user_id = sf.getString("currentUser_email", "");
+        user_name = sf.getString("currentUser_name", "");
+        user_number = sf.getString("currentUser_number", "");
+        user_profile = sf.getString("currentuser_profile","");
     }
 
     @Override
@@ -189,8 +202,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                             false).setPositiveButton("Yes",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    //TODO : PUT CURRENT LOGIN ID
-                                    apiClient.deleteImage("login_id", file, new APICallback() {
+                                    apiClient.deleteImage(user_id, file, new APICallback() {
                                         @Override
                                         public void onError(Throwable t) {
 
@@ -248,8 +260,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
-                // TODO : PUT CURRENT LOGIN ID
-                apiClient.getImageList("login_id", new APICallback() {
+                apiClient.getImageList(user_id, new APICallback() {
                     @Override
                     public void onError(Throwable t) { }
 
@@ -353,7 +364,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             case REQ_TAKE_CAMARA: {
                 if (resultCode == Activity.RESULT_OK) {
                     String path = cameraAction.get_Path();
-                    uploadImageToServer(path, "login_id");
+                    uploadImageToServer(path, user_id);
 
                 }
                 break;
@@ -372,8 +383,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                         cursor.close();
                         Log.d("path",path);
 
-                        // TODO : PUT CURRENT LOGIN ID
-                        uploadImageToServer(path, "login_id");
+                        uploadImageToServer(path, user_id);
 
                     } finally {
                         if (cursor != null) {
@@ -422,7 +432,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             @Override
             public void onSuccess(int code, Object receivedData) {
                 //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  file.getName());
+                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
                 albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
 
                 Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));

@@ -139,10 +139,8 @@ public class SearchActivity extends AppCompatActivity {
                     List<User> users = (List<User>)receivedData;
                     Log.d("search", "hh "+ users);
                     for(User user : users){
-                        Log.d("search", "11111111111111111111111111111111111111111111111111111111111111111");
                         contact_items_search.add(user);
                     }
-
                     // 리스트 데이터가 변경되었으므로 아답터를 갱신하여 검색된 데이터를 화면에 보여준다.
                     contactSearchAdapter.notifyDataSetChanged();
                 }

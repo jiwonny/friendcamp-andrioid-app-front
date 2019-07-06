@@ -31,6 +31,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.User;
+import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactSearchAdapter;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
@@ -62,8 +63,8 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     CallbackManager callbackManager;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        apiClient = APIClient.getInstance(this, "143.248.38.203",4500).createBaseApi();
+        ContactDBAdapter db = new ContactDBAdapter(this);
+        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
         // PERMISSIONS CHECK
 
         String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};

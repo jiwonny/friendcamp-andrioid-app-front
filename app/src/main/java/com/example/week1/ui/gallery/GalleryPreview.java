@@ -1,6 +1,7 @@
 package com.example.week1.ui.gallery;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,22 +26,31 @@ public class GalleryPreview extends AppCompatActivity {
 
     ImageView GalleryPreviewImg;
     String url;
-    String login_id;
     Intent intent;
     APIClient apiClient;
+
+    String user_name;
+    String login_id;
+    String user_number;
+    String user_profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.gallery_preview);
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        login_id = sf.getString("currentUser_email", "");
+        user_name = sf.getString("currentUser_name", "");
+        user_number = sf.getString("currentUser_number", "");
+        user_profile = sf.getString("currentuser_profile","");
 
         apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
 
+        setContentView(R.layout.gallery_preview);
+
         // Get intent from TabFragment2
         intent = getIntent();
-        //TODO : PUT CURRENT LOGIN ID
-        login_id = "login_id";
+
         url = intent.getStringExtra("url");
 
         GalleryPreviewImg = (ImageView) findViewById(R.id.GalleryPreviewImg);

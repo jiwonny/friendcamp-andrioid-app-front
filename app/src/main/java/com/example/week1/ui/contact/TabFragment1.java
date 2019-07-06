@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 import retrofit2.Call;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -67,6 +69,7 @@ public class TabFragment1 extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+
     }
 
     @Override
@@ -235,7 +238,7 @@ public class TabFragment1 extends Fragment {
     ArrayList<User> current_user_friends = new ArrayList<User>();
     private boolean isFirstTime(){
         if (firstTime == null) {
-            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", Context.MODE_PRIVATE);
+            SharedPreferences mPreferences = getActivity().getSharedPreferences("first_time", MODE_PRIVATE);
             firstTime = mPreferences.getBoolean("firstTime", true);
             if (firstTime) {
                 SharedPreferences.Editor editor = mPreferences.edit();
@@ -270,7 +273,7 @@ public class TabFragment1 extends Fragment {
             ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
             //------현재 user 정보 불러오기-------
-            SharedPreferences sf = getActivity().getSharedPreferences("userFile", Context.MODE_PRIVATE);
+            SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
             String current_login_id = sf.getString("currentUser_email", "");
             String current_name = sf.getString("currentUser_name", "");
 

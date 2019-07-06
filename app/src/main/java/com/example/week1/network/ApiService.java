@@ -48,13 +48,9 @@ public interface ApiService {
 
     /* Gallery */
 
-    @GET("/{ImageName}")
-    Call <ResponseBody> getImage(@Url String url, @Path("ImageName") String image_name);
 
     @GET("/Gallery/getImageList/{Login_id}")
     Call <List<Image_f>> getImageList(@Path("Login_id") String login_id);
-
-
 
     @Multipart
     @POST("/Gallery/{Login_id}")

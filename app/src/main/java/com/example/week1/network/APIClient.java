@@ -110,23 +110,6 @@ public class APIClient {
         });
     }
 
-    public void getImage(String url, final APICallback callback){
-        apiService.getImage(url).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    callback.onSuccess(response.code(), response);
-                } else {
-                    callback.onFailure(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
-    }
 
     public void getImageList(String login_id, final APICallback callback){
         try {

@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.Image_f;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         user_id = sf.getString("currentUser_email", "");
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
-        user_profile = sf.getString("currentuser_profile","");
+        user_profile = sf.getString("currentuser_profile",null);
 
         apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
@@ -98,13 +99,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
 
+        ImageView current_image = headerLayout.findViewById(R.id.profile_image);
         TextView current_name = headerLayout.findViewById(R.id.current_name);
         TextView current_email = headerLayout.findViewById(R.id.current_id);
         TextView current_number = headerLayout.findViewById(R.id.current_number);
         current_name.setText(user_id);
         current_email.setText(user_name);
         current_number.setText(user_number);
+        if(user_profile != null){
+            try {
+                //TODO : PUT SERVER URL
+                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500, user_profile);
+                Glide.with(this)
+                        .load( url ) // Url of the picture
+                        .into(current_image);
 
+            } catch (Exception e) {}
+        }
 
 
         //---logout manager-----//
