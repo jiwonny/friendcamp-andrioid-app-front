@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactSearchAdapter;
@@ -48,6 +49,8 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
@@ -64,7 +67,10 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ContactDBAdapter db = new ContactDBAdapter(this);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
         // PERMISSIONS CHECK
 
         String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -88,6 +94,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     public String c_name;
     public String c_phNumber;
     public String c_profile;
+    public User data = new User();
 
 
     public void inital_setting(){
@@ -135,7 +142,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     public void onError(Throwable t) { }
                                                     @Override
                                                     public void onSuccess(int code, Object receivedData) {
-                                                        User data = (User) receivedData;
+                                                       data = (User) receivedData;
                                                         c_phNumber = data.getNumber();
                                                         c_profile = data.getProfile_image_id();
                                                         check = true;
@@ -152,6 +159,11 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                             protected void onPostExecute(Boolean s) {
                                                 super.onPostExecute(s);
                                                 if (check){
+                                                    // 만약 존재하는 경우 바로 main activity 로 이동.
+                                                    Gson currentGson = new GsonBuilder().create();
+                                                    String userJson = currentGson.toJson(data, User.class);
+
+                                                    editor.putString("currentUser", userJson);
                                                     editor.putString("currentUser_email",c_login_Id);
                                                     editor.putString("currentUser_name", c_name);
                                                     editor.putString("currentUser_number", c_phNumber);
@@ -164,6 +176,11 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     Intent insertIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
                                                     insertIntent.putExtra("user_email", c_login_Id);
                                                     insertIntent.putExtra("user_name", c_name);
+                                                    Gson currentGson = new GsonBuilder().create();
+                                                    String userJson = currentGson.toJson(data, User.class);
+
+                                                    editor.putString("currentUser", userJson);
+
                                                     editor.putString("currentUser_email",c_login_Id); // key, value를 이용하여 저장하는 형태
                                                     editor.putString("currentUser_name", c_name); // key, value를 이용하여 저장하는 형태
                                                     editor.commit();

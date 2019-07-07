@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,9 +29,12 @@ import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.ApiService;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -61,7 +65,10 @@ public class TabFragment1 extends Fragment {
     Loadcontacts loadcontactTask;
     Sync_contacts synchronization;
     APIClient apiClient;
-
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
+    View root;
+    SharedPreferences sf;
 
     public TabFragment1(){
     }
@@ -69,24 +76,31 @@ public class TabFragment1 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
 
     }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tabfragment1, container, false);
+        root = inflater.inflate(R.layout.tabfragment1, container, false);
+
+        sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+        String userInstance = sf.getString("currentUser","");
+        Gson gson = new GsonBuilder().create();
+
+
+
 
         // ADD CONTACT Button
-        Button add_contact = root.findViewById(R.id.add_contact);
-        add_contact.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
-                startActivityForResult(intent, REQ_ADD_CONTACT);
-            }
-        });
+//        Button add_contact = root.findViewById(R.id.add_contact);
+//        add_contact.setOnClickListener(new Button.OnClickListener(){
+//            @Override
+//            public void onClick(View view){
+//                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
+//                startActivityForResult(intent, REQ_ADD_CONTACT);
+//            }
+//        });
 
         // SYNCHRONIZATION CONTACT Button
         FloatingActionButton sync_contact = root.findViewById(R.id.sync_Button);
@@ -95,6 +109,8 @@ public class TabFragment1 extends Fragment {
             public void onClick(View view){
                 synchronization = new TabFragment1.Sync_contacts();
                 synchronization.execute();
+
+
             }
         });
 
@@ -131,6 +147,11 @@ public class TabFragment1 extends Fragment {
             adapter = new ContactAdapter(contact_items);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
+
+            TextView countFriends = root.findViewById(R.id.count_friends);
+            countFriends.setText("0");
+            countFriends.setText(""+adapter.getItemCount());
+            Log.i("count", "count:"+adapter.getItemCount());
 
             // EDIT & DELETE & CALL CONTACT
             adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
@@ -274,7 +295,10 @@ public class TabFragment1 extends Fragment {
             ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
             //------현재 user 정보 불러오기-------
-            SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+
+            //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+            SharedPreferences.Editor editor = sf.edit();
+
             String current_login_id = sf.getString("currentUser_email", "");
             String current_name = sf.getString("currentUser_name", "");
 
@@ -347,6 +371,14 @@ public class TabFragment1 extends Fragment {
             // ------ 서버 디비에 넣기 위한 작업 ----------
             current_user.setFriends(current_user_friends);
 
+            // 원래 user 에 대한 gson get
+//            String user_instance = sf.getString("currentUser", "");
+            // 변환
+            Gson gson = new GsonBuilder().create();
+            String userJson = gson.toJson(current_user, User.class);
+            editor.putString("currentUser", userJson);
+            editor.commit();
+
             for(User user : current_user_friends){
                 String login_id = user.getLogin_id();
                 String name = user.getName();
@@ -372,6 +404,8 @@ public class TabFragment1 extends Fragment {
                 }
             });
 
+
+
             // ----------서버 디비 넣기 작업 끝 -----------
             return xml;
         }
@@ -379,6 +413,8 @@ public class TabFragment1 extends Fragment {
         protected void onPostExecute(String xml) {
             getActivity().recreate();
         }
+
+
     }
 
 

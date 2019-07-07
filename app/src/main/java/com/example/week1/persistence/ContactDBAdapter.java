@@ -81,6 +81,20 @@ public class ContactDBAdapter {
         return false;
     }
 
+    public boolean delete_all_contact(){
+        try{
+            db=helper.getWritableDatabase();
+            db.execSQL(ContactDBCtrct.SQL_DELETE);
+
+            return true;
+        } catch(SQLException e){
+            e.printStackTrace();
+        } finally {
+            helper.close();
+        }
+        return false;
+    }
+
     public boolean drop_contact(){
         try{
             db=helper.getWritableDatabase();

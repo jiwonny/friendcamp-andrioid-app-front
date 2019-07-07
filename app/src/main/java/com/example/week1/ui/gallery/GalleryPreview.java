@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 
 
 /**
@@ -33,6 +34,8 @@ public class GalleryPreview extends AppCompatActivity {
     String login_id;
     String user_number;
     String user_profile;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +47,7 @@ public class GalleryPreview extends AppCompatActivity {
         user_number = sf.getString("currentUser_number", "");
         user_profile = sf.getString("currentuser_profile","");
 
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
 
         setContentView(R.layout.gallery_preview);
 

@@ -1,48 +1,52 @@
 package com.example.week1;
 
-
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.AsyncTask;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
-import com.example.week1.ui.gallery.TabFragment2;
+import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
-import java.io.File;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
+import com.google.android.material.tabs.TabLayout;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -66,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = this;
 
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
@@ -76,7 +79,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Log.d("MainActivity", String.format("id: %s , name: %s , number %s, profile, %s", user_id,user_name,user_number,user_profile));
 
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
 
 
@@ -94,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
 
-        ImageView current_image = headerLayout.findViewById(R.id.Profile_image);
+        ImageView current_image = headerLayout.findViewById(R.id.profile_image);
         TextView current_name = headerLayout.findViewById(R.id.current_name);
         TextView current_email = headerLayout.findViewById(R.id.current_id);
         TextView current_number = headerLayout.findViewById(R.id.current_number);
@@ -102,9 +107,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         current_email.setText(user_name);
         current_number.setText(user_number);
         if(user_profile != null){
-            Log.d("profile","22222222222222222222222222222222222222222222222222222222");
             try {
-                //TODO : PUT SERVER URL
+
                 Glide.with(this)
                         .load( user_profile ) // Url of the picture
                         .into(current_image);
@@ -124,39 +128,93 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.clear();
                 editor.commit();
 
-                if(db.drop_contact()){
-                    Log.d("drop_table", "drop_success");
+                if(db.delete_all_contact()){
+                    Log.d("drop_table", "dropdrop");
                 }else{
-                    Log.d("drop_table", "drop_fail");
+                    Log.d("drop_table", "drop_실패!");
                 }
+
 
                 Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(logoutIntent);
                 return;
             }
         });
-
     }
-
-    /* ------------------------< Navigation Bar >--------------------------*/
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction trans = fm.beginTransaction();
+        TabFragment1 tabFragment1= new TabFragment1();
+        TabFragment2 tabFragment2= new TabFragment2();
+        TabFragment3 tabFragment3= new TabFragment3();
+//        if (id == R.id.TEST) {
+//            User user = new User();
+//            user.setLogin_id("idididid");
+//            user.setName("namenamename");
+//            user.setNumber("000-0000-0000");
+//            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+//            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+//
+//            apiClient.post_User(user, new APICallback() {
+//                @Override
+//                public void onError(Throwable t) {
+//                    Log.e("LOG", t.toString());
+//                }
+//
+//                @Override
+//                public void onSuccess(int code, Object receivedData) {
+//                    User data = (User) receivedData;
+//                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
+//                }
+//
+//                @Override
+//                public void onFailure(int code) {
+//                    Log.e("FAIL", String.format("code : %d", code));
+//                }
+//            });
+//
+//        }
+//        return false;
 
-        if (id == R.id.menu1) {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-            startActivityForResult(intent, REQ_PICK_IMAGE);
-        }
-
-        if (id == R.id.menu2){
-            Log.d("a","clickclicklcicklcicklciclciclkl");
+        if(id == R.id.ContactItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(0);
 
 
-        }
+          // trans.replace(R.id.tabfragment1, tabFragment1);
 
-        return false;
+        }else if(id == R.id.GalleryItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(1);
+           // trans.replace(R.id.tabfragment1, tabFragment2);
+
+        }else if(id == R.id.SearchItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(2);
+           // trans.replace(R.id.main_layout, tabFragment3);
+
+                @Override
+                public void onFailure(int code) {
+                    Log.e("FAIL", String.format("code : %d", code));
+                }
+            });
+
+      //  trans.addToBackStack(null);
+       // trans.commit();
+
+        return true;
     }
 
     AlertDialog dlg;
@@ -194,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    /* --------------------------< App Bar >--------------------------*/
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

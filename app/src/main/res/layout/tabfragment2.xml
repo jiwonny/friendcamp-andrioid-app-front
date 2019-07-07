@@ -23,15 +23,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
 
-        <Button
-            android:id="@+id/button_upload"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/baseline_add_circle_outline_white_18dp"
-            android:focusableInTouchMode="true" />
+        <!--<Button-->
+            <!--android:id="@+id/button_upload"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/baseline_add_circle_outline_white_18dp"-->
+            <!--android:focusableInTouchMode="true" />-->
 
 
         <GridView
+            android:layout_marginTop="15dp"
             android:id="@+id/galleryGridView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

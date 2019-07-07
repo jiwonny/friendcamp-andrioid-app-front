@@ -1,6 +1,7 @@
 package com.example.week1.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -68,6 +69,7 @@ public class APIClient {
     /* GET implementation */
 
     public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
+        Log.d("call apiclient", "나 불려졌어~!");
         try {
             Response<User> response = apiService.getUserfrom_Name_Number(name, number).execute();
             if (response.isSuccessful()) {

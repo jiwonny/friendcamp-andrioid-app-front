@@ -13,20 +13,35 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class InsertNumberActivity extends AppCompatActivity{
 
     APIClient apiClient;
+    User currentUser = new User();
+
+    Gson gson = new GsonBuilder().create();
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insertnum);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
 
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
+
         //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
         SharedPreferences.Editor editor = sf.edit();
+
+        // 원래 user 에 대한 gson get
+        String user_instance = sf.getString("currentUser", "");
+        // 변환
+        currentUser = gson.fromJson(user_instance, User.class);
 
         Intent userIntent = getIntent();
         String user_name = userIntent.getStringExtra("user_name");
@@ -56,6 +71,15 @@ public class InsertNumberActivity extends AppCompatActivity{
 
                     user.setNumber(user_phNumber);
 
+                    // 어차피 처음 가입하는 자는 친구가 없음.
+                    currentUser.setName(user_name);
+                    currentUser.setLogin_id(user_email);
+                    currentUser.setNumber(user_phNumber);
+
+//                    Gson currentGson = new GsonBuilder().create();
+                    String userJson = gson.toJson(currentUser, User.class);
+
+                    editor.putString("currentUser", userJson);
                     editor.putString("currentUser_number", user_phNumber);
                     editor.commit();
 

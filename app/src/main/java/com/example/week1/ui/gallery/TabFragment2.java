@@ -2,19 +2,23 @@ package com.example.week1.ui.gallery;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,7 +41,6 @@ import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.Image_f;
-import com.example.week1.network.User;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -72,13 +75,15 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     String user_id;
     String user_number;
     String user_profile;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
 
-    public TabFragment2(){  }
+    public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
 
         SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
@@ -98,7 +103,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         Profile_id.setText(user_id);
         Profile_number.setText(user_number);
 
-        Button upload_image = root.findViewById(R.id.button_upload);
+        CardView upload_image = root.findViewById(R.id.upload_card);
         upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,7 +153,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         return root;
     }
 
-    public void init_photos(){
+    public void init_photos() {
 
         loadAlbumTask = new TabFragment2.LoadAlbum();
         loadAlbumTask.execute();
@@ -159,23 +164,26 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             protected String doInBackground(Void... params) {
                 apiClient.getUserfrom_Name_LoginId(user_name, user_id, new APICallback() {
                     @Override
-                    public void onError(Throwable t) { }
+                    public void onError(Throwable t) {
+                    }
 
                     @Override
                     public void onSuccess(int code, Object receivedData) {
                         User data = (User) receivedData;
                         user_profile = data.getProfile_image_id();
-                        if(user_profile != null){
+                        if (user_profile != null) {
                             try {
                                 //TODO : PUT SERVER URL
-                                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500, user_profile);
+                                String url = String.format("http://%s:%d/%s", "143.248.39.49", 4500, user_profile);
                                 Glide.with(getActivity())
-                                        .load( url ) // Url of the picture
+                                        .load(url) // Url of the picture
                                         .dontAnimate()
                                         .into(Profile_image);
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                            }
                         }
                     }
+
                     @Override
                     public void onFailure(int code) {
 
@@ -183,6 +191,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                 });
                 return null;
             }
+
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
@@ -319,7 +328,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
 
                             String login_id = image_f.getLogin_id();
-                            String url = String.format("http://%s:%d/%s", "143.248.39.49",4500, image_f.getUrl());
+                            String url = String.format("http://%s:%d/%s", address ,4500, image_f.getUrl());
                             String file = image_f.getUrl();
                             String timestamp = image_f.getTimestamp();
 
@@ -479,7 +488,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             @Override
             public void onSuccess(int code, Object receivedData) {
                 //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
+                String url =  String.format("http://%s:%d/%s", address ,4500,  user_id+'_'+file.getName());
                 albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
 
                 Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));

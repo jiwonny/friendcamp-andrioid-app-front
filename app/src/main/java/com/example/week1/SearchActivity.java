@@ -1,6 +1,8 @@
 package com.example.week1;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,28 +22,69 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.ui.contact.ContactItem;
 import com.example.week1.ui.contact.ContactSearchAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity{
     RecyclerView mRecyclerView;
     EditText editSearch;
-    ContactSearchAdapter contactSearchAdapter;
+    private ContactSearchAdapter contactSearchAdapter;
     ArrayList<User> contact_items_search = new ArrayList<User>();
     ArrayList<ContactItem> temp_items = new ArrayList<ContactItem>();
     APIClient apiClient;
+    User addUser = new User();
+    User currentUser = new User();
+    ContactDBAdapter db = new ContactDBAdapter(this);
+    public Boolean check = true;
+    Gson gson = new GsonBuilder().create();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
+
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        SharedPreferences add_sf = getSharedPreferences("add_user_file", MODE_PRIVATE);
+//        String current_login_id = sf.getString("currentUser_email", "");
+//        String current_name = sf.getString("currentUser_name", "");
+
+        //###### 현재 로그인한 user 정보 불러오기.########
+        String user_instance = sf.getString("currentUser", "");
+        Log.d("user_instance check", user_instance);
+        // 변환
+        User currentUser = gson.fromJson(user_instance, User.class);
+        //currentUser 란 현재 로그인한 user 정보.
+        Log.d("gsonUser", currentUser.getNumber());
+        ArrayList<User> current_user_friends = new ArrayList<User>();
+        if(currentUser.getFriends() == null){
+            Log.d("current user info", "-----------------");
+        }
+        else {
+            Log.d("current user info", "--" + currentUser.getName());
+            Iterator iterator = currentUser.getFriends().iterator();
+
+            while (iterator.hasNext()) {
+                current_user_friends.add((User) iterator.next());
+            }
+            Log.d("Friends list", current_user_friends.get(0).getName());
+        }
+        //#########현재 user 정보 불러오기 끝########
 
         //------- Recycler View ---------
         RecyclerView.LayoutManager mLayoutManager;
@@ -51,13 +94,12 @@ public class SearchActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-//        contact_items_search = load_init_contacts(10);
+        //contact_items_search = load_init_contacts(10);
         temp_items = load_all_contacts();
 
         //contact_items_search : 처음에 검색되는 items
         contactSearchAdapter = new ContactSearchAdapter(contact_items_search);
         mRecyclerView.setAdapter(contactSearchAdapter);
-
 
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -78,8 +120,6 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-
-
         final Button searchCancel = (Button) findViewById(R.id.search_cancel);
         searchCancel.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -88,6 +128,81 @@ public class SearchActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.no_change,R.anim.slide_down_info);
             }
         });
+
+        //TODO : 친구 눌렀을 때 추가하기.
+        // 추가하기
+        String add_name = add_sf.getString("add_user_name","");
+        String add_number = add_sf.getString("add_user_number","");
+
+        try{
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params){
+                    apiClient.getUserfrom_Name_Number(add_name, add_number, new APICallback() {
+                        @Override
+                        public void onError(Throwable t) { }
+
+                        @Override
+                        public void onSuccess(int code, Object receivedData) {
+                            // 추가할 user 에 대한 user 객체
+                            check = true;
+                            addUser = (User) receivedData;
+                            Log.d("who are you", "addUser"+addUser.getName());
+                        }
+
+                        @Override
+                        public void onFailure(int code) { check = false;}
+                    });
+
+                    return check;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean s){
+                    super.onPostExecute(s);
+                }
+            }.execute();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        //추가할 user 가 누구인가 -> friend 목록에 추가.
+//
+//        apiClient.getUserfrom_Name_Number(add_name, add_number, new APICallback() {
+//            @Override
+//            public void onError(Throwable t) { }
+//
+//            @Override
+//            public void onSuccess(int code, Object receivedData) {
+//                // 추가할 user 에 대한 user 객체
+//                addUser = (User) receivedData;
+//                Log.d("who are you", "addUser"+addUser.getName());
+//            }
+//
+//            @Override
+//            public void onFailure(int code) { }
+//        });
+//
+//        //db 에 연락처를 추가
+//        db.insert_contact(addUser.getLogin_id(), addUser.getName(), addUser.getNumber());
+//        currentUser.setFriends(current_user_friends);
+//
+//        // 서버 디비에 친구목록 추가
+//        apiClient.update_User(currentUser.getLogin_id(), currentUser, new APICallback() {
+//            @Override
+//            public void onError(Throwable t) { }
+//
+//            @Override
+//            public void onSuccess(int code, Object receivedData) {
+//                User data = (User) receivedData;
+//                Log.d("Success_add", data.getName());
+//            }
+//
+//            @Override
+//            public void onFailure(int code) {
+//                Log.e("FRIEND ADD FAIL", String.format("code : %d", code));
+//            }
+//        });
+
     }
 
     private ArrayList<ContactItem> load_all_contacts(){
