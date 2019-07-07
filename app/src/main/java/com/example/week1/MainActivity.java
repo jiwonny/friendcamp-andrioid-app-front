@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -25,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
@@ -35,6 +37,7 @@ import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
+import com.example.week1.ui.calendar.TabFragment3;
 import com.example.week1.ui.contact.TabFragment1;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.gallery.TabFragment2;
@@ -74,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String user_id;
     String user_number;
     String user_profile;
+    ViewPager viewPager;
+    SectionsPagerAdapter sectionsPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +96,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         setContentView(R.layout.activity_main);
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+
 
         Toolbar tb = (Toolbar) findViewById(R.id.app_toolbar);
         setSupportActionBar(tb);
 
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
@@ -153,8 +159,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction trans = fm.beginTransaction();
         TabFragment1 tabFragment1= new TabFragment1();
         TabFragment2 tabFragment2= new TabFragment2();
+        TabFragment3 tabFragment3= new TabFragment3();
 //        if (id == R.id.TEST) {
 //            User user = new User();
 //            user.setLogin_id("idididid");
@@ -185,13 +193,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        return false;
 
         if(id == R.id.ContactItem){
-            fm.beginTransaction().replace(R.id.main_layout, tabFragment1);
-            return true;
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(0);
+
+
+          // trans.replace(R.id.tabfragment1, tabFragment1);
+
         }else if(id == R.id.GalleryItem){
-            fm.beginTransaction().replace(R.id.main_layout, tabFragment2);
-            return true;
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(1);
+           // trans.replace(R.id.tabfragment1, tabFragment2);
+
+        }else if(id == R.id.SearchItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(2);
+           // trans.replace(R.id.main_layout, tabFragment3);
+
         }
-        return false;
+
+      //  trans.addToBackStack(null);
+       // trans.commit();
+
+        return true;
     }
 
     AlertDialog dlg;
