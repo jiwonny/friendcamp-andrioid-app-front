@@ -1,16 +1,21 @@
 package com.example.week1;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View;
 import android.view.Window;
@@ -29,6 +34,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
@@ -41,10 +47,14 @@ import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -70,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
 
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
@@ -103,8 +114,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView current_name = headerLayout.findViewById(R.id.current_name);
         TextView current_email = headerLayout.findViewById(R.id.current_id);
         TextView current_number = headerLayout.findViewById(R.id.current_number);
-        current_name.setText(user_id);
-        current_email.setText(user_name);
+        current_name.setText(user_name);
+        current_email.setText(user_id);
         current_number.setText(user_number);
         if(user_profile != null){
             try {
@@ -115,6 +126,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             } catch (Exception e) {}
         }
+
+        Button edit_button = headerLayout.findViewById(R.id.profile_edit);
+        edit_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, REQ_PICK_IMAGE);
+            }
+        });
 
 
         //---logout manager-----//
@@ -145,39 +166,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction trans = fm.beginTransaction();
-        TabFragment1 tabFragment1= new TabFragment1();
-        TabFragment2 tabFragment2= new TabFragment2();
-        TabFragment3 tabFragment3= new TabFragment3();
-//        if (id == R.id.TEST) {
-//            User user = new User();
-//            user.setLogin_id("idididid");
-//            user.setName("namenamename");
-//            user.setNumber("000-0000-0000");
-//            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-//            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-//
-//            apiClient.post_User(user, new APICallback() {
-//                @Override
-//                public void onError(Throwable t) {
-//                    Log.e("LOG", t.toString());
-//                }
-//
-//                @Override
-//                public void onSuccess(int code, Object receivedData) {
-//                    User data = (User) receivedData;
-//                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
-//                }
-//
-//                @Override
-//                public void onFailure(int code) {
-//                    Log.e("FAIL", String.format("code : %d", code));
-//                }
-//            });
-//
-//        }
-//        return false;
 
         if(id == R.id.ContactItem){
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
@@ -185,9 +173,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawer.closeDrawer(Gravity.LEFT);
             }
             sectionsPagerAdapter.getItem(0);
-
-
-          // trans.replace(R.id.tabfragment1, tabFragment1);
 
         }else if(id == R.id.GalleryItem){
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
@@ -197,23 +182,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sectionsPagerAdapter.getItem(1);
            // trans.replace(R.id.tabfragment1, tabFragment2);
 
-        }else if(id == R.id.SearchItem){
+        }else if(id == R.id.SearchItem) {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
-            if( drawer.isDrawerOpen(Gravity.LEFT)){
+            if (drawer.isDrawerOpen(Gravity.LEFT)) {
                 drawer.closeDrawer(Gravity.LEFT);
             }
             sectionsPagerAdapter.getItem(2);
-           // trans.replace(R.id.main_layout, tabFragment3);
-
-                @Override
-                public void onFailure(int code) {
-                    Log.e("FAIL", String.format("code : %d", code));
-                }
-            });
-
-      //  trans.addToBackStack(null);
-       // trans.commit();
-
+        }
         return true;
     }
 
@@ -300,8 +275,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         cursor.close();
                         Log.d("path", path);
 
-                        Log.d("aa","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasdfsdafsadfsdafsdafsadfsafasfsafds");
-
                         uploadImageToServer(path, user_id);
 
                     } finally {
@@ -346,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onSuccess(int code, Object receivedData) {
                         User data = (User) receivedData;
-                        ImageView current_image = headerLayout.findViewById(R.id.Profile_image);
+                        ImageView current_image = headerLayout.findViewById(R.id.profile_image);
                         Log.d("urlrul", url);
                         Glide.with(mContext)
                                 .load(url) // Url of the picture

@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -40,7 +41,9 @@ import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
+import com.example.week1.network.User;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -78,12 +81,16 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     IPInfo ip = new IPInfo();
     String address = ip.IPAddress;
 
+    Context mContext;
+
     public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
+
+        mContext = this.getActivity();
 
         SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
@@ -162,6 +169,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
+                Log.d("Start","dsfa7877777777777777777777777777777777777777777777777777777777777");
                 apiClient.getUserfrom_Name_LoginId(user_name, user_id, new APICallback() {
                     @Override
                     public void onError(Throwable t) {
@@ -171,17 +179,6 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                     public void onSuccess(int code, Object receivedData) {
                         User data = (User) receivedData;
                         user_profile = data.getProfile_image_id();
-                        if (user_profile != null) {
-                            try {
-                                //TODO : PUT SERVER URL
-                                String url = String.format("http://%s:%d/%s", "143.248.39.49", 4500, user_profile);
-                                Glide.with(getActivity())
-                                        .load(url) // Url of the picture
-                                        .dontAnimate()
-                                        .into(Profile_image);
-                            } catch (Exception e) {
-                            }
-                        }
                     }
 
                     @Override
@@ -195,6 +192,14 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             @Override
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
+                Log.d("profileprofile", "aaaaaaaaafsdfasdfdsafasfsda"+user_profile);
+                if (user_profile != null) {
+                    try {
+                        Glide.with(getActivity()).load(user_profile).into(Profile_image);
+                    } catch (Exception e) {
+                        Log.d("afsafsadfsadf","asdfsadfsafsadfdsa8f4sd89g4ds89g4s98dg498sad4g98sad4g9s8adg498sag498sadg498sad4g98sad4g98sda4g98sad4g98dsa849gs");
+                    }
+                }
             }
         }.execute();
     }

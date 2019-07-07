@@ -143,7 +143,7 @@ public class TabFragment1 extends Fragment {
 
         @Override
         protected void onPostExecute(String xml) {
-            Log.d("main","generate recycleview 11111111111111111111111111111111111111111111111111111111");
+
             adapter = new ContactAdapter(contact_items);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
@@ -282,17 +282,6 @@ public class TabFragment1 extends Fragment {
         protected String doInBackground(String... args) {
 
             String xml = "";
-            final Uri[] uri = {ContactsContract.CommonDataKinds.Phone.CONTENT_URI};
-            String[] projection = new String[]{
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            };
-            final String[][] selectionArgs = {null};
-            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-            Cursor cursor = getActivity().getContentResolver().query(uri[0], projection, null, selectionArgs[0], sortOrder);
-
-            ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
-            ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
             //------현재 user 정보 불러오기-------
 
@@ -301,6 +290,8 @@ public class TabFragment1 extends Fragment {
 
             String current_login_id = sf.getString("currentUser_email", "");
             String current_name = sf.getString("currentUser_name", "");
+
+            Log.d("DuplicateDuplicate", "Theres no duplicate0");
 
 
             apiClient.getUserfrom_Name_LoginId(current_name, current_login_id, new APICallback() {
@@ -332,11 +323,27 @@ public class TabFragment1 extends Fragment {
 
             //------현재 user 정보 불러오기 끝----
 
+            final Uri[] uri = {ContactsContract.CommonDataKinds.Phone.CONTENT_URI};
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            };
+            final String[][] selectionArgs = {null};
+            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+            Cursor cursor = getActivity().getContentResolver().query(uri[0], projection, null, selectionArgs[0], sortOrder);
+
+            ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
+            ContactDBAdapter db = new ContactDBAdapter(getActivity());
+
+
+
             if (cursor.moveToFirst()) {
                 do {
+                    Log.d("DuplicateDuplicate", "Theres no duplicate1");
                     String Name = cursor.getString(1);
                     String phNumber = cursor.getString(0);
-                    phNumber.replace("-", "");
+                    phNumber = phNumber.replace("-", "");
+                    Log.d("DuplicateDuplicate", "333333333333333"+ Name+"..........."+phNumber);
                     apiClient.getUserfrom_Name_Number(Name, phNumber, new APICallback() {
                         @Override
                         public void onError(Throwable t) { }
@@ -344,6 +351,8 @@ public class TabFragment1 extends Fragment {
                         public void onSuccess(int code, Object receivedData) {
                             User data = (User) receivedData;
                             String login_id = data.getLogin_id(); // 불러오는 login_id
+
+                            Log.d("DuplicateDuplicate","44444444444444444444444444444444444"+login_id);
 
                             int checkDuplicate = -1;
                             for(User user : current_user_friends){
@@ -355,7 +364,7 @@ public class TabFragment1 extends Fragment {
                             }
 
                             if(checkDuplicate == -1){
-                                Log.i("D", "Theres no duplicate");
+                                Log.d("DuplicateDuplicate", "Theres no duplicate2");
                                 current_user_friends.add(data);
                             }
 
@@ -371,8 +380,6 @@ public class TabFragment1 extends Fragment {
             // ------ 서버 디비에 넣기 위한 작업 ----------
             current_user.setFriends(current_user_friends);
 
-            // 원래 user 에 대한 gson get
-//            String user_instance = sf.getString("currentUser", "");
             // 변환
             Gson gson = new GsonBuilder().create();
             String userJson = gson.toJson(current_user, User.class);
@@ -386,6 +393,7 @@ public class TabFragment1 extends Fragment {
                 db.insert_contact(login_id,name,number);
             }
 
+            Log.d("DuplicateDuplicate", "Theres no duplicate4");
 
             // 서버 디비에 친구목록 추가
             apiClient.update_User(current_login_id, current_user, new APICallback() {
@@ -421,61 +429,6 @@ public class TabFragment1 extends Fragment {
     private ArrayList<ContactItem> load_contacts(){
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
         return db.retreive_all_contacts();
-    }
-
-
-
-    public Bitmap loadContactPhoto(ContentResolver cr, long id, long photo_id) {
-        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
-        InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
-        if (input != null)
-            return resizingBitmap(BitmapFactory.decodeStream(input));
-        else
-            Log.d("PHOTO","first try failed to load photo");
-
-        byte[] photoBytes = null;
-        Uri photoUri = ContentUris.withAppendedId(ContactsContract.Data.CONTENT_URI, photo_id);
-        Cursor c = cr.query(photoUri, new String[]{ContactsContract.CommonDataKinds.Photo.PHOTO}, null, null, null);
-        try {
-            if (c.moveToFirst())
-                photoBytes = c.getBlob(0);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            c.close();
-        }
-
-        if (photoBytes != null)
-            return resizingBitmap(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length));
-
-        else
-            Log.d("PHOTO", "second try also failed");
-        return null;
-    }
-
-    public Bitmap resizingBitmap(Bitmap oBitmap) {
-        if (oBitmap == null)
-            return null;
-        float width = oBitmap.getWidth();
-        float height = oBitmap.getHeight();
-        float resizing_size = 120;
-        Bitmap rBitmap = null;
-        if (width > resizing_size) {
-            float mWidth = (float) (width / 100);
-            float fScale = (float) (resizing_size / mWidth);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-
-        } else if (height > resizing_size) {
-            float mHeight = (float) (height / 100);
-            float fScale = (float) (resizing_size / mHeight);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-        }
-        //Log.d("rBitmap : " + width + "," + height);
-        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
-        return rBitmap;
     }
 
 }
