@@ -21,7 +21,14 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:id="@+id/app_toolbar"
-            />
+            app:titleTextColor= "@color/colorAccent">
+
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="20sp" />
+            </androidx.appcompat.widget.Toolbar>
 
 
         <androidx.viewpager.widget.ViewPager
@@ -32,7 +39,7 @@
 
     <com.google.android.material.navigation.NavigationView
         android:orientation="vertical"
-        android:layout_width="240dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:weightSum="100"
         android:layout_gravity="start"
@@ -40,6 +47,8 @@
         android:gravity="center"
         android:id = "@+id/NavigationView"
         app:menu="@menu/navigation_action">
+
+
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_log_button"

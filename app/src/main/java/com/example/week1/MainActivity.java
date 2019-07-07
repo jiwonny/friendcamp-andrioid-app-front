@@ -24,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
@@ -34,7 +35,9 @@ import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
+import com.example.week1.ui.contact.TabFragment1;
 import com.example.week1.ui.gallery.Function;
+import com.example.week1.ui.gallery.TabFragment2;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -105,8 +108,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView current_name = headerLayout.findViewById(R.id.current_name);
         TextView current_email = headerLayout.findViewById(R.id.current_id);
         TextView current_number = headerLayout.findViewById(R.id.current_number);
-        current_name.setText(user_id);
-        current_email.setText(user_name);
+        current_name.setText(user_name);
+        current_email.setText(user_id);
         current_number.setText(user_number);
         if(user_profile != null){
             try {
@@ -149,33 +152,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        FragmentManager fm = getSupportFragmentManager();
+        TabFragment1 tabFragment1= new TabFragment1();
+        TabFragment2 tabFragment2= new TabFragment2();
+//        if (id == R.id.TEST) {
+//            User user = new User();
+//            user.setLogin_id("idididid");
+//            user.setName("namenamename");
+//            user.setNumber("000-0000-0000");
+//            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+//            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+//
+//            apiClient.post_User(user, new APICallback() {
+//                @Override
+//                public void onError(Throwable t) {
+//                    Log.e("LOG", t.toString());
+//                }
+//
+//                @Override
+//                public void onSuccess(int code, Object receivedData) {
+//                    User data = (User) receivedData;
+//                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
+//                }
+//
+//                @Override
+//                public void onFailure(int code) {
+//                    Log.e("FAIL", String.format("code : %d", code));
+//                }
+//            });
+//
+//        }
+//        return false;
 
-        if (id == R.id.TEST) {
-            User user = new User();
-            user.setLogin_id("idididid");
-            user.setName("namenamename");
-            user.setNumber("000-0000-0000");
-            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-
-            apiClient.post_User(user, new APICallback() {
-                @Override
-                public void onError(Throwable t) {
-                    Log.e("LOG", t.toString());
-                }
-
-                @Override
-                public void onSuccess(int code, Object receivedData) {
-                    User data = (User) receivedData;
-                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
-                }
-
-                @Override
-                public void onFailure(int code) {
-                    Log.e("FAIL", String.format("code : %d", code));
-                }
-            });
-
+        if(id == R.id.ContactItem){
+            fm.beginTransaction().replace(R.id.main_layout, tabFragment1);
+            return true;
+        }else if(id == R.id.GalleryItem){
+            fm.beginTransaction().replace(R.id.main_layout, tabFragment2);
+            return true;
         }
         return false;
     }
