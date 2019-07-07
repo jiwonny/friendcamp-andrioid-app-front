@@ -32,6 +32,8 @@ import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -276,6 +278,9 @@ public class TabFragment1 extends Fragment {
 
             //------현재 user 정보 불러오기-------
             SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+            //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+            SharedPreferences.Editor editor = sf.edit();
+
             String current_login_id = sf.getString("currentUser_email", "");
             String current_name = sf.getString("currentUser_name", "");
 
@@ -347,6 +352,14 @@ public class TabFragment1 extends Fragment {
 
             // ------ 서버 디비에 넣기 위한 작업 ----------
             current_user.setFriends(current_user_friends);
+
+            // 원래 user 에 대한 gson get
+//            String user_instance = sf.getString("currentUser", "");
+            // 변환
+            Gson gson = new GsonBuilder().create();
+            String userJson = gson.toJson(current_user, User.class);
+            editor.putString("currentUser", userJson);
+            editor.commit();
 
             for(User user : current_user_friends){
                 String login_id = user.getLogin_id();

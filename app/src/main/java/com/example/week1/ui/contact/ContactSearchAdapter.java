@@ -83,10 +83,16 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
         ViewHolder.btn_add.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent searchIntent = new Intent(v.getContext(), SearchActivity.class);
-                searchIntent.putExtra("add_user_name", user.getName());
-                searchIntent.putExtra("add_user_number", user.getNumber());
-                v.getContext().startActivity(searchIntent);
+                SharedPreferences sf = v.getContext().getSharedPreferences("add_user_file", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sf.edit();
+
+                editor.putString("add_user_name", user.getName());
+                editor.putString("add_user_number", user.getNumber());
+                editor.commit();
+//                Intent searchIntent = new Intent(v.getContext(), SearchActivity.class);
+//                searchIntent.putExtra("add_user_name", user.getName());
+//                searchIntent.putExtra("add_user_number", user.getNumber());
+//                v.getContext().startActivity(searchIntent);
             }
         });
 

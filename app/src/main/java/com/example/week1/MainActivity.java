@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.clear();
                 editor.commit();
 
-                if(db.drop_contact()){
+                if(db.delete_all_contact()){
                     Log.d("drop_table", "dropdrop");
                 }else{
                     Log.d("drop_table", "drop_실패!");
