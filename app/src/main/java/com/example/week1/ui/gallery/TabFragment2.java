@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -91,13 +92,14 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
         user_profile = sf.getString("currentuser_profile","");
+
     }
 
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.tabfragment2, container, false);
 
-        Button upload_image = root.findViewById(R.id.button_upload);
+        CardView upload_image = root.findViewById(R.id.upload_card);
         upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

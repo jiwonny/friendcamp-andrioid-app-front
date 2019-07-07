@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="185dp"
+    android:layout_height="200dp"
     android:layout_margin="0dp"
     android:background="#FFFFFF">
 
@@ -60,14 +60,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="24dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="28dp"
         app:layout_constraintTop_toBottomOf="@+id/Profile_number">
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
+            android:layout_height="65dp"
             android:layout_weight="1"
-            android:layout_height="52dp"
             app:cardBackgroundColor="#8A8A8A"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp"
@@ -78,7 +78,7 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="65dp"
                 app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="0dp"
                 app:cardElevation="0dp">
@@ -95,6 +95,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="TextView"
+                        android:textSize="17dp"
                         android:textColor="@color/colorAccent"
                         android:textStyle="normal|bold" />
 
@@ -112,8 +113,8 @@
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
+            android:layout_height="65dp"
             android:layout_weight="1"
-            android:layout_height="52dp"
             app:cardBackgroundColor="#8A8A8A"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp"
@@ -124,8 +125,9 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="65dp"
                 app:cardBackgroundColor="#FFFFFF"
+
                 app:cardCornerRadius="0dp"
                 app:cardElevation="0dp">
 
@@ -140,6 +142,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:textSize="17dp"
                         android:text="TextView"
                         android:textColor="@color/colorAccent"
                         android:textStyle="normal|bold" />
@@ -158,8 +161,8 @@
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
+            android:layout_height="65dp"
             android:layout_weight="1"
-            android:layout_height="52dp"
             app:cardBackgroundColor="#8A8A8A"
             app:cardCornerRadius="0dp"
             app:cardElevation="0dp"
@@ -169,8 +172,9 @@
             app:contentPaddingTop="0.5dp">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/upload_card"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="65dp"
                 app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="0dp"
                 app:cardElevation="0dp">
@@ -182,21 +186,22 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/num_posts"
+                        android:id="@+id/upload"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:textSize="17dp"
+                        android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="TextView"
+                        android:text="Upload"
                         android:textColor="@color/colorAccent"
                         android:textStyle="normal|bold" />
 
-                    <TextView
-                        android:id="@+id/textView3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Posts"
-                        android:textSize="14dp" />
+                    <!--<TextView-->
+                        <!--android:id="@+id/upload_text"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="Upload"-->
+                        <!--android:textSize="14dp" />-->
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
