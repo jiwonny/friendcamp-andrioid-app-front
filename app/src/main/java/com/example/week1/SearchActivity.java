@@ -117,18 +117,8 @@ public class SearchActivity extends AppCompatActivity {
         // 문자 입력을 할때..
         else
         {
-//            // 리스트의 모든 데이터를 검색한다.
-//            for(int i = 0;i < temp_items.size(); i++)
-//            {
-//                // arraylist의 모든 데이터에 입력받은 단어(charText)가 포함되어 있으면 true를 반환한다.
-//                if (temp_items.get(i).getUser_Name().toLowerCase().replaceAll(" ", "").contains(charText))
-//                {
-//                    // 검색된 데이터를 리스트에 추가한다.
-//                    contact_items_search.add(temp_items.get(i));
-//                }
-//            }
             Log.d("searchText", charText);
-            apiClient.getUserfrom_LoginId(charText, new APICallback() {
+            apiClient.searchUserfrom_LoginId(charText, new APICallback() {
                 @Override
                 public void onError(Throwable t) {
                     Log.e("Error", "error in char");

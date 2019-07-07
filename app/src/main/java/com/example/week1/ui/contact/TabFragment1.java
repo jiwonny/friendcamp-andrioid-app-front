@@ -63,7 +63,8 @@ public class TabFragment1 extends Fragment {
     APIClient apiClient;
 
 
-    public TabFragment1 (){ }
+    public TabFragment1(){
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

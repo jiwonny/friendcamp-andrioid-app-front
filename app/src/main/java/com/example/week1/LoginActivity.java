@@ -94,16 +94,13 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
 
+        SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sf.edit();
+
         //  to handle login responses by calling CallbackManager.Factory.create.
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
-
-        //저장된 값을 불러오기 위해 같은 네임파일을 찾음.
-        SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
-
-        //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
-        SharedPreferences.Editor editor = sf.edit();
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
@@ -140,6 +137,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     public void onSuccess(int code, Object receivedData) {
                                                         User data = (User) receivedData;
                                                         c_phNumber = data.getNumber();
+                                                        c_profile = data.getProfile_image_id();
                                                         check = true;
                                                     }
                                                     @Override
@@ -213,9 +211,8 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
-
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

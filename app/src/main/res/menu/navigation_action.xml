@@ -6,15 +6,15 @@
     <item
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id = "@+id/TEST"
-        android:title="test"
+        android:id = "@+id/menu1"
+        android:title="Edit Profile Image"
         android:textColor = "@android:color/white"
         android:icon="@drawable/baseline_favorite_border_24" />
 
     <item
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id = "@+id/Image_TEST"
+        android:id = "@+id/menu2"
         android:textColor = "@android:color/white"
         android:title="test"
         android:icon="@drawable/baseline_favorite_border_24" />

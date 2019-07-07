@@ -64,8 +64,9 @@ public class APIClient {
         return retrofit.create(service);
     }
 
-    /* -------------------------------------- < Contact > -------------------------------------- */
+
     /* GET implementation */
+
     public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
         try {
             Response<User> response = apiService.getUserfrom_Name_Number(name, number).execute();
@@ -92,8 +93,8 @@ public class APIClient {
         }
     }
 
-    public void getUserfrom_LoginId(String Login_id, final APICallback callback){
-        apiService.getUserfrom_LoginId(Login_id).enqueue(new Callback <List<User>>() {
+    public void searchUserfrom_LoginId(String Login_id, final APICallback callback){
+        apiService.searchUserfrom_LoginId(Login_id).enqueue(new Callback <List<User>>() {
             @Override
             public void onResponse(Call <List<User>> call, Response <List<User>> response) {
                 if (response.isSuccessful()) {
@@ -201,5 +202,22 @@ public class APIClient {
         });
     }
 
+    public void update_UserProfile(String login_id, String profile, final APICallback callback) {
+        apiService.update_UserProfile(login_id, profile).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response.body());
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
 
 }
