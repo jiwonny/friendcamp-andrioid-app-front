@@ -17,16 +17,20 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.example.week1.ui.gallery.CameraAction;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.gallery.GalleryPreview;
 import com.example.week1.ui.gallery.TabFragment2;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +39,8 @@ import java.util.List;
 public class ImageSelect extends AppCompatActivity {
 
     String user_id;
+    String user_name;
+    String user_number;
     GridView galleryGridView;
     LoadAlbum loadAlbumTask;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
@@ -42,15 +48,32 @@ public class ImageSelect extends AppCompatActivity {
     AlbumAdapter adapter;
     APIClient apiClient;
     Activity activity  =this;
+    IPInfo ipInfo = new IPInfo();
+    String address = ipInfo.IPAddress;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_select);
 
-        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
-        user_id = sf.getString("currentUser_email", "");
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+//        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+////        user_id = sf.getString("currentUser_email", "");
+
+        Intent show_profile = getIntent();
+        user_id = show_profile.getStringExtra("showUser_LoginId");
+        user_name = show_profile.getStringExtra("showUser_Name");
+        user_number = show_profile.getStringExtra("showUser_Number");
+
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
+
+
+        TextView profile_name = findViewById(R.id.Profile_name);
+        TextView profile_id = findViewById(R.id.Profile_id);
+        TextView profile_number = findViewById(R.id.Profile_number);
+        profile_name.setText(user_name);
+        profile_id.setText(user_id);
+        profile_number.setText(user_number);
 
         galleryGridView = (GridView) findViewById(R.id.galleryGridView);
 
@@ -94,7 +117,7 @@ public class ImageSelect extends AppCompatActivity {
                     for( Image_f image_f : data){
 
                         String login_id = image_f.getLogin_id();
-                        String url = String.format("http://%s:%d/%s", "143.248.39.49",4500, image_f.getUrl());
+                        String url = String.format("http://%s:%d/%s", address ,4500, image_f.getUrl());
                         String file = image_f.getUrl();
                         String timestamp = image_f.getTimestamp();
 

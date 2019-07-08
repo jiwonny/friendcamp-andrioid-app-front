@@ -47,7 +47,7 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public static class ContactSearchViewHolder extends RecyclerView.ViewHolder{
         TextView number_search;
-        TextView name_search;
+        TextView login_search;
         ImageView image_search;
         Button btn_add;
 
@@ -56,7 +56,7 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
             super(view);
 
             number_search = view.findViewById(R.id.contact_number_search);
-            name_search =  view.findViewById(R.id.contact_name_search);
+            login_search =  view.findViewById(R.id.contact_name_search);
             image_search = view.findViewById(R.id.contact_image_search);
             btn_add = view.findViewById(R.id.btn_friend_add);
         }
@@ -88,7 +88,7 @@ public class ContactSearchAdapter extends RecyclerView.Adapter<RecyclerView.View
 
 
         ContactSearchViewHolder ViewHolder = (ContactSearchViewHolder) holder;
-        ViewHolder.name_search.setText(user.getName());
+        ViewHolder.login_search.setText(user.getLogin_id());
         ViewHolder.number_search.setText(user.getNumber());
 
 
