@@ -33,15 +33,17 @@ public interface ApiService {
     @GET("/Users/Name/{Name}/Login_id/{Login_id}")
     Call <User> getUserfrom_Name_LoginId(@Path("Name") String Name, @Path("Login_id") String Login_id);
 
-
     @GET("/Users/search/{Login_id}")
-    Call <List<User>> getUserfrom_LoginId(@Path("Login_id") String Login_id);
+    Call <List<User>> searchUserfrom_LoginId(@Path("Login_id") String Login_id);
 
     @POST("/Users")
     Call <User> post_User(@Body User user);
 
     @PUT("/Users/Login_id/{Login_id}")
-    Call <User>  update_User(@Path("Login_id") String Login_id, @Body User user);
+    Call <User> update_User(@Path("Login_id") String Login_id, @Body User user);
+
+    @PUT("/Users/Profile/{Login_id}/{Profile}")
+    Call <User> update_UserProfile(@Path("Login_id") String Login_id, @Path("Profile") String Profile);
 
 
 

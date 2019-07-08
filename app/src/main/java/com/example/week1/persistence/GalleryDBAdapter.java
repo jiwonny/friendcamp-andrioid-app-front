@@ -49,13 +49,12 @@ public class GalleryDBAdapter {
         return false;
     }
 
-    public boolean delete_photo(String login_id, String url, String time_stamp) {
+    public boolean delete_photo(String login_id, String url) {
         try{
             db=helper.getWritableDatabase();
             String sqlDelete = GalleryDBCtrct.SQL_DELETE + " WHERE " +
                                     GalleryDBCtrct.COL_LOGIN_ID     + " == " +   "'" + login_id     + "' " +"AND "+
-                                    GalleryDBCtrct.COL_URL          + " == " +   "'" + url          + "' " +"AND "+
-                                    GalleryDBCtrct.COL_TIMESTAMP    + " == " +   "'" + time_stamp   + "' ";
+                                    GalleryDBCtrct.COL_URL          + " == " +   "'" + url          + "' " ;
             System.out.println(sqlDelete);
             db.execSQL(sqlDelete);
 

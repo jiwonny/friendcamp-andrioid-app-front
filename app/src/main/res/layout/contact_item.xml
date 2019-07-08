@@ -5,6 +5,8 @@
     android:id="@+id/contact_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
     android:background="@drawable/contact_background">
 
 
@@ -14,7 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:textSize="14sp"
+        android:textSize="15.5sp"
+        android:drawableLeft="@drawable/ic_outline_call_24px"
+        android:drawablePadding="6dp"
         app:layout_constraintBottom_toTopOf="@+id/add_sub"
         app:layout_constraintStart_toStartOf="@+id/contact_name"
         app:layout_constraintTop_toBottomOf="@+id/contact_name" />
@@ -26,13 +30,16 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:textSize="14sp"
+        android:textColor="#22295C"
+        android:textSize="15sp"
+        android:textStyle="bold"
+
         app:layout_constraintStart_toEndOf="@+id/contact_image"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/contact_image"
-        android:layout_width="41dp"
+        android:layout_width="44dp"
         android:layout_height="46dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
@@ -40,6 +47,7 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/baseline_account_circle_24"
         android:scaleType="fitXY"
+
         app:layout_constraintBottom_toTopOf="@+id/add_sub"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

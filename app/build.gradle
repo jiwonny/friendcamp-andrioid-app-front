@@ -25,6 +25,8 @@ android {
 repositories {
     maven { url 'https://jitpack.io' }
     maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
+    mavenCentral()
+    google()
 }
 
 dependencies {
@@ -53,5 +55,5 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
     implementation 'com.facebook.android:facebook-android-sdk:5.0.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
+    implementation 'com.google.code.gson:gson:2.4'
 }
-

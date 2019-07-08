@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,9 +29,12 @@ import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.ApiService;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -61,31 +65,42 @@ public class TabFragment1 extends Fragment {
     Loadcontacts loadcontactTask;
     Sync_contacts synchronization;
     APIClient apiClient;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
+    View root;
+    SharedPreferences sf;
 
-
-    public TabFragment1 (){ }
+    public TabFragment1(){
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
 
     }
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.tabfragment1, container, false);
+        root = inflater.inflate(R.layout.tabfragment1, container, false);
+
+        sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+        String userInstance = sf.getString("currentUser","");
+        Gson gson = new GsonBuilder().create();
+
+
+
 
         // ADD CONTACT Button
-        Button add_contact = root.findViewById(R.id.add_contact);
-        add_contact.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
-                startActivityForResult(intent, REQ_ADD_CONTACT);
-            }
-        });
+//        Button add_contact = root.findViewById(R.id.add_contact);
+//        add_contact.setOnClickListener(new Button.OnClickListener(){
+//            @Override
+//            public void onClick(View view){
+//                Intent intent = new Intent(getActivity(), Edit_Contact.class) ;
+//                startActivityForResult(intent, REQ_ADD_CONTACT);
+//            }
+//        });
 
         // SYNCHRONIZATION CONTACT Button
         FloatingActionButton sync_contact = root.findViewById(R.id.sync_Button);
@@ -94,6 +109,8 @@ public class TabFragment1 extends Fragment {
             public void onClick(View view){
                 synchronization = new TabFragment1.Sync_contacts();
                 synchronization.execute();
+
+
             }
         });
 
@@ -126,10 +143,15 @@ public class TabFragment1 extends Fragment {
 
         @Override
         protected void onPostExecute(String xml) {
-            Log.d("main","generate recycleview 11111111111111111111111111111111111111111111111111111111");
+
             adapter = new ContactAdapter(contact_items);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
+
+            TextView countFriends = root.findViewById(R.id.count_friends);
+            countFriends.setText("0");
+            countFriends.setText(""+adapter.getItemCount());
+            Log.i("count", "count:"+adapter.getItemCount());
 
             // EDIT & DELETE & CALL CONTACT
             adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
@@ -260,22 +282,16 @@ public class TabFragment1 extends Fragment {
         protected String doInBackground(String... args) {
 
             String xml = "";
-            final Uri[] uri = {ContactsContract.CommonDataKinds.Phone.CONTENT_URI};
-            String[] projection = new String[]{
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            };
-            final String[][] selectionArgs = {null};
-            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
-            Cursor cursor = getActivity().getContentResolver().query(uri[0], projection, null, selectionArgs[0], sortOrder);
-
-            ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
-            ContactDBAdapter db = new ContactDBAdapter(getActivity());
 
             //------현재 user 정보 불러오기-------
-            SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+
+            //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+            SharedPreferences.Editor editor = sf.edit();
+
             String current_login_id = sf.getString("currentUser_email", "");
             String current_name = sf.getString("currentUser_name", "");
+
+            Log.d("DuplicateDuplicate", "Theres no duplicate0");
 
 
             apiClient.getUserfrom_Name_LoginId(current_name, current_login_id, new APICallback() {
@@ -307,11 +323,27 @@ public class TabFragment1 extends Fragment {
 
             //------현재 user 정보 불러오기 끝----
 
+            final Uri[] uri = {ContactsContract.CommonDataKinds.Phone.CONTENT_URI};
+            String[] projection = new String[]{
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            };
+            final String[][] selectionArgs = {null};
+            String sortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
+            Cursor cursor = getActivity().getContentResolver().query(uri[0], projection, null, selectionArgs[0], sortOrder);
+
+            ArrayList<ArrayList<String>> users = new ArrayList<ArrayList<String>>();
+            ContactDBAdapter db = new ContactDBAdapter(getActivity());
+
+
+
             if (cursor.moveToFirst()) {
                 do {
+                    Log.d("DuplicateDuplicate", "Theres no duplicate1");
                     String Name = cursor.getString(1);
                     String phNumber = cursor.getString(0);
-                    phNumber.replace("-", "");
+                    phNumber = phNumber.replace("-", "");
+                    Log.d("DuplicateDuplicate", "333333333333333"+ Name+"..........."+phNumber);
                     apiClient.getUserfrom_Name_Number(Name, phNumber, new APICallback() {
                         @Override
                         public void onError(Throwable t) { }
@@ -319,6 +351,8 @@ public class TabFragment1 extends Fragment {
                         public void onSuccess(int code, Object receivedData) {
                             User data = (User) receivedData;
                             String login_id = data.getLogin_id(); // 불러오는 login_id
+
+                            Log.d("DuplicateDuplicate","44444444444444444444444444444444444"+login_id);
 
                             int checkDuplicate = -1;
                             for(User user : current_user_friends){
@@ -330,7 +364,7 @@ public class TabFragment1 extends Fragment {
                             }
 
                             if(checkDuplicate == -1){
-                                Log.i("D", "Theres no duplicate");
+                                Log.d("DuplicateDuplicate", "Theres no duplicate2");
                                 current_user_friends.add(data);
                             }
 
@@ -346,6 +380,12 @@ public class TabFragment1 extends Fragment {
             // ------ 서버 디비에 넣기 위한 작업 ----------
             current_user.setFriends(current_user_friends);
 
+            // 변환
+            Gson gson = new GsonBuilder().create();
+            String userJson = gson.toJson(current_user, User.class);
+            editor.putString("currentUser", userJson);
+            editor.commit();
+
             for(User user : current_user_friends){
                 String login_id = user.getLogin_id();
                 String name = user.getName();
@@ -353,6 +393,7 @@ public class TabFragment1 extends Fragment {
                 db.insert_contact(login_id,name,number);
             }
 
+            Log.d("DuplicateDuplicate", "Theres no duplicate4");
 
             // 서버 디비에 친구목록 추가
             apiClient.update_User(current_login_id, current_user, new APICallback() {
@@ -371,6 +412,8 @@ public class TabFragment1 extends Fragment {
                 }
             });
 
+
+
             // ----------서버 디비 넣기 작업 끝 -----------
             return xml;
         }
@@ -378,67 +421,14 @@ public class TabFragment1 extends Fragment {
         protected void onPostExecute(String xml) {
             getActivity().recreate();
         }
+
+
     }
 
 
     private ArrayList<ContactItem> load_contacts(){
         ContactDBAdapter db = new ContactDBAdapter(getActivity());
         return db.retreive_all_contacts();
-    }
-
-
-
-    public Bitmap loadContactPhoto(ContentResolver cr, long id, long photo_id) {
-        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id);
-        InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(cr, uri);
-        if (input != null)
-            return resizingBitmap(BitmapFactory.decodeStream(input));
-        else
-            Log.d("PHOTO","first try failed to load photo");
-
-        byte[] photoBytes = null;
-        Uri photoUri = ContentUris.withAppendedId(ContactsContract.Data.CONTENT_URI, photo_id);
-        Cursor c = cr.query(photoUri, new String[]{ContactsContract.CommonDataKinds.Photo.PHOTO}, null, null, null);
-        try {
-            if (c.moveToFirst())
-                photoBytes = c.getBlob(0);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            c.close();
-        }
-
-        if (photoBytes != null)
-            return resizingBitmap(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length));
-
-        else
-            Log.d("PHOTO", "second try also failed");
-        return null;
-    }
-
-    public Bitmap resizingBitmap(Bitmap oBitmap) {
-        if (oBitmap == null)
-            return null;
-        float width = oBitmap.getWidth();
-        float height = oBitmap.getHeight();
-        float resizing_size = 120;
-        Bitmap rBitmap = null;
-        if (width > resizing_size) {
-            float mWidth = (float) (width / 100);
-            float fScale = (float) (resizing_size / mWidth);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-
-        } else if (height > resizing_size) {
-            float mHeight = (float) (height / 100);
-            float fScale = (float) (resizing_size / mHeight);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-        }
-        //Log.d("rBitmap : " + width + "," + height);
-        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
-        return rBitmap;
     }
 
 }

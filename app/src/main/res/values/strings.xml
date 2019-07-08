@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Week1</string>
+    <string name="app_name">Week2</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="tab_text_3">Tab 3</string>
@@ -8,10 +8,11 @@
     <string name="delete">Delete</string>
 
     <string name="add_contact">Add Contact</string>
-    <string name="name_edit"  >Name </string>
+    <string name="name_edit">Name </string>
     <string name="number_edit">Phone Number</string>
 
-    <string name="facebook_app_id">3449776238373236</string> <string name="fb_login_protocol_scheme">fb3449776238373236</string>
+    <string name="facebook_app_id">3449776238373236</string>
+    <string name="fb_login_protocol_scheme">fb3449776238373236</string>
 
 
 </resources>

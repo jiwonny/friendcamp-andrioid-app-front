@@ -1,16 +1,21 @@
 package com.example.week1;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View;
 import android.view.Window;
@@ -29,39 +34,34 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.main.SectionsPagerAdapter;
-import com.facebook.AccessToken;
-import com.facebook.AccessTokenTracker;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.Profile;
-import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-//    private static final int PERMISSIONS_REQUEST_CODE = 10;
-//    private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
+    static final int REQ_PICK_IMAGE = 1 ;
+
     APIClient apiClient;
 
     ContactDBHelper dbHelper = null ;
@@ -70,52 +70,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String user_id;
     String user_number;
     String user_profile;
+    View headerLayout;
+    SectionsPagerAdapter sectionsPagerAdapter;
+    ViewPager viewPager;
+    //update_profileimage update_profileimage;
+
+    public static Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
 
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
-        user_profile = sf.getString("currentuser_profile",null);
+        user_profile = sf.getString("currentUser_profile","");
 
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        Log.d("MainActivity", String.format("id: %s , name: %s , number %s, profile, %s", user_id,user_name,user_number,user_profile));
+
+        IPInfo ip = new IPInfo();
+        String address = ip.IPAddress;
+        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
 
 
         setContentView(R.layout.activity_main);
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
         Toolbar tb = (Toolbar) findViewById(R.id.app_toolbar);
         setSupportActionBar(tb);
 
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        headerLayout = navigationView.inflateHeaderView(R.layout.nav_header_main);
 
         ImageView current_image = headerLayout.findViewById(R.id.profile_image);
         TextView current_name = headerLayout.findViewById(R.id.current_name);
         TextView current_email = headerLayout.findViewById(R.id.current_id);
         TextView current_number = headerLayout.findViewById(R.id.current_number);
-        current_name.setText(user_id);
-        current_email.setText(user_name);
+        current_name.setText(user_name);
+        current_email.setText(user_id);
         current_number.setText(user_number);
         if(user_profile != null){
             try {
-                //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500, user_profile);
+
                 Glide.with(this)
-                        .load( url ) // Url of the picture
+                        .load( user_profile ) // Url of the picture
                         .into(current_image);
 
             } catch (Exception e) {}
         }
+
+        Button edit_button = headerLayout.findViewById(R.id.profile_edit);
+        edit_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, REQ_PICK_IMAGE);
+            }
+        });
 
 
         //---logout manager-----//
@@ -129,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.clear();
                 editor.commit();
 
-                if(db.drop_contact()){
+                if(db.delete_all_contact()){
                     Log.d("drop_table", "dropdrop");
                 }else{
                     Log.d("drop_table", "drop_실패!");
@@ -147,34 +167,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.TEST) {
-            User user = new User();
-            user.setLogin_id("idididid");
-            user.setName("namenamename");
-            user.setNumber("000-0000-0000");
-            Log.d("user", String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
-            System.out.println(String.format(" user %s %s %s", user.getLogin_id(), user.getName(), user.getNumber()));
+        if(id == R.id.ContactItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(0);
 
-            apiClient.post_User(user, new APICallback() {
-                @Override
-                public void onError(Throwable t) {
-                    Log.e("LOG", t.toString());
-                }
+        }else if(id == R.id.GalleryItem){
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if( drawer.isDrawerOpen(Gravity.LEFT)){
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(1);
+           // trans.replace(R.id.tabfragment1, tabFragment2);
 
-                @Override
-                public void onSuccess(int code, Object receivedData) {
-                    User data = (User) receivedData;
-                    Log.d("user", String.format(" data %s %s %s", data.getLogin_id(), data.getName(), data.getNumber()));
-                }
-
-                @Override
-                public void onFailure(int code) {
-                    Log.e("FAIL", String.format("code : %d", code));
-                }
-            });
-
+        }else if(id == R.id.SearchItem) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.main_activity_drawer);
+            if (drawer.isDrawerOpen(Gravity.LEFT)) {
+                drawer.closeDrawer(Gravity.LEFT);
+            }
+            sectionsPagerAdapter.getItem(2);
         }
-        return false;
+        return true;
     }
 
     AlertDialog dlg;
@@ -239,6 +254,96 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
+    /*------------------------------------*/
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        switch (requestCode) {
+            case REQ_PICK_IMAGE: {
+                if (resultCode == RESULT_OK) {
+                    Uri photoUri = intent.getData();
+                    Cursor cursor = null;
+                    try {
+                        String[] proj = {MediaStore.Images.Media.DATA};
+                        assert photoUri != null;
+                        cursor = getContentResolver().query(photoUri, proj, null, null, null);
+                        assert cursor != null;
+                        cursor.moveToNext();
+                        String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                        cursor.close();
+                        Log.d("path", path);
+
+                        uploadImageToServer(path, user_id);
+
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    public void uploadImageToServer(String filePath, String login_id){
+        //Create a file object using file path
+        File file = new File(filePath);
+        // Create a request body with file and image media type
+        RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
+        // Create MultipartBody.Part using file request-body,file name and part name
+        MultipartBody.Part part = MultipartBody.Part.createFormData("Gallery", file.getName(), fileReqBody);
+        Log.d("filename", file.getName());
+
+        //TODO : PUT SERVER URL
+        String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
+
+        apiClient.uploadImage(part, login_id, new APICallback() {
+            @Override
+            public void onError(Throwable t) {
+                Log.e("LOG", t.toString());
+            }
+
+            @Override
+            public void onSuccess(int code, Object receivedData) {
+                Log.d("SUCCESS", String.format("code : %d", code));
+
+                apiClient.update_UserProfile(user_id, url, new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("LOG", t.toString());
+                    }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        User data = (User) receivedData;
+                        ImageView current_image = headerLayout.findViewById(R.id.profile_image);
+                        Log.d("urlrul", url);
+                        Glide.with(mContext)
+                                .load(url) // Url of the picture
+                                .into(current_image);
+                        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sf.edit();
+                        editor.remove("currentUser_profile");
+                        editor.putString("currentUser_profile", url);
+                        editor.commit();
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("FAIL", String.format("code : %d", code));
+                    }
+                });
+
+            }
+            @Override
+            public void onFailure(int code) {
+                Log.e("FAIL", String.format("code : %d", code));
+            }
+        });
+    }
 
 
 

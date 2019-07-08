@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id= "@+id/TabMenu"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
     <item
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id = "@+id/TEST"
-        android:title="test"
+        android:id = "@+id/ContactItem"
+        android:title="My Friends"
         android:textColor = "@android:color/white"
         android:icon="@drawable/baseline_favorite_border_24" />
 
     <item
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id = "@+id/Image_TEST"
+        android:id = "@+id/GalleryItem"
         android:textColor = "@android:color/white"
-        android:title="test"
+        android:title="My Posts"
+        android:icon="@drawable/baseline_favorite_border_24" />
+
+    <item
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id = "@+id/SearchItem"
+        android:textColor = "@android:color/white"
+        android:title="Search Friends"
         android:icon="@drawable/baseline_favorite_border_24" />
 </menu>

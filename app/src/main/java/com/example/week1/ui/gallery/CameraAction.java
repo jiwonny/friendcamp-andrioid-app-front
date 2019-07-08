@@ -2,6 +2,8 @@ package com.example.week1.ui.gallery;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 
 import com.example.week1.R;
@@ -12,11 +14,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CameraAction {
+    Context c;
     String mCurrentPhotoPath;
     String timeStamp;
     String appName;
 
-    public static void CameraAction(){ }
+    public static void CameraAction(){
+    }
 
     public File getAlbumdir(Context c){
         appName = c.getString(R.string.app_name);
@@ -47,6 +51,17 @@ public class CameraAction {
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
+
+    protected void galleryAddPic(Context c, String currentPhotoPath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        c.sendBroadcast(mediaScanIntent);
+    }
+
+
+
 
     public String get_timestamp(){
         return timeStamp;

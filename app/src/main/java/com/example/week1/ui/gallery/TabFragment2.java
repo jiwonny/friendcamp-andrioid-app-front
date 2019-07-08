@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -40,7 +41,9 @@ import com.bumptech.glide.Glide;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
+import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
+import com.example.week1.network.User;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -75,26 +78,39 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     String user_id;
     String user_number;
     String user_profile;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
+
+    Context mContext;
 
     public TabFragment2(){ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
+
+        mContext = this.getActivity();
 
         SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
         user_id = sf.getString("currentUser_email", "");
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
-        user_profile = sf.getString("currentuser_profile","");
+        user_profile = sf.getString("currentUser_profile","");
     }
 
     @Override
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.tabfragment2, container, false);
 
-        Button upload_image = root.findViewById(R.id.button_upload);
+        TextView Profile_name = root.findViewById(R.id.Profile_name);
+        TextView Profile_id = root.findViewById(R.id.Profile_id);
+        TextView Profile_number = root.findViewById(R.id.Profile_number);
+        Profile_name.setText(user_name);
+        Profile_id.setText(user_id);
+        Profile_number.setText(user_number);
+
+        CardView upload_image = root.findViewById(R.id.upload_card);
         upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,10 +155,53 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
+        init_photos();
+
+        return root;
+    }
+
+    public void init_photos() {
+
         loadAlbumTask = new TabFragment2.LoadAlbum();
         loadAlbumTask.execute();
 
-        return root;
+        ImageView Profile_image = root.findViewById(R.id.Profile_image);
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                Log.d("Start","dsfa7877777777777777777777777777777777777777777777777777777777777");
+                apiClient.getUserfrom_Name_LoginId(user_name, user_id, new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                    }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        User data = (User) receivedData;
+                        user_profile = data.getProfile_image_id();
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+
+                    }
+                });
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                Log.d("profileprofile", "aaaaaaaaafsdfasdfdsafasfsda"+user_profile);
+                if (user_profile != null) {
+                    try {
+                        Glide.with(getActivity()).load(user_profile).into(Profile_image);
+                    } catch (Exception e) {
+                        Log.d("afsafsadfsadf","asdfsadfsafsadfdsa8f4sd89g4ds89g4s98dg498sad4g98sad4g9s8adg498sag498sadg498sad4g98sad4g98sda4g98sad4g98dsa849gs");
+                    }
+                }
+            }
+        }.execute();
     }
 
     // Camera Action
@@ -152,8 +211,6 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File f = cameraAction.createImageFile(getActivity());
             Uri uri = FileProvider.getUriForFile(getContext(), "com.example.week1", f);
-            //TODO: 사진 갤러리에도 반영
-
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, REQ_TAKE_CAMARA);
         }catch( IOException e){
@@ -179,6 +236,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         // Set Adapter
         @Override
         protected void onPostExecute(String xml) {
+            super.onPostExecute(xml);
+            GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
             albumList = load_photos();
             adapter = new AlbumAdapter(getActivity(), albumList);
             galleryGridView.setAdapter(adapter);
@@ -195,6 +254,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
 
+                    String url = albumList.get(+position).get(Function.KEY_URL);
                     String file = albumList.get(+position).get(Function.KEY_FILE);
 
                     AlertDialog.Builder alt_bld = new AlertDialog.Builder(view.getContext());
@@ -215,6 +275,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
                                             Toast.makeText(view.getContext(), "DELETE SUCCESS", Toast.LENGTH_SHORT).show();
 
+                                            db.delete_photo(user_id, url);
                                             int i =0;
                                             for(HashMap<String, String> album : albumList){
                                                 if( album.get(Function.KEY_FILE).equals(file)){
@@ -272,7 +333,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
 
                             String login_id = image_f.getLogin_id();
-                            String url = String.format("http://%s:%d/%s", "143.248.39.49",4500, image_f.getUrl());
+                            String url = String.format("http://%s:%d/%s", address ,4500, image_f.getUrl());
                             String file = image_f.getUrl();
                             String timestamp = image_f.getTimestamp();
 
@@ -360,10 +421,10 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            // TODO : CAMERA FIX , SERVER
             case REQ_TAKE_CAMARA: {
                 if (resultCode == Activity.RESULT_OK) {
                     String path = cameraAction.get_Path();
+                    cameraAction.galleryAddPic(getActivity(), path);
                     uploadImageToServer(path, user_id);
 
                 }
@@ -432,7 +493,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             @Override
             public void onSuccess(int code, Object receivedData) {
                 //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
+                String url =  String.format("http://%s:%d/%s", address ,4500,  user_id+'_'+file.getName());
                 albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
 
                 Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));
