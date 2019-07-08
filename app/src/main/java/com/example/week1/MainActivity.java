@@ -29,6 +29,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
@@ -40,6 +41,7 @@ import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
+import com.example.week1.ui.gallery.TabFragment2;
 import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -70,12 +72,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String user_id;
     String user_number;
     String user_profile;
+    IPInfo ip = new IPInfo();
+    String address = ip.IPAddress;
+    int port = ip.Port;
+
     View headerLayout;
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
     //update_profileimage update_profileimage;
 
-    public static Context mContext;
+    Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,9 +96,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         Log.d("MainActivity", String.format("id: %s , name: %s , number %s, profile, %s", user_id,user_name,user_number,user_profile));
 
-        IPInfo ip = new IPInfo();
-        String address = ip.IPAddress;
-        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
+
+        apiClient = APIClient.getInstance(this, address,port).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
 
 
@@ -119,24 +124,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         current_number.setText(user_number);
         if(user_profile != null){
             try {
-
                 Glide.with(this)
                         .load( user_profile ) // Url of the picture
                         .into(current_image);
 
             } catch (Exception e) {}
         }
-
-        Button edit_button = headerLayout.findViewById(R.id.profile_edit);
-        edit_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-                startActivityForResult(intent, REQ_PICK_IMAGE);
-            }
-        });
-
 
         //---logout manager-----//
         LoginButton logoutButton = findViewById(R.id.facebook_log_button);
@@ -161,6 +154,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
         });
+
+        Fragment tab2 = TabFragment2.newInstance();
+        ((TabFragment2) tab2).setOnItemClickListener(new TabFragment2.OnItemClickListener() {
+            @Override
+            public void onItemClick(String url, int request_code) {
+                ImageView current_image = headerLayout.findViewById(R.id.profile_image);
+                Glide.with(mContext)
+                        .load(url) // Url of the picture
+                        .into(current_image);
+            }
+        });
+
     }
 
     @Override
@@ -192,43 +197,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    AlertDialog dlg;
-    public void showImage(Bitmap bmp){
-        ImageView img = new ImageView(this);
-        img.setImageBitmap(bmp);
-        dlg = new AlertDialog.Builder(this)
-                .setView(img)
-                .setTitle("image test")
-                .setCancelable(true)
-                .show();
-    }
-    public Bitmap resizingBitmap(Bitmap oBitmap) {
-        if (oBitmap == null)
-            return null;
-        float width = oBitmap.getWidth();
-        float height = oBitmap.getHeight();
-        float resizing_size = 120;
-        Bitmap rBitmap = null;
-        if (width > resizing_size) {
-            float mWidth = (float) (width / 100);
-            float fScale = (float) (resizing_size / mWidth);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-
-        } else if (height > resizing_size) {
-            float mHeight = (float) (height / 100);
-            float fScale = (float) (resizing_size / mHeight);
-            width *= (fScale / 100);
-            height *= (fScale / 100);
-        }
-        //Log.d("rBitmap : " + width + "," + height);
-        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
-        return rBitmap;
-    }
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.appbar_action, menu) ;
@@ -239,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search :
-                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                Intent intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_up_info,R.anim.no_change);
                 return true ;
@@ -346,6 +314,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+
+    public Bitmap resizingBitmap(Bitmap oBitmap) {
+        if (oBitmap == null)
+            return null;
+        float width = oBitmap.getWidth();
+        float height = oBitmap.getHeight();
+        float resizing_size = 120;
+        Bitmap rBitmap = null;
+        if (width > resizing_size) {
+            float mWidth = (float) (width / 100);
+            float fScale = (float) (resizing_size / mWidth);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+
+        } else if (height > resizing_size) {
+            float mHeight = (float) (height / 100);
+            float fScale = (float) (resizing_size / mHeight);
+            width *= (fScale / 100);
+            height *= (fScale / 100);
+        }
+        //Log.d("rBitmap : " + width + "," + height);
+        rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
+        return rBitmap;
+    }
 
 
 }

@@ -59,6 +59,16 @@ public class SearchActivity extends AppCompatActivity{
 
         apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
 
+
+        final Button searchCancel = (Button) findViewById(R.id.search_cancel);
+        searchCancel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                finish();
+                overridePendingTransition(R.anim.no_change,R.anim.slide_down_info);
+            }
+        });
+
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
         SharedPreferences add_sf = getSharedPreferences("add_user_file", MODE_PRIVATE);
 
@@ -100,13 +110,10 @@ public class SearchActivity extends AppCompatActivity{
 
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -117,17 +124,10 @@ public class SearchActivity extends AppCompatActivity{
             }
         });
 
-        final Button searchCancel = (Button) findViewById(R.id.search_cancel);
-        searchCancel.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                finish();
-                overridePendingTransition(R.anim.no_change,R.anim.slide_down_info);
-            }
-        });
 
         //TODO : 친구 눌렀을 때 추가하기.
         // 추가하기
+        /*
         String add_name = add_sf.getString("add_user_name","");
         String add_number = add_sf.getString("add_user_number","");
 
@@ -162,6 +162,7 @@ public class SearchActivity extends AppCompatActivity{
         }catch(Exception e){
             e.printStackTrace();
         }
+        */
         //추가할 user 가 누구인가 -> friend 목록에 추가.
 //
 //        apiClient.getUserfrom_Name_Number(add_name, add_number, new APICallback() {
@@ -210,6 +211,7 @@ public class SearchActivity extends AppCompatActivity{
         ContactDBAdapter db = new ContactDBAdapter(this);
         return db.retreive_rand_contacts(number);
     }
+
 
 
     public void search(String charText) {

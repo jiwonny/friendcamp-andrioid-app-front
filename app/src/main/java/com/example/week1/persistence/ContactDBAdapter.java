@@ -95,20 +95,6 @@ public class ContactDBAdapter {
         return false;
     }
 
-    public boolean drop_contact(){
-        try{
-            db=helper.getWritableDatabase();
-            db.execSQL(ContactDBCtrct.SQL_DROP_TBL);
-
-            return true;
-        } catch(SQLException e){
-            e.printStackTrace();
-        } finally {
-            helper.close();
-        }
-        return false;
-    }
-
 
     // Select all and retreive ContactItem Arraylist
     public ArrayList<ContactItem> retreive_all_contacts() {

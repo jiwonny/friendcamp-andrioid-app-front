@@ -79,9 +79,6 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
-        <activity
-            android:name=".ui.calendar.AddEvent"
-            android:configChanges="orientation|screenSize" />
     </application>
 
 </manifest>

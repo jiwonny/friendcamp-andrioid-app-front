@@ -55,8 +55,8 @@ public interface ApiService {
     Call <List<Image_f>> getImageList(@Path("Login_id") String login_id);
 
     @Multipart
-    @POST("/Gallery/{Login_id}")
-    Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Path("Login_id") String login_id);
+    @POST("/Gallery/{Login_id}/{Name}")
+    Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Path("Login_id") String login_id, @Path("Name") String name);
 
     @DELETE("/Gallery/delete/{Login_id}/{url}")
     Call <ResponseBody> deleteImage(@Path("Login_id") String login_id, @Path("url") String url);
