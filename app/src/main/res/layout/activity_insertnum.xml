@@ -102,17 +102,22 @@
         android:textSize="15dp" />
 
 
-    <Button
-        android:id="@+id/user_save"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginRight="100dp"
-        android:background="@drawable/btn_login"
-        android:gravity="center"
-        android:text="Continue"
-        android:textColor="@color/colorPrimary"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/user_save"
+            android:layout_width="157dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:width="200dp"
+            android:background="@drawable/btn_login"
+            android:text="Continue"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold" />
+    </LinearLayout>
+
 
 </LinearLayout>
