@@ -107,12 +107,15 @@ public class TabFragment3 extends Fragment {
                 public void onSuccess(int code, Object receivedData) {
                     User data = (User) receivedData;
                     ArrayList<User> friends = data.getFriends();
-                    for( User friend : friends){
-                        HashMap<String, String> map = new HashMap<String, String>();
-                        map.put(KEY_LOGIN_ID, friend.getLogin_id());
-                        map.put(KEY_PROFILE, friend.getProfile_image_id());
-                        friends_ID_Profile.add(map);
+                    if(friends != null){
+                        for( User friend : friends){
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put(KEY_LOGIN_ID, friend.getLogin_id());
+                            map.put(KEY_PROFILE, friend.getProfile_image_id());
+                            friends_ID_Profile.add(map);
+                        }
                     }
+
                 }
                 @Override
                 public void onFailure(int code) {

@@ -126,6 +126,17 @@ public class APIClient {
                 callback.onError(t);
             }
         });
+
+//        try {
+//            Response<User> response = apiService.searchUserfrom_LoginId(Login_id).execute();
+//            if (response.isSuccessful()) {
+//                callback.onSuccess(response.code(), response.body());
+//            } else {
+//                callback.onFailure(response.code());
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
 
