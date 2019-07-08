@@ -67,6 +67,7 @@ public class TabFragment1 extends Fragment {
     APIClient apiClient;
     IPInfo ip = new IPInfo();
     String address = ip.IPAddress;
+    int port = ip.Port;
     View root;
     SharedPreferences sf;
 
@@ -76,7 +77,7 @@ public class TabFragment1 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,port).createBaseApi();
 
     }
 
@@ -87,10 +88,6 @@ public class TabFragment1 extends Fragment {
 
         sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
         String userInstance = sf.getString("currentUser","");
-        Gson gson = new GsonBuilder().create();
-
-
-
 
         // ADD CONTACT Button
 //        Button add_contact = root.findViewById(R.id.add_contact);

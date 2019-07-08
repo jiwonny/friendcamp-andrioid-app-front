@@ -12,33 +12,25 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <Button
-        android:id="@+id/profile_edit"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginLeft="270dp"
-        android:background="@android:color/transparent"
-        android:icon="@drawable/ic_outline_create_24px" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="0dp"
-            android:scaleType="centerCrop"
-            app:srcCompat="@mipmap/ic_launcher_round" />
+            android:src="@drawable/baseline_account_circle_24" />
 
         <TextView
             android:id="@+id/current_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="30dp"
             android:text="Android Studio"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#22295C"

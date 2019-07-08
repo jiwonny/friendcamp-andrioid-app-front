@@ -65,6 +65,8 @@ public class APIClient {
         return retrofit.create(service);
     }
 
+    /*--------------------------------- IMPLEMENTATION -------------------------------------------*/
+
 
     /* GET implementation */
 
@@ -162,8 +164,8 @@ public class APIClient {
         });
     }
 
-    public void uploadImage(MultipartBody.Part file, String login_id, final APICallback callback){
-        apiService.uploadImage(file, login_id).enqueue(new Callback<ResponseBody>() {
+    public void uploadImage(MultipartBody.Part file, String login_id, String name, final APICallback callback){
+        apiService.uploadImage(file, login_id, name).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()){
@@ -180,23 +182,6 @@ public class APIClient {
         });
     }
 
-    public void deleteImage(String login_id, String url, final APICallback callback){
-        apiService.deleteImage(login_id,url).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()){
-                    callback.onSuccess(response.code(),  response);
-                } else {
-                    callback.onFailure(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
-    }
 
 
     /* PUT implementation */
@@ -230,6 +215,27 @@ public class APIClient {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    /* DELETE implementation */
+
+
+    public void deleteImage(String login_id, String url, final APICallback callback){
+        apiService.deleteImage(login_id,url).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()){
+                    callback.onSuccess(response.code(),  response);
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 callback.onError(t);
             }
         });

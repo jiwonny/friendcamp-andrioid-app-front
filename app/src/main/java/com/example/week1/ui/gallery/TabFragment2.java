@@ -9,21 +9,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +39,6 @@ import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
-import com.example.week1.network.User;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -63,32 +58,41 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
 
     private static final int PERMISSIONS_REQUEST_CODE_2 = 11;
-    static final int REQ_TAKE_CAMARA = 1 ;
-    static final int REQ_PICK_IMAGE = 2 ;
-    static final int REQ_DELETE =3 ;
-    View root;
+    static final int REQ_EDIT_PROFILE =1 ;
+    static final int REQ_TAKE_CAMARA = 2 ;
+    static final int REQ_PICK_IMAGE = 3 ;
+    static final int REQ_DELETE =4 ;
+
+    Context mContext;
+
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
     CameraAction cameraAction;
     AlbumAdapter adapter;
     APIClient apiClient;
+    IPInfo ip = new IPInfo();
 
     String user_name;
     String user_id;
     String user_number;
     String user_profile;
-    IPInfo ip = new IPInfo();
     String address = ip.IPAddress;
+    int port = ip.Port;
 
-    Context mContext;
+    View root;
+    ImageView Profile_image;
+    TextView countPosts;
 
-    public TabFragment2(){ }
+    public static TabFragment2 newInstance(){
+        TabFragment2 fragment = new TabFragment2();
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        apiClient = APIClient.getInstance(getActivity(), address,4500).createBaseApi();
+        apiClient = APIClient.getInstance(getActivity(), address,port).createBaseApi();
 
         mContext = this.getActivity();
 
@@ -103,12 +107,28 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     public View onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.tabfragment2, container, false);
 
+        Profile_image = root.findViewById(R.id.Profile_image);
+        if (user_profile != null){
+            Glide.with(mContext).load(user_profile).dontAnimate().into(Profile_image);
+        }
         TextView Profile_name = root.findViewById(R.id.Profile_name);
         TextView Profile_id = root.findViewById(R.id.Profile_id);
         TextView Profile_number = root.findViewById(R.id.Profile_number);
         Profile_name.setText(user_name);
         Profile_id.setText(user_id);
         Profile_number.setText(user_number);
+
+        countPosts = root.findViewById(R.id.num_posts);
+
+        CardView edit_profile = root.findViewById(R.id.edit_card);
+        edit_profile.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, REQ_EDIT_PROFILE);
+            }
+        });
 
         CardView upload_image = root.findViewById(R.id.upload_card);
         upload_image.setOnClickListener(new View.OnClickListener() {
@@ -155,54 +175,14 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
-        init_photos();
+        loadAlbumTask = new TabFragment2.LoadAlbum();
+        loadAlbumTask.execute();
+
+        //init_photos();
 
         return root;
     }
 
-    public void init_photos() {
-
-        loadAlbumTask = new TabFragment2.LoadAlbum();
-        loadAlbumTask.execute();
-
-        ImageView Profile_image = root.findViewById(R.id.Profile_image);
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                Log.d("Start","dsfa7877777777777777777777777777777777777777777777777777777777777");
-                apiClient.getUserfrom_Name_LoginId(user_name, user_id, new APICallback() {
-                    @Override
-                    public void onError(Throwable t) {
-                    }
-
-                    @Override
-                    public void onSuccess(int code, Object receivedData) {
-                        User data = (User) receivedData;
-                        user_profile = data.getProfile_image_id();
-                    }
-
-                    @Override
-                    public void onFailure(int code) {
-
-                    }
-                });
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-                Log.d("profileprofile", "aaaaaaaaafsdfasdfdsafasfsda"+user_profile);
-                if (user_profile != null) {
-                    try {
-                        Glide.with(getActivity()).load(user_profile).into(Profile_image);
-                    } catch (Exception e) {
-                        Log.d("afsafsadfsadf","asdfsadfsafsadfdsa8f4sd89g4ds89g4s98dg498sad4g98sad4g9s8adg498sag498sadg498sad4g98sad4g98sda4g98sad4g98dsa849gs");
-                    }
-                }
-            }
-        }.execute();
-    }
 
     // Camera Action
     public void CameraActivity(){
@@ -240,6 +220,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
             albumList = load_photos();
             adapter = new AlbumAdapter(getActivity(), albumList);
+            // Set Number of Posts
+            countPosts.setText(""+adapter.getCount());
             galleryGridView.setAdapter(adapter);
             galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view,
@@ -286,6 +268,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
                                             albumList.remove(i);
                                             adapter.onActivityResult(1,1);
+                                            // Set Number of Posts
+                                            countPosts.setText(""+adapter.getCount());
                                         }
 
                                         @Override
@@ -425,8 +409,32 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                 if (resultCode == Activity.RESULT_OK) {
                     String path = cameraAction.get_Path();
                     cameraAction.galleryAddPic(getActivity(), path);
-                    uploadImageToServer(path, user_id);
+                    uploadImageToServer(path, user_id, user_name);
 
+                }
+                break;
+            }
+            case REQ_EDIT_PROFILE: {
+                if (resultCode == Activity.RESULT_OK){
+                    Uri photoUri = intent.getData();
+                    Cursor cursor = null;
+                    try {
+                        String[] proj = { MediaStore.Images.Media.DATA };
+                        assert photoUri != null;
+                        cursor = getActivity().getContentResolver().query(photoUri, proj, null, null, null);
+                        assert cursor != null;
+                        cursor.moveToNext();
+                        String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                        cursor.close();
+                        Log.d("path",path);
+
+                        uploadProfileToServer(path, user_id, user_name);
+
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
                 }
                 break;
             }
@@ -444,7 +452,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                         cursor.close();
                         Log.d("path",path);
 
-                        uploadImageToServer(path, user_id);
+                        uploadImageToServer(path, user_id, user_name);
 
                     } finally {
                         if (cursor != null) {
@@ -474,7 +482,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         }
     }
 
-    public void uploadImageToServer(String filePath, String login_id){
+    public void uploadImageToServer(String filePath, String login_id, String name){
         //Create a file object using file path
         File file = new File(filePath);
         // Create a request body with file and image media type
@@ -484,7 +492,44 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         Log.d("filename", file.getName());
 
 
-        apiClient.uploadImage(part, login_id, new APICallback() {
+        apiClient.uploadImage(part, login_id, name, new APICallback() {
+            @Override
+            public void onError(Throwable t) {
+                Log.e("LOG", t.toString());
+                Toast.makeText(mContext,"Network Failed", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void onSuccess(int code, Object receivedData) {
+                String url =  String.format("http://%s:%d/%s", address ,port,  user_id+'_'+file.getName());
+                albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
+
+                Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));
+                adapter.onActivityResult(1,1);
+                // Set Number of Posts
+                countPosts.setText(""+adapter.getCount());
+            }
+            @Override
+            public void onFailure(int code) {
+                Log.e("FAIL", String.format("code : %d", code));
+                Toast.makeText(mContext,"Network Failed", Toast.LENGTH_SHORT);
+            }
+        });
+    }
+
+
+    public void uploadProfileToServer(String filePath, String login_id, String name){
+        //Create a file object using file path
+        File file = new File(filePath);
+        // Create a request body with file and image media type
+        RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
+        // Create MultipartBody.Part using file request-body,file name and part name
+        MultipartBody.Part part = MultipartBody.Part.createFormData("Gallery", file.getName(), fileReqBody);
+        Log.d("filename", file.getName());
+
+        String url =  String.format("http://%s:%d/%s", address ,port,  user_id+'_'+file.getName());
+
+        apiClient.uploadImage(part, login_id, name, new APICallback() {
             @Override
             public void onError(Throwable t) {
                 Log.e("LOG", t.toString());
@@ -492,17 +537,69 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
             @Override
             public void onSuccess(int code, Object receivedData) {
-                //TODO : PUT SERVER URL
-                String url =  String.format("http://%s:%d/%s", address ,4500,  user_id+'_'+file.getName());
-                albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
+                Log.d("SUCCESS", String.format("code : %d", code));
 
-                Log.d("ImageUpload", String.format("id: %s , url: %s -----------------",login_id, url));
-                adapter.onActivityResult(1,1);
+                Log.d("urlurlruulrul","999999999999999999999999999999"+url);
+
+                apiClient.update_UserProfile(user_id, url, new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.e("LOG", t.toString());
+                        Toast.makeText(mContext,"Network Failed", Toast.LENGTH_SHORT);
+                    }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+
+                        Glide.with(mContext).load(url).dontAnimate().into(Profile_image);
+                        SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sf.edit();
+                        editor.remove("currentUser_profile");
+                        editor.putString("currentUser_profile", url);
+                        editor.commit();
+
+                        if(mListener != null){
+                            mListener.onItemClick(url, REQ_EDIT_PROFILE);
+                        }
+
+                        Boolean duplicate = false;
+                        for ( HashMap<String,String> album : albumList){
+                            if ( album.get(Function.KEY_URL).equals(url)){
+                                duplicate =true;
+                                break;
+                            }
+                        }
+                        if (!duplicate) {
+                            albumList.add(Function.mappingInbox(login_id, url, file.getName(), null));
+                            Log.d("ProfileUpload", String.format("id: %s , url: %s -----------------", login_id, url));
+                            adapter.onActivityResult(1, 1);
+                            // Set Number of Posts
+                            countPosts.setText("" + adapter.getCount());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("FAIL", String.format("code : %d", code));
+                        Toast.makeText(mContext,"Network Failed", Toast.LENGTH_SHORT);
+                    }
+                });
+
             }
             @Override
             public void onFailure(int code) {
                 Log.e("FAIL", String.format("code : %d", code));
             }
         });
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(String url, int request_code);
+    }
+
+    private static OnItemClickListener mListener = null ;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.mListener = listener ;
     }
 }
