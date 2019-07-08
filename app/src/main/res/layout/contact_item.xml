@@ -16,12 +16,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:textSize="15.5sp"
         android:drawableLeft="@drawable/ic_outline_call_24px"
         android:drawablePadding="6dp"
+        android:textSize="15.5sp"
         app:layout_constraintBottom_toTopOf="@+id/add_sub"
         app:layout_constraintStart_toStartOf="@+id/contact_name"
-        app:layout_constraintTop_toBottomOf="@+id/contact_name" />
+        app:layout_constraintTop_toBottomOf="@+id/contact_name"
+        app:layout_constraintVertical_bias="1.0" />
+
+
 
     <TextView
         android:id="@+id/contact_name"
@@ -57,6 +60,7 @@
         android:id="@+id/add_sub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/contact_image"></LinearLayout>

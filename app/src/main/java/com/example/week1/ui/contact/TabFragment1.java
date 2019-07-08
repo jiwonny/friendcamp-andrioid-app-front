@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.week1.ImageSelect;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
@@ -58,6 +59,7 @@ public class TabFragment1 extends Fragment {
     static final int REQ_DELETE_CONTACT =3;
     static final int REQ_CALL_CONTACT =4;
     static final int REQ_SYNC_CONTACT=5;
+    static final int REQ_SHOW_PROFILE = 6;
 
     ArrayList<ContactItem> contact_items = new ArrayList<ContactItem>();
     RecyclerView recyclerView;
@@ -70,6 +72,9 @@ public class TabFragment1 extends Fragment {
     int port = ip.Port;
     View root;
     SharedPreferences sf;
+    String showUser_loginId;
+    Boolean showUser_check;
+    User showUser = new User();
 
     public static TabFragment1 newInstance(){
         TabFragment1 fragment = new TabFragment1();
@@ -183,6 +188,57 @@ public class TabFragment1 extends Fragment {
                             String tel ="tel:" + number;
                             startActivity(new Intent("android.intent.action.DIAL", Uri.parse(tel)));
                             break;
+                        }
+                        case REQ_SHOW_PROFILE:{
+                            ContactItem contactItem = contact_items.get(position);
+                            String name = contactItem.getUser_Name();
+                            String number = contactItem.getUser_phNumber();
+
+                            try {
+                                new AsyncTask<Void, Void, Boolean>() {
+                                    @Override
+                                    protected Boolean doInBackground(Void... params) {
+                                        apiClient.getUserfrom_Name_Number(name, number, new APICallback() {
+                                            @Override
+                                            public void onError(Throwable t) {
+                                            }
+
+                                            @Override
+                                            public void onSuccess(int code, Object receivedData) {
+                                                showUser = (User) receivedData;
+                                                showUser_loginId = showUser.getLogin_id();
+                                                Log.d("req_show_profile", "showUser : " + showUser_loginId);
+                                                showUser_check = true;
+                                            }
+
+                                            @Override
+                                            public void onFailure(int code) {
+                                                showUser_check = false;
+                                            }
+                                        });
+                                        return showUser_check;
+                                    }
+
+                                    @Override
+                                    protected void onPostExecute(Boolean s) {
+                                        super.onPostExecute(s);
+                                        if (showUser_check) {
+                                            Intent show_profile = new Intent(getActivity(), ImageSelect.class);
+                                            show_profile.putExtra("showUser_LoginId", showUser_loginId);
+                                            show_profile.putExtra("showUser_Number", showUser.getNumber());
+                                            show_profile.putExtra("showUser_Name", showUser.getName());
+                                            startActivity(show_profile);
+                                        } else {
+                                            Log.d("no User profile", "no");
+                                        }
+                                    }
+                                }.execute();
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
+
+                            break;
+
                         }
                     }
                 }

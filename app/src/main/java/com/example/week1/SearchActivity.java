@@ -69,8 +69,9 @@ public class SearchActivity extends AppCompatActivity{
             }
         });
 
-        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
         SharedPreferences add_sf = getSharedPreferences("add_user_file", MODE_PRIVATE);
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+
 
         //###### 현재 로그인한 user 정보 불러오기.########
         String user_instance = sf.getString("currentUser", "");
@@ -127,42 +128,15 @@ public class SearchActivity extends AppCompatActivity{
 
         //TODO : 친구 눌렀을 때 추가하기.
         // 추가하기
-        /*
+
         String add_name = add_sf.getString("add_user_name","");
         String add_number = add_sf.getString("add_user_number","");
+        Boolean add_check = add_sf.getBoolean("add_user_check", false);
 
-        try{
-            new AsyncTask<Void, Void, Boolean>(){
-                @Override
-                protected Boolean doInBackground(Void... params){
-                    apiClient.getUserfrom_Name_Number(add_name, add_number, new APICallback() {
-                        @Override
-                        public void onError(Throwable t) { }
 
-                        @Override
-                        public void onSuccess(int code, Object receivedData) {
-                            // 추가할 user 에 대한 user 객체
-                            check = true;
-                            addUser = (User) receivedData;
-                            Log.d("who are you", "addUser"+addUser.getName());
-                        }
 
-                        @Override
-                        public void onFailure(int code) { check = false;}
-                    });
 
-                    return check;
-                }
 
-                @Override
-                protected void onPostExecute(Boolean s){
-                    super.onPostExecute(s);
-                }
-            }.execute();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        */
         //추가할 user 가 누구인가 -> friend 목록에 추가.
 //
 //        apiClient.getUserfrom_Name_Number(add_name, add_number, new APICallback() {

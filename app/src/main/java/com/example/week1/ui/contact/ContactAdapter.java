@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import static com.example.week1.ui.contact.TabFragment1.REQ_CALL_CONTACT;
 import static com.example.week1.ui.contact.TabFragment1.REQ_DELETE_CONTACT;
 import static com.example.week1.ui.contact.TabFragment1.REQ_EDIT_CONTACT;
+import static com.example.week1.ui.contact.TabFragment1.REQ_SHOW_PROFILE;
 
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactViewHolder> {
@@ -77,13 +78,13 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
 
                         // Edit Button
-                        Button edit_contact = (Button) add_layout.findViewById(R.id.edit_contact);
-                        edit_contact.setOnClickListener(new Button.OnClickListener() {
+                        Button show_profile = (Button) add_layout.findViewById(R.id.show_profile);
+                        show_profile.setOnClickListener(new Button.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 int pos = getAdapterPosition() ;
                                 if(mListener != null){
-                                    mListener.onItemClick(view, pos, REQ_EDIT_CONTACT);
+                                    mListener.onItemClick(view, pos, REQ_SHOW_PROFILE);
                                 }
                             }
                         });
