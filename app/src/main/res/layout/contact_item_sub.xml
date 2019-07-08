@@ -26,9 +26,9 @@
         android:layout_marginRight="10dp"
         android:layout_weight="1"
         android:background="@drawable/btn_reg"
-        android:text="Show Profile"
+        android:text="Show"
         android:textColor="@color/colorAccent"
-        android:textSize="13sp" />
+        android:textSize="14sp" />
 
     <Button
         android:id="@+id/delete_contact"
