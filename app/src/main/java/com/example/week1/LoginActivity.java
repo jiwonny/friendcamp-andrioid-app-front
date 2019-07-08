@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ContactDBAdapter db = new ContactDBAdapter(this);
-        apiClient = APIClient.getInstance(this, "143.248.39.49",4500).createBaseApi();
+        apiClient = APIClient.getInstance(this, "143.248.38.203",4500).createBaseApi();
         // PERMISSIONS CHECK
 
         String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
