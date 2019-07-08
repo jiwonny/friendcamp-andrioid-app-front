@@ -1,13 +1,10 @@
 package com.example.week1;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,16 +15,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -35,28 +28,21 @@ import com.bumptech.glide.Glide;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
-import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
-import com.example.week1.ui.gallery.Function;
+import com.example.week1.ui.login.LoginActivity;
 import com.example.week1.ui.main.SectionsPagerAdapter;
+import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -74,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
     //update_profileimage update_profileimage;
+    boolean isLoggedIn;
+    boolean isFacebook;
 
     public static Context mContext;
 
@@ -83,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mContext = this;
 
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        SharedPreferences add_sf = getSharedPreferences("add_user_file", MODE_PRIVATE);
+
+        isFacebook = sf.getBoolean("Facebook", true);
         user_id = sf.getString("currentUser_email", "");
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
@@ -138,29 +129,70 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
 
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        isLoggedIn = accessToken != null && !accessToken.isExpired();
+
         //---logout manager-----//
-        LoginButton logoutButton = findViewById(R.id.facebook_log_button);
-        logoutButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                LoginManager.getInstance().logOut();
+        LoginButton f_logoutButton = findViewById(R.id.facebook_log_button);
+        Button o_logoutButton = findViewById(R.id.origin_log_button);
+        if(isFacebook)
+        {
+            o_logoutButton.setVisibility(View.GONE);
+            f_logoutButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    LoginManager.getInstance().logOut();
 
-                SharedPreferences.Editor editor = sf.edit();
-                editor.clear();
-                editor.commit();
+                    SharedPreferences.Editor editor = sf.edit();
+                    SharedPreferences.Editor add_editor = add_sf.edit();
+                    editor.clear();
+                    editor.commit();
+                    isLoggedIn = false;
 
-                if(db.delete_all_contact()){
-                    Log.d("drop_table", "dropdrop");
-                }else{
-                    Log.d("drop_table", "drop_실패!");
+                    add_editor.clear();
+                    add_editor.commit();
+
+                    if(db.delete_all_contact()){
+                        Log.d("drop_table", "dropdrop");
+                    }else{
+                        Log.d("drop_table", "drop_실패!");
+                    }
+
+
+                    Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(logoutIntent);
+                    return;
                 }
+            });
+        }else{
+            f_logoutButton.setVisibility(View.GONE);
+            o_logoutButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedPreferences.Editor editor = sf.edit();
+                    SharedPreferences.Editor add_editor = add_sf.edit();
+                    editor.clear();
+                    editor.commit();
+                    isLoggedIn = false;
 
+                    add_editor.clear();
+                    add_editor.commit();
 
-                Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(logoutIntent);
-                return;
-            }
-        });
+                    if(db.delete_all_contact()){
+                        Log.d("drop_table", "dropdrop");
+                    }else{
+                        Log.d("drop_table", "drop_실패!");
+                    }
+
+                    Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(logoutIntent);
+                    return;
+
+                }
+            });
+
+        }
+
     }
 
     @Override

@@ -1,41 +1,29 @@
-package com.example.week1;
+package com.example.week1.ui.login;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 
+import com.example.week1.MainActivity;
+import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
-import com.example.week1.ui.contact.ContactSearchAdapter;
 import com.example.week1.ui.gallery.Function;
-import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -43,18 +31,14 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -98,16 +82,32 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     public User data = new User();
 
 
+
     public void inital_setting(){
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
-
+        Button reg_btn = findViewById(R.id.register_button);
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
         SharedPreferences.Editor editor = sf.edit();
+
+        reg_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("register", "register");
+                Intent regIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
+                startActivity(regIntent);
+                editor.putBoolean("Facebook", false);
+                editor.commit();
+            }
+        });
+
+
 
         //  to handle login responses by calling CallbackManager.Factory.create.
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+
+
         loginButton.setReadPermissions("email");
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -169,6 +169,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     editor.putString("currentUser_name", c_name);
                                                     editor.putString("currentUser_number", c_phNumber);
                                                     editor.putString("currentUser_profile", c_profile);
+                                                    editor.putBoolean("Facebook", true);
                                                     editor.commit();
                                                     Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     startActivity(mainIntent);
@@ -184,6 +185,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
                                                     editor.putString("currentUser_email",c_login_Id); // key, value를 이용하여 저장하는 형태
                                                     editor.putString("currentUser_name", c_name); // key, value를 이용하여 저장하는 형태
+                                                    editor.putBoolean("Facebook", true);
                                                     editor.commit();
                                                     startActivity(insertIntent);
 
@@ -237,8 +239,10 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.login_button://페이스북 로그인 버튼
+                Log.d("facebook", "login with facebook");
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email","user_friends"));
                 break;//페이스북 로그인 버튼
+
         }
 
 
