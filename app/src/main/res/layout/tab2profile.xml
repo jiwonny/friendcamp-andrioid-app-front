@@ -149,8 +149,7 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
-        </androidx.cardview.widget.CardView
-            android:layout_width="0dp">
+        </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
