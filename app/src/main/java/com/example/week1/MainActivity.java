@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(user_profile != null){
             try {
                 Glide.with(this)
-                        .load( user_profile ) // Url of the picture
+                        .load( user_profile ).dontAnimate() // Url of the picture
                         .into(current_image);
 
             } catch (Exception e) {}
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onItemClick(String url, int request_code) {
                 ImageView current_image = headerLayout.findViewById(R.id.profile_image);
                 Glide.with(mContext)
-                        .load(url) // Url of the picture
+                        .load(url).dontAnimate() // Url of the picture
                         .into(current_image);
             }
         });
@@ -224,94 +224,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     /*------------------------------------*/
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        switch (requestCode) {
-            case REQ_PICK_IMAGE: {
-                if (resultCode == RESULT_OK) {
-                    Uri photoUri = intent.getData();
-                    Cursor cursor = null;
-                    try {
-                        String[] proj = {MediaStore.Images.Media.DATA};
-                        assert photoUri != null;
-                        cursor = getContentResolver().query(photoUri, proj, null, null, null);
-                        assert cursor != null;
-                        cursor.moveToNext();
-                        String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
-                        cursor.close();
-                        Log.d("path", path);
-
-                        uploadImageToServer(path, user_id);
-
-                    } finally {
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    public void uploadImageToServer(String filePath, String login_id){
-        //Create a file object using file path
-        File file = new File(filePath);
-        // Create a request body with file and image media type
-        RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
-        // Create MultipartBody.Part using file request-body,file name and part name
-        MultipartBody.Part part = MultipartBody.Part.createFormData("Gallery", file.getName(), fileReqBody);
-        Log.d("filename", file.getName());
-
-        //TODO : PUT SERVER URL
-        String url =  String.format("http://%s:%d/%s", "143.248.39.49",4500,  user_id+'_'+file.getName());
-
-        apiClient.uploadImage(part, login_id, new APICallback() {
-            @Override
-            public void onError(Throwable t) {
-                Log.e("LOG", t.toString());
-            }
-
-            @Override
-            public void onSuccess(int code, Object receivedData) {
-                Log.d("SUCCESS", String.format("code : %d", code));
-
-                apiClient.update_UserProfile(user_id, url, new APICallback() {
-                    @Override
-                    public void onError(Throwable t) {
-                        Log.e("LOG", t.toString());
-                    }
-
-                    @Override
-                    public void onSuccess(int code, Object receivedData) {
-                        User data = (User) receivedData;
-                        ImageView current_image = headerLayout.findViewById(R.id.profile_image);
-                        Log.d("urlrul", url);
-                        Glide.with(mContext)
-                                .load(url) // Url of the picture
-                                .into(current_image);
-                        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sf.edit();
-                        editor.remove("currentUser_profile");
-                        editor.putString("currentUser_profile", url);
-                        editor.commit();
-                    }
-
-                    @Override
-                    public void onFailure(int code) {
-                        Log.e("FAIL", String.format("code : %d", code));
-                    }
-                });
-
-            }
-            @Override
-            public void onFailure(int code) {
-                Log.e("FAIL", String.format("code : %d", code));
-            }
-        });
-    }
 
 
 

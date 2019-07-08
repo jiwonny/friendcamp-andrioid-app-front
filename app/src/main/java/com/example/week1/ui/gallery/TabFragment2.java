@@ -9,21 +9,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +39,6 @@ import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
 import com.example.week1.network.Image_f;
-import com.example.week1.network.User;
 import com.example.week1.persistence.GalleryDBAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -114,7 +109,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
 
         Profile_image = root.findViewById(R.id.Profile_image);
         if (user_profile != null){
-            Glide.with(mContext).load(user_profile).into(Profile_image);
+            Glide.with(mContext).load(user_profile).dontAnimate().into(Profile_image);
         }
         TextView Profile_name = root.findViewById(R.id.Profile_name);
         TextView Profile_id = root.findViewById(R.id.Profile_id);
@@ -556,7 +551,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
                     @Override
                     public void onSuccess(int code, Object receivedData) {
 
-                        Glide.with(mContext).load(url).into(Profile_image);
+                        Glide.with(mContext).load(url).dontAnimate().into(Profile_image);
                         SharedPreferences sf = getActivity().getSharedPreferences("userFile", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sf.edit();
                         editor.remove("currentUser_profile");
