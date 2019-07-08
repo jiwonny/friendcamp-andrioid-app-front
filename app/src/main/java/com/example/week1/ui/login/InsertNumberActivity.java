@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -47,12 +48,16 @@ public class InsertNumberActivity extends AppCompatActivity{
 
         EditText tvName = findViewById(R.id.tv_name);
         EditText tvEmail = findViewById(R.id.tv_email);
+        TextView tvPw_title = findViewById(R.id.tv_pw_title);
+        EditText tvPw = findViewById(R.id.tv_pw);
 
         // facebook 으로 가입할 시.
         if(login_facebook == true){
             tvName.setEnabled(false);
             tvEmail.setEnabled(false);
-            // 변환
+            tvPw_title.setVisibility(View.GONE);
+            tvPw.setVisibility(View.GONE);
+          // 변환
             currentUser = gson.fromJson(user_instance, User.class);
         }else{
             tvName.setEnabled(true);
@@ -117,6 +122,8 @@ public class InsertNumberActivity extends AppCompatActivity{
                         public void onSuccess(int code, Object receivedData) {
                             User data = (User) receivedData;
                             Log.d("post_user", data.getName());
+                            Toast.makeText(getApplicationContext(), "안녕하세요! " +data.getName() +"님", Toast.LENGTH_SHORT).show();
+
                             Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(mainIntent);
                             finish();

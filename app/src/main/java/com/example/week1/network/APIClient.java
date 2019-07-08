@@ -68,8 +68,21 @@ public class APIClient {
 
     /* GET implementation */
 
+    public void getUserfrom_LoginId(String login_id, final APICallback callback){
+        try {
+            Response<User> response = apiService.getUserfrom_LoginId(login_id).execute();
+            if (response.isSuccessful()) {
+                callback.onSuccess(response.code(), response.body());
+            } else {
+                callback.onFailure(response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void getUserfrom_Name_Number(String name, String number ,final APICallback callback) {
-        Log.d("call apiclient", "나 불려졌어~!");
         try {
             Response<User> response = apiService.getUserfrom_Name_Number(name, number).execute();
             if (response.isSuccessful()) {

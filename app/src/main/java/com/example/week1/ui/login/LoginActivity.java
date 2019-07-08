@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -87,6 +88,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
         Button reg_btn = findViewById(R.id.register_button);
+        Button o_login_btn = (Button) findViewById(R.id.login_origin_button);
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
         SharedPreferences.Editor editor = sf.edit();
 
@@ -101,7 +103,66 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
             }
         });
 
+        // 로그인한 User 가 db 에 있는지 확인
+        o_login_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText Login_id_edit = findViewById(R.id.Login_id_edit);
+                String submit_loginId = Login_id_edit.getText().toString();
 
+                try{
+                    new AsyncTask<Void, Void, Boolean>(){
+                          @Override
+                          protected Boolean doInBackground(Void... params) {
+                              apiClient.getUserfrom_LoginId(submit_loginId, new APICallback() {
+                                  @Override
+                                  public void onError(Throwable t) {
+                                  }
+
+                                  @Override
+                                  public void onSuccess(int code, Object receivedData) {
+                                      // 만약 존재하는 경우 바로 main activity 로 이동.
+                                      data = (User) receivedData;
+                                      check = true;
+                                  }
+
+                                  @Override
+                                  public void onFailure(int code) {
+                                      check = false;
+                                  }
+                              });
+                              return check;
+                          }
+
+                          @Override
+                          protected void onPostExecute(Boolean s){
+                             if(check){
+                                 Gson currentGson = new GsonBuilder().create();
+                                 String userJson = currentGson.toJson(data, User.class);
+
+                                 editor.putString("currentUser", userJson);
+                                 editor.putString("currentUser_email", data.getLogin_id());
+                                 editor.putString("currentUser_name", data.getName());
+                                 editor.putString("currentUser_number", data.getNumber());
+                                 editor.putString("currentUser_profile", data.getProfile_image_id());
+                                 editor.putBoolean("Facebook", false);
+                                 editor.commit();
+
+                                 Toast.makeText(getApplicationContext(), "안녕하세요! " +data.getName() +"님", Toast.LENGTH_SHORT).show();
+
+                                 Intent mainIntent2 = new Intent(getApplicationContext(), MainActivity.class);
+                                 startActivity(mainIntent2);
+                             }
+                             else{
+                                 Toast.makeText(getApplicationContext(), "해당 사용자가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                             }
+                          }
+                      }.execute();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
 
         //  to handle login responses by calling CallbackManager.Factory.create.
         callbackManager = CallbackManager.Factory.create();
@@ -171,6 +232,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     editor.putString("currentUser_profile", c_profile);
                                                     editor.putBoolean("Facebook", true);
                                                     editor.commit();
+                                                    Toast.makeText(getApplicationContext(), "안녕하세요! " +c_name +"님", Toast.LENGTH_SHORT).show();
                                                     Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     startActivity(mainIntent);
 
@@ -234,7 +296,6 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -242,7 +303,6 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                 Log.d("facebook", "login with facebook");
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email","user_friends"));
                 break;//페이스북 로그인 버튼
-
         }
 
 
