@@ -55,8 +55,10 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
         IPInfo ip = new IPInfo();
         String address = ip.IPAddress;
+        int port = ip.Port;
 
-        apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
+        apiClient = APIClient.getInstance(this, address,port).createBaseApi();
+
         // PERMISSIONS CHECK
 
         String[] PERMISSIONS = {Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -108,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
             @Override
             public void onClick(View view) {
                 EditText Login_id_edit = findViewById(R.id.Login_id_edit);
-                String submit_loginId = Login_id_edit.getText().toString();
+                String submit_loginId = Login_id_edit.getText().toString().trim();
 
                 try{
                     new AsyncTask<Void, Void, Boolean>(){
@@ -172,7 +174,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         loginButton.setReadPermissions("email");
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
+        boolean isLoggedIn = accessToken != null && !accessToken.isExpired();  // accessToken 이 null이 아니고 expired 되지 않았다.
 
         if(!isLoggedIn){
             loginButton.registerCallback(callbackManager,
@@ -192,7 +194,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                     setResult(RESULT_OK);
 
                                     try{
-                                        c_login_Id = user.getString("email");
+                                        c_login_Id = user.getString("email").trim();
                                         c_name = user.getString("name");
 
                                         new AsyncTask<Void, Void, Boolean>() {
@@ -304,8 +306,6 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email","user_friends"));
                 break;//페이스북 로그인 버튼
         }
-
-
     }
 
     @Override

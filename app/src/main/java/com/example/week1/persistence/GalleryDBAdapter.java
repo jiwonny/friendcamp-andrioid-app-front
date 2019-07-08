@@ -92,82 +92,19 @@ public class GalleryDBAdapter {
         return imageList;
     }
 
-/*
-    // Select * Group by Album
-    public ArrayList<HashMap<String, String>> retreive_photos_byAlbums() {
+    public boolean delete_all_photos(){
+        try{
+            db=helper.getWritableDatabase();
+            db.execSQL(ContactDBCtrct.SQL_DELETE);
 
-        ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
-        SQLiteDatabase db = helper.getWritableDatabase();
-        String sqlGROUPBY = GalleryDBCtrct.SQL_SELECT_1 + " GROUP BY " + GalleryDBCtrct.COL_ALBUM;
-        System.out.println(sqlGROUPBY);
-        Cursor cursor = db.rawQuery(sqlGROUPBY, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-
-                String path = null;
-                String album = null;
-                String timestamp = null;
-                String countPhoto = null;
-
-                path = cursor.getString(0);
-                album = cursor.getString(1);
-                timestamp = cursor.getString(2);
-                countPhoto = getCount(album);
-
-                //System.out.println(String.format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, %s,%s, %s, %s ", path, album, timestamp, countPhoto));
-
-                albumList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), countPhoto));
-
-            } while (cursor.moveToNext());
+            return true;
+        } catch(SQLException e){
+            e.printStackTrace();
+        } finally {
+            helper.close();
         }
-        cursor.close();
-        helper.close();
-        Collections.sort(albumList, new MapComparator(KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
-        return albumList;
+        return false;
     }
 
-    // Select * Where Album
-
-    public ArrayList<HashMap<String, String>> retreive_photos_inAlbum(String album_name) {
-
-        ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
-        SQLiteDatabase db = helper.getWritableDatabase();
-        String sqlWHERE = GalleryDBCtrct.SQL_SELECT + " WHERE " + GalleryDBCtrct.COL_ALBUM + " == " + "'"+album_name+"'";
-        System.out.println(sqlWHERE);
-        Cursor cursor = db.rawQuery(sqlWHERE, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-
-                String path = null;
-                String album = null;
-                String timestamp = null;
-
-                path = cursor.getString(1);
-                album = cursor.getString(2);
-                timestamp = cursor.getString(3);
-
-                System.out.println(String.format("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb, %s,%s, %s,", path, album, timestamp));
-
-                imageList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), null));
-
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        helper.close();
-        Collections.sort(imageList, new MapComparator(KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
-        return imageList;
-    }
-    */
-
-    public String getCount(String album_name){
-        SQLiteDatabase db = helper.getWritableDatabase();
-        String sqlSelect1 = GalleryDBCtrct.SQL_SELECT + " WHERE " + GalleryDBCtrct.COL_LOGIN_ID + " == " + "'"+album_name+"'";
-        Cursor cursor = db.rawQuery(sqlSelect1,null);
-
-        return cursor.getCount()+" Photos";
-    }
 
 }

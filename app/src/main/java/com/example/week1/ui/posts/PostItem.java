@@ -5,6 +5,8 @@ import com.example.week1.network.Image_f;
 public class PostItem {
     String login_id;
     String profile;
+    Long timestamp;
+    String time;
     Image_f post;
 
     public String getLogin_id() {
@@ -21,6 +23,22 @@ public class PostItem {
 
     public void setProfile(String profile) {
         this.profile = profile;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public Image_f getPost() {

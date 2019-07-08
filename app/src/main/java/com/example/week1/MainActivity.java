@@ -40,6 +40,7 @@ import com.example.week1.network.Image_f;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
+import com.example.week1.persistence.GalleryDBAdapter;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.gallery.TabFragment2;
 import com.example.week1.ui.login.LoginActivity;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         apiClient = APIClient.getInstance(this, address,port).createBaseApi();
         ContactDBAdapter db = new ContactDBAdapter(this);
+        GalleryDBAdapter db1 = new GalleryDBAdapter(this);
 
 
         setContentView(R.layout.activity_main);
@@ -267,6 +269,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default :
                 return super.onOptionsItemSelected(item) ;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, "Back button pressed.", Toast.LENGTH_SHORT).show();
+
+
+        finishAffinity();
+        super.onBackPressed();
     }
 
 

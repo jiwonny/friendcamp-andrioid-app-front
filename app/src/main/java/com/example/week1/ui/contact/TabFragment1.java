@@ -71,7 +71,9 @@ public class TabFragment1 extends Fragment {
     View root;
     SharedPreferences sf;
 
-    public TabFragment1(){
+    public static TabFragment1 newInstance(){
+        TabFragment1 fragment = new TabFragment1();
+        return fragment;
     }
 
     @Override

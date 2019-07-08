@@ -66,8 +66,6 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     Context mContext;
 
     LoadAlbum loadAlbumTask;
-    GridView galleryGridView;
-    ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
     CameraAction cameraAction;
     AlbumAdapter adapter;
     APIClient apiClient;
@@ -81,8 +79,11 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
     int port = ip.Port;
 
     View root;
+    GridView galleryGridView;
     ImageView Profile_image;
     TextView countPosts;
+
+    ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
 
     public static TabFragment2 newInstance(){
         TabFragment2 fragment = new TabFragment2();
@@ -160,7 +161,6 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             }
         });
 
-
         galleryGridView = (GridView) root.findViewById(R.id.galleryGridView);
 
         int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
@@ -175,10 +175,83 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
             galleryGridView.setColumnWidth(Math.round(px));
         }
 
+        adapter = new AlbumAdapter(getActivity(), albumList);
+        // Set Number of Posts
+        countPosts.setText(""+adapter.getCount());
+        galleryGridView.setAdapter(adapter);
+        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    final int position, long id) {
+                Intent intent = new Intent(getActivity(), GalleryPreview.class);
+                intent.putExtra("url", albumList.get(+position).get(Function.KEY_URL));
+                startActivityForResult(intent, REQ_DELETE);
+            }
+        });
+
+        galleryGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
+
+                String url = albumList.get(+position).get(Function.KEY_URL);
+                String file = albumList.get(+position).get(Function.KEY_FILE);
+
+                AlertDialog.Builder alt_bld = new AlertDialog.Builder(view.getContext());
+                alt_bld.setMessage("Do you want to delete the photo?").setCancelable(
+                        false).setPositiveButton("Yes",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                apiClient.deleteImage(user_id, file, new APICallback() {
+                                    @Override
+                                    public void onError(Throwable t) {
+
+                                        Toast.makeText(view.getContext(), "NETWORK NOT CONNECTED", Toast.LENGTH_SHORT).show();
+                                        Log.e("LOG", t.toString());
+                                    }
+
+                                    @Override
+                                    public void onSuccess(int code, Object receivedData) {
+
+                                        Toast.makeText(view.getContext(), "DELETE SUCCESS", Toast.LENGTH_SHORT).show();
+
+                                        int i =0;
+                                        for(HashMap<String, String> album : albumList){
+                                            if( album.get(Function.KEY_FILE).equals(file)){
+                                                break;
+                                            }
+                                            i++;
+                                        }
+
+                                        albumList.remove(i);
+                                        adapter.onActivityResult(1,1);
+                                        // Set Number of Posts
+                                        countPosts.setText(""+adapter.getCount());
+                                    }
+
+                                    @Override
+                                    public void onFailure(int code) {
+
+                                        Toast.makeText(view.getContext(), "DELETE FAIL", Toast.LENGTH_SHORT).show();
+                                        Log.e("FAIL", String.format("code : %d", code));
+                                    }
+                                });
+                            }
+                        }).setNegativeButton("No",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = alt_bld.create();
+                // Title for AlertDialog
+                alert.setTitle("DELETE");
+                // Icon for AlertDialog
+                alert.show();
+                return true;
+            }
+        });
+
         loadAlbumTask = new TabFragment2.LoadAlbum();
         loadAlbumTask.execute();
-
-        //init_photos();
 
         return root;
     }
@@ -198,7 +271,7 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         }
     }
 
-    // Load Photos from DB and set adapter
+    // Load Photos and set adapter
     class LoadAlbum extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -209,7 +282,8 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         //Generate image data
         protected String doInBackground(String... args) {
             String xml = "";
-            getPhotosfromServer();
+            getPhotosfromServer getphotofromserver = new getPhotosfromServer();
+            getphotofromserver.execute();
 
             return xml;
         }
@@ -217,133 +291,55 @@ public class TabFragment2 extends Fragment  implements ActivityCompat.OnRequestP
         @Override
         protected void onPostExecute(String xml) {
             super.onPostExecute(xml);
-            GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-            albumList = load_photos();
-            adapter = new AlbumAdapter(getActivity(), albumList);
+
             // Set Number of Posts
             countPosts.setText(""+adapter.getCount());
-            galleryGridView.setAdapter(adapter);
-            galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        final int position, long id) {
-                    Intent intent = new Intent(getActivity(), GalleryPreview.class);
-                    intent.putExtra("url", albumList.get(+position).get(Function.KEY_URL));
-                    startActivityForResult(intent, REQ_DELETE);
-                }
-            });
-
-            galleryGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
-
-                    String url = albumList.get(+position).get(Function.KEY_URL);
-                    String file = albumList.get(+position).get(Function.KEY_FILE);
-
-                    AlertDialog.Builder alt_bld = new AlertDialog.Builder(view.getContext());
-                    alt_bld.setMessage("Do you want to delete the photo?").setCancelable(
-                            false).setPositiveButton("Yes",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    apiClient.deleteImage(user_id, file, new APICallback() {
-                                        @Override
-                                        public void onError(Throwable t) {
-
-                                            Toast.makeText(view.getContext(), "NETWORK NOT CONNECTED", Toast.LENGTH_SHORT).show();
-                                            Log.e("LOG", t.toString());
-                                        }
-
-                                        @Override
-                                        public void onSuccess(int code, Object receivedData) {
-
-                                            Toast.makeText(view.getContext(), "DELETE SUCCESS", Toast.LENGTH_SHORT).show();
-
-                                            db.delete_photo(user_id, url);
-                                            int i =0;
-                                            for(HashMap<String, String> album : albumList){
-                                                if( album.get(Function.KEY_FILE).equals(file)){
-                                                    break;
-                                                }
-                                                i++;
-                                            }
-
-                                            albumList.remove(i);
-                                            adapter.onActivityResult(1,1);
-                                            // Set Number of Posts
-                                            countPosts.setText(""+adapter.getCount());
-                                        }
-
-                                        @Override
-                                        public void onFailure(int code) {
-
-                                            Toast.makeText(view.getContext(), "DELETE FAIL", Toast.LENGTH_SHORT).show();
-                                            Log.e("FAIL", String.format("code : %d", code));
-                                        }
-                                    });
-                                }
-                            }).setNegativeButton("No",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
-                    AlertDialog alert = alt_bld.create();
-                    // Title for AlertDialog
-                    alert.setTitle("DELETE");
-                    // Icon for AlertDialog
-                    alert.show();
-                    return true;
-                }
-            });
+            adapter.onActivityResult(1,1);
 
         }
     }
 
+
+
     // get Photos from Server
-    public void getPhotosfromServer(){
+    public class getPhotosfromServer extends AsyncTask<Void, Void, String>{
 
-        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                apiClient.getImageList(user_id, new APICallback() {
-                    @Override
-                    public void onError(Throwable t) { }
+        @Override
+        protected String doInBackground(Void... params) {
+            apiClient.getImageList(user_id, new APICallback() {
+                @Override
+                public void onError(Throwable t) { }
 
-                    @Override
-                    public void onSuccess(int code, Object receivedData) {
-                        List<Image_f> data = (List<Image_f>) receivedData;
-                        Log.d("Load", "Start-------------------------------------------"+data);
-                        for( Image_f image_f : data){
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    List<Image_f> data = (List<Image_f>) receivedData;
+                    Log.d("Load", "Start-------------------------------------------"+data);
+                    for( Image_f image_f : data){
 
+                        String login_id = image_f.getLogin_id();
+                        String url = String.format("http://%s:%d/%s", address ,port, image_f.getUrl());
+                        String file = image_f.getUrl();
+                        String timestamp = image_f.getTimestamp();
 
-                            String login_id = image_f.getLogin_id();
-                            String url = String.format("http://%s:%d/%s", address ,4500, image_f.getUrl());
-                            String file = image_f.getUrl();
-                            String timestamp = image_f.getTimestamp();
+                        Log.d("Load", String.format("id : %s, url : %s , timestamp : %s", login_id,url, timestamp));
 
-                            Log.d("Load", String.format("id : %s, url : %s , timestamp : %s", login_id,url, timestamp));
+                        HashMap<String,String> map = Function.mappingInbox(login_id,url,file,timestamp);
 
-                            db.insert_photo(login_id,url, file, timestamp);
-                        }
+                        albumList.add(map);
+
                     }
-                    @Override
-                    public void onFailure(int code) {
-                        Log.e("FAIL", String.format("code : %d", code));
-                    }
-                });
-                return null;
-            }
-            @Override
-            protected void onPostExecute(String s) {
-                super.onPostExecute(s);
-            }
-        }.execute();
-    }
-
-    // generate Albumlist for adpater
-    private ArrayList<HashMap<String, String>> load_photos(){
-        GalleryDBAdapter db = new GalleryDBAdapter(getActivity());
-        return db.sellect_all();
+                }
+                @Override
+                public void onFailure(int code) {
+                    Log.e("FAIL", String.format("code : %d", code));
+                }
+            });
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
     }
 
     class AlbumAdapter extends BaseAdapter {

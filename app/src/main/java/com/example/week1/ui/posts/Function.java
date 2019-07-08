@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -48,17 +49,13 @@ public class Function {
     }
 
     public static Long converToTimeStamp(String time){
-        DateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        Date date = null;
         try {
-            date = (Date)formatter.parse(time);
+            long epochMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse(time).getTime();
+            return epochMillis;
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        long output=date.getTime()/1000L;
-        String str=Long.toString(output);
-        long timestamp = Long.parseLong(str);
-        return timestamp;
+        return null;
     }
 
     public static float convertDpToPixel(float dp, Context context){
