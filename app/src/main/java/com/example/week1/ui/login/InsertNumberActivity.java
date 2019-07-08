@@ -1,4 +1,4 @@
-package com.example.week1;
+package com.example.week1.ui.login;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,9 +8,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.week1.MainActivity;
+import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
@@ -22,7 +25,8 @@ public class InsertNumberActivity extends AppCompatActivity{
 
     APIClient apiClient;
     User currentUser = new User();
-
+    String user_name;
+    String user_email;
     Gson gson = new GsonBuilder().create();
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -40,17 +44,33 @@ public class InsertNumberActivity extends AppCompatActivity{
 
         // 원래 user 에 대한 gson get
         String user_instance = sf.getString("currentUser", "");
-        // 변환
-        currentUser = gson.fromJson(user_instance, User.class);
+        Boolean login_facebook = sf.getBoolean("Facebook", true);
+
+        EditText tvName = findViewById(R.id.tv_name);
+        EditText tvEmail = findViewById(R.id.tv_email);
+        TextView tvPw_title = findViewById(R.id.tv_pw_title);
+        EditText tvPw = findViewById(R.id.tv_pw);
+
+        // facebook 으로 가입할 시.
+        if(login_facebook == true){
+            tvName.setEnabled(false);
+            tvEmail.setEnabled(false);
+            tvPw_title.setVisibility(View.GONE);
+            tvPw.setVisibility(View.GONE);
+          // 변환
+            currentUser = gson.fromJson(user_instance, User.class);
+        }else{
+            tvName.setEnabled(true);
+            tvEmail.setEnabled(true);
+        }
+
+
 
         Intent userIntent = getIntent();
-        String user_name = userIntent.getStringExtra("user_name");
-        String user_email = userIntent.getStringExtra("user_email");
+        user_name = userIntent.getStringExtra("user_name");
+        user_email = userIntent.getStringExtra("user_email");
 
-        TextView tvName = findViewById(R.id.tv_name);
         tvName.setText(user_name);
-
-        TextView tvEmail = findViewById(R.id.tv_email);
         tvEmail.setText(user_email);
 
         EditText etNumber = findViewById(R.id.tv_number);
@@ -64,11 +84,16 @@ public class InsertNumberActivity extends AppCompatActivity{
             public void onClick(View v){
                 if(etNumber.getText().toString().length() != 0) {
                     Log.d("savebtn", "savebtn click");
+                    // FACEBOOK 으로 가입하지 않을 경우.
+                    if(user_instance.equals("")){
+                        user_name = tvName.getText().toString();
+                        user_email = tvEmail.getText().toString();
+                    }
+
                     User user = new User();
                     user.setName(user_name);
                     user.setLogin_id(user_email);
                     String user_phNumber = etNumber.getText().toString().replace("-", "");
-
                     user.setNumber(user_phNumber);
 
                     // 어차피 처음 가입하는 자는 친구가 없음.
@@ -76,10 +101,15 @@ public class InsertNumberActivity extends AppCompatActivity{
                     currentUser.setLogin_id(user_email);
                     currentUser.setNumber(user_phNumber);
 
+
+
 //                    Gson currentGson = new GsonBuilder().create();
                     String userJson = gson.toJson(currentUser, User.class);
 
                     editor.putString("currentUser", userJson);
+                    editor.putString("currentUser_name", user_name);
+                    editor.putString("currentUser_email", user_email);
+
                     editor.putString("currentUser_number", user_phNumber);
                     editor.commit();
 
@@ -92,6 +122,8 @@ public class InsertNumberActivity extends AppCompatActivity{
                         public void onSuccess(int code, Object receivedData) {
                             User data = (User) receivedData;
                             Log.d("post_user", data.getName());
+                            Toast.makeText(getApplicationContext(), "안녕하세요! " +data.getName() +"님", Toast.LENGTH_SHORT).show();
+
                             Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(mainIntent);
                             finish();

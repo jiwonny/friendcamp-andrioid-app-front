@@ -26,6 +26,9 @@ public interface ApiService {
 
 
     /* Contact */
+    @GET("/Users/Login_id/{Login_id}")
+    Call <User> getUserfrom_LoginId(@Path("Login_id") String Login_id);
+
     @GET("/Users/Name/{Name}/Phone/{Phone}")
     Call <User> getUserfrom_Name_Number(@Path("Name") String Name, @Path("Phone") String Phone);
 

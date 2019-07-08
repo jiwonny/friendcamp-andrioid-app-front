@@ -1,41 +1,30 @@
-package com.example.week1;
+package com.example.week1.ui.login;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 
+import com.example.week1.MainActivity;
+import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
 import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
-import com.example.week1.ui.contact.ContactSearchAdapter;
 import com.example.week1.ui.gallery.Function;
-import com.example.week1.ui.main.SectionsPagerAdapter;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -43,18 +32,14 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
-import com.facebook.login.Login;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -67,6 +52,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ContactDBAdapter db = new ContactDBAdapter(this);
+
         IPInfo ip = new IPInfo();
         String address = ip.IPAddress;
 
@@ -97,16 +83,92 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
     public User data = new User();
 
 
+
     public void inital_setting(){
         FacebookSdk.sdkInitialize(this.getApplicationContext());
         setContentView(R.layout.activity_login);
-
+        Button reg_btn = findViewById(R.id.register_button);
+        Button o_login_btn = (Button) findViewById(R.id.login_origin_button);
         SharedPreferences sf = getSharedPreferences("userFile",MODE_PRIVATE);
         SharedPreferences.Editor editor = sf.edit();
+
+        reg_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("register", "register");
+                Intent regIntent = new Intent(getApplicationContext(), InsertNumberActivity.class);
+                startActivity(regIntent);
+                editor.putBoolean("Facebook", false);
+                editor.commit();
+            }
+        });
+
+        // 로그인한 User 가 db 에 있는지 확인
+        o_login_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText Login_id_edit = findViewById(R.id.Login_id_edit);
+                String submit_loginId = Login_id_edit.getText().toString();
+
+                try{
+                    new AsyncTask<Void, Void, Boolean>(){
+                          @Override
+                          protected Boolean doInBackground(Void... params) {
+                              apiClient.getUserfrom_LoginId(submit_loginId, new APICallback() {
+                                  @Override
+                                  public void onError(Throwable t) {
+                                  }
+
+                                  @Override
+                                  public void onSuccess(int code, Object receivedData) {
+                                      // 만약 존재하는 경우 바로 main activity 로 이동.
+                                      data = (User) receivedData;
+                                      check = true;
+                                  }
+
+                                  @Override
+                                  public void onFailure(int code) {
+                                      check = false;
+                                  }
+                              });
+                              return check;
+                          }
+
+                          @Override
+                          protected void onPostExecute(Boolean s){
+                             if(check){
+                                 Gson currentGson = new GsonBuilder().create();
+                                 String userJson = currentGson.toJson(data, User.class);
+
+                                 editor.putString("currentUser", userJson);
+                                 editor.putString("currentUser_email", data.getLogin_id());
+                                 editor.putString("currentUser_name", data.getName());
+                                 editor.putString("currentUser_number", data.getNumber());
+                                 editor.putString("currentUser_profile", data.getProfile_image_id());
+                                 editor.putBoolean("Facebook", false);
+                                 editor.commit();
+
+                                 Toast.makeText(getApplicationContext(), "안녕하세요! " +data.getName() +"님", Toast.LENGTH_SHORT).show();
+
+                                 Intent mainIntent2 = new Intent(getApplicationContext(), MainActivity.class);
+                                 startActivity(mainIntent2);
+                             }
+                             else{
+                                 Toast.makeText(getApplicationContext(), "해당 사용자가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                             }
+                          }
+                      }.execute();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
 
         //  to handle login responses by calling CallbackManager.Factory.create.
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+
+
         loginButton.setReadPermissions("email");
 
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
@@ -168,7 +230,9 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                                                     editor.putString("currentUser_name", c_name);
                                                     editor.putString("currentUser_number", c_phNumber);
                                                     editor.putString("currentUser_profile", c_profile);
+                                                    editor.putBoolean("Facebook", true);
                                                     editor.commit();
+                                                    Toast.makeText(getApplicationContext(), "안녕하세요! " +c_name +"님", Toast.LENGTH_SHORT).show();
                                                     Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                     startActivity(mainIntent);
 
@@ -183,6 +247,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
                                                     editor.putString("currentUser_email",c_login_Id); // key, value를 이용하여 저장하는 형태
                                                     editor.putString("currentUser_name", c_name); // key, value를 이용하여 저장하는 형태
+                                                    editor.putBoolean("Facebook", true);
                                                     editor.commit();
                                                     startActivity(insertIntent);
 
@@ -231,11 +296,11 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.login_button://페이스북 로그인 버튼
+                Log.d("facebook", "login with facebook");
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email","user_friends"));
                 break;//페이스북 로그인 버튼
         }

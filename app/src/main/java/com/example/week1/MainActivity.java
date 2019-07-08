@@ -42,7 +42,9 @@ import com.example.week1.persistence.ContactDBAdapter;
 import com.example.week1.persistence.ContactDBHelper;
 import com.example.week1.ui.gallery.Function;
 import com.example.week1.ui.gallery.TabFragment2;
+import com.example.week1.ui.login.LoginActivity;
 import com.example.week1.ui.main.SectionsPagerAdapter;
+import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -80,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SectionsPagerAdapter sectionsPagerAdapter;
     ViewPager viewPager;
     //update_profileimage update_profileimage;
+    boolean isLoggedIn;
+    boolean isFacebook;
 
     Context mContext;
 
@@ -89,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mContext = this;
 
         SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        SharedPreferences add_sf = getSharedPreferences("add_user_file", MODE_PRIVATE);
+
+        isFacebook = sf.getBoolean("Facebook", true);
         user_id = sf.getString("currentUser_email", "");
         user_name = sf.getString("currentUser_name", "");
         user_number = sf.getString("currentUser_number", "");
@@ -124,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         current_number.setText(user_number);
         if(user_profile != null){
             try {
+
                 Glide.with(this)
                         .load( user_profile ).dontAnimate() // Url of the picture
                         .into(current_image);
@@ -131,30 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (Exception e) {}
         }
 
-        //---logout manager-----//
-        LoginButton logoutButton = findViewById(R.id.facebook_log_button);
-        logoutButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                LoginManager.getInstance().logOut();
-
-                SharedPreferences.Editor editor = sf.edit();
-                editor.clear();
-                editor.commit();
-
-                if(db.delete_all_contact()){
-                    Log.d("drop_table", "dropdrop");
-                }else{
-                    Log.d("drop_table", "drop_실패!");
-                }
-
-
-                Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(logoutIntent);
-                return;
-            }
-        });
-
+        //--- Edit Profile Listner ----//
         Fragment tab2 = TabFragment2.newInstance();
         ((TabFragment2) tab2).setOnItemClickListener(new TabFragment2.OnItemClickListener() {
             @Override
@@ -166,6 +151,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+
+        //---logout manager-----//
+        LoginButton f_logoutButton = findViewById(R.id.facebook_log_button);
+        Button o_logoutButton = findViewById(R.id.origin_log_button);
+        if(isFacebook)
+        {
+            o_logoutButton.setVisibility(View.GONE);
+            f_logoutButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    LoginManager.getInstance().logOut();
+
+                    SharedPreferences.Editor editor = sf.edit();
+                    SharedPreferences.Editor add_editor = add_sf.edit();
+                    editor.clear();
+                    editor.commit();
+                    isLoggedIn = false;
+
+                    add_editor.clear();
+                    add_editor.commit();
+
+                    if(db.delete_all_contact()){
+                        Log.d("drop_table", "dropdrop");
+                    }else{
+                        Log.d("drop_table", "drop_실패!");
+                    }
+
+
+                    Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(logoutIntent);
+                    return;
+                }
+            });
+        }else{
+            f_logoutButton.setVisibility(View.GONE);
+            o_logoutButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedPreferences.Editor editor = sf.edit();
+                    SharedPreferences.Editor add_editor = add_sf.edit();
+                    editor.clear();
+                    editor.commit();
+                    isLoggedIn = false;
+
+                    add_editor.clear();
+                    add_editor.commit();
+
+                    if(db.delete_all_contact()){
+                        Log.d("drop_table", "dropdrop");
+                    }else{
+                        Log.d("drop_table", "drop_실패!");
+                    }
+
+                    Intent logoutIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(logoutIntent);
+                    return;
+
+                }
+            });
+
+        }
     }
 
     @Override
@@ -197,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.appbar_action, menu) ;
@@ -207,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search :
-                Intent intent = new Intent(this, SearchActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_up_info,R.anim.no_change);
                 return true ;
@@ -224,8 +271,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     /*------------------------------------*/
-
-
 
     public Bitmap resizingBitmap(Bitmap oBitmap) {
         if (oBitmap == null)
@@ -250,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rBitmap = Bitmap.createScaledBitmap(oBitmap, (int) width, (int) height, true);
         return rBitmap;
     }
+
 
 
 }
