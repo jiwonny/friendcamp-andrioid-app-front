@@ -21,7 +21,7 @@ import com.example.week1.network.Image_f;
 import java.util.ArrayList;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder>{
-    private ArrayList<PostItem> mDataset;
+    private static ArrayList<PostItem> mDataset;
     Context mcontext;
     static Activity activity;
 
@@ -47,6 +47,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public PostViewHolder(final View itemView){
             super(itemView);
 
+
+
             Post_image = itemView.findViewById(R.id.Post_image);
             Post_profile = itemView.findViewById(R.id.Post_profile);
             Post_id = itemView.findViewById(R.id.Post_id);
@@ -57,7 +59,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             Comments.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    int pos = getAdapterPosition() ;
+                    PostItem postitem = mDataset.get(pos);
+                    Image_f image_f = postitem.getPost();
+
                     Intent intent = new Intent(activity, Comments.class);
+                    intent.putExtra("Login_id", image_f.getLogin_id());
+                    intent.putExtra("url", image_f.getUrl());
+                    intent.putExtra("profile", postitem.getProfile());
                     activity.startActivity(intent);
                 }
             });

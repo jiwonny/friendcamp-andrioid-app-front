@@ -1,14 +1,9 @@
 package com.example.week1.ui.contact;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,11 +20,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.week1.ImageSelect;
+import com.example.week1.FriendProfile;
 import com.example.week1.R;
 import com.example.week1.network.APICallback;
 import com.example.week1.network.APIClient;
-import com.example.week1.network.ApiService;
 import com.example.week1.network.IPInfo;
 import com.example.week1.network.User;
 import com.example.week1.persistence.ContactDBAdapter;
@@ -37,14 +31,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import retrofit2.Call;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -223,10 +211,11 @@ public class TabFragment1 extends Fragment {
                                     protected void onPostExecute(Boolean s) {
                                         super.onPostExecute(s);
                                         if (showUser_check) {
-                                            Intent show_profile = new Intent(getActivity(), ImageSelect.class);
+                                            Intent show_profile = new Intent(getActivity(), FriendProfile.class);
                                             show_profile.putExtra("showUser_LoginId", showUser_loginId);
                                             show_profile.putExtra("showUser_Number", showUser.getNumber());
                                             show_profile.putExtra("showUser_Name", showUser.getName());
+                                            show_profile.putExtra("showUser_Profile", showUser.getProfile_image_id());
                                             startActivity(show_profile);
                                         } else {
                                             Log.d("no User profile", "no");

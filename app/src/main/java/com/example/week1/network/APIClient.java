@@ -126,17 +126,20 @@ public class APIClient {
                 callback.onError(t);
             }
         });
+    }
 
-//        try {
-//            Response<User> response = apiService.searchUserfrom_LoginId(Login_id).execute();
-//            if (response.isSuccessful()) {
-//                callback.onSuccess(response.code(), response.body());
-//            } else {
-//                callback.onFailure(response.code());
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public void getImage(String login_id, String url, final APICallback callback){
+        try{
+            Response<Image_f> response = apiService.getImage(login_id,url).execute();
+            if (response.isSuccessful()) {
+                callback.onSuccess(response.code(), response.body());
+                Log.d("commmmmmentntntnntnttn", response.body().toString());
+            } else {
+                callback.onFailure(response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -226,6 +229,24 @@ public class APIClient {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    public void update_Comment(String login_id, String url, List<Comment> comments, final APICallback callback){
+        apiService.update_Comment(login_id,url, comments).enqueue(new Callback<Image_f>() {
+            @Override
+            public void onResponse(Call<Image_f> call, Response<Image_f> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.code(), response.body());
+                } else {
+                    callback.onFailure(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Image_f> call, Throwable t) {
                 callback.onError(t);
             }
         });

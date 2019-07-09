@@ -53,6 +53,9 @@ public interface ApiService {
 
     /* Gallery */
 
+    @GET("/Gallery/getImage/{Login_id}/{Url}")
+    Call <Image_f> getImage(@Path("Login_id") String login_id, @Path("Url") String url);
+
 
     @GET("/Gallery/getImageList/{Login_id}")
     Call <List<Image_f>> getImageList(@Path("Login_id") String login_id);
@@ -60,6 +63,9 @@ public interface ApiService {
     @Multipart
     @POST("/Gallery/{Login_id}/{Name}")
     Call <ResponseBody> uploadImage(@Part MultipartBody.Part file, @Path("Login_id") String login_id, @Path("Name") String name);
+
+    @PUT("/Gallery/updateComment/{Login_id}/{Url}")
+    Call<Image_f> update_Comment(@Path("Login_id") String login_id, @Path("Url") String url, @Body List<Comment> Comments);
 
     @DELETE("/Gallery/delete/{Login_id}/{url}")
     Call <ResponseBody> deleteImage(@Path("Login_id") String login_id, @Path("url") String url);

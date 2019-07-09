@@ -1,34 +1,74 @@
 package com.example.week1.ui.posts;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
+import com.example.week1.network.APICallback;
+import com.example.week1.network.APIClient;
 import com.example.week1.network.Comment;
 import com.example.week1.network.IPInfo;
+import com.example.week1.network.Image_f;
+import com.example.week1.network.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class Comments extends AppCompatActivity {
+
+    APIClient apiClient;
 
     IPInfo ip = new IPInfo();
     String address = ip.IPAddress;
     int port = ip.Port;
 
+    String login_id;
+    String filename;
+    String profile;
+    RecyclerView recyclerView;
+    CommentAdapter adapter;
+
+    Intent intent;
+
+    ArrayList<Comment> new_comments = new ArrayList<Comment>();
+    ArrayList<CommentItem> Comments = new ArrayList<CommentItem>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comments);
+
+        apiClient = APIClient.getInstance(this, address,port).createBaseApi();
+
+        intent = getIntent();
+        login_id = intent.getStringExtra("Login_id");
+        filename = intent.getStringExtra("url");
+        profile = intent.getStringExtra("profile");
+
+        recyclerView = findViewById(R.id.comment_recycler);
+        adapter = new CommentAdapter(Comments);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setAdapter(adapter);
+
 
         ImageView back_button = findViewById(R.id.comment_back);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -38,26 +78,130 @@ public class Comments extends AppCompatActivity {
             }
         });
 
+        final EditText editText = (EditText) findViewById(R.id.comment);
+
+        Button confirm = (Button) findViewById(R.id.comment_confirm);
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String context =  editText.getText().toString();
+                Comment c = new Comment();
+                c.setLogin_id(login_id);
+                c.setContext(context);
+                new_comments.add(c);
+
+                CommentItem ci = new CommentItem();
+                ci.setProfile(profile);
+                ci.setComment(c);
+
+                apiClient.update_Comment(login_id, filename, new_comments, new APICallback() {
+                    @Override
+                    public void onError(Throwable t) {
+                        Log.d("commentErr","erooorroororororo");
+                    }
+
+                    @Override
+                    public void onSuccess(int code, Object receivedData) {
+                        Comments.add(ci);
+                        adapter.onActivityResult(1,1);
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.d("comment fail", "fffffffffffffffffffffffff");
+                    }
+                });
+            }
+        });
+
+        load_comments load = new load_comments();
+        load.execute();
 
     }
 
+    String c_login_id;
+    String c_profile;
+    class load_comments extends AsyncTask<String, Void, String> {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            new_comments.clear();
+            Comments.clear();
+        }
+
+        @Override
+        // load all Posts from Friends
+        protected String doInBackground(String... args) {
+            Log.d("commentaaaaaa","ssssssssssssssssssss"+login_id +"sssssssssss"+ filename);
+            apiClient.getImage(login_id, filename, new APICallback() {
+                @Override
+                public void onError(Throwable t) { }
+
+                @Override
+                public void onSuccess(int code, Object receivedData) {
+                    Image_f image = (Image_f) receivedData;
+                    Log.d("commmmntaaaa", receivedData.toString());
+                    ArrayList<Comment> com = new ArrayList<>();
+                    com = image.getComments();
+                    if (com.size() > 0) {
+                        for (Comment c : com) {
+                            Log.d("commentaaaaaa", c.getContext());
+                            new_comments.add(c);
+                            c_login_id = c.getLogin_id();
+
+                            apiClient.getUserfrom_LoginId(c_login_id, new APICallback() {
+                                @Override
+                                public void onError(Throwable t) { }
+
+                                @Override
+                                public void onSuccess(int code, Object receivedData) {
+                                    User data = (User) receivedData;
+                                    c_profile = data.getProfile_image_id();
+                                }
+                                @Override
+                                public void onFailure(int code) {
+                                    Log.d("COmmment", " failed to get User ");
+                                }
+                            });
+
+
+                            CommentItem ci = new CommentItem();
+                            ci.setComment(c);
+                            ci.setProfile(c_profile);
+                            Comments.add(ci);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(int code) {
+                    Log.d("COmmment", " failed to get Comments ");
+                }
+            });
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+        }
+    }
 }
 
-//public class load_comments
 
 class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder>{
     private ArrayList<CommentItem> mDataset;
     Context mcontext;
-    static Activity activity;
+
 
     IPInfo ip = new IPInfo();
     String address = ip.IPAddress;
     int port = ip.Port;
 
     // Set Dataset
-    public CommentAdapter(Activity a, ArrayList<CommentItem> list){
-        activity = a;
+    public CommentAdapter( ArrayList<CommentItem> list){
         mDataset = list;
     }
 
@@ -106,7 +250,9 @@ class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHold
 
     // Get Item Count
     @Override
-    public int getItemCount(){ return mDataset.size();}
+    public int getItemCount(){
+        return mDataset.size();
+    }
 
     public void onActivityResult(int requestCode, int resultCode) {
         this.notifyDataSetChanged();

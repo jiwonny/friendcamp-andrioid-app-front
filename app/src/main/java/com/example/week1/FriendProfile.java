@@ -36,11 +36,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ImageSelect extends AppCompatActivity {
+public class FriendProfile extends AppCompatActivity {
 
     String user_id;
     String user_name;
     String user_number;
+    String user_profile;
     GridView galleryGridView;
     LoadAlbum loadAlbumTask;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<HashMap<String, String>>();
@@ -64,6 +65,7 @@ public class ImageSelect extends AppCompatActivity {
         user_id = show_profile.getStringExtra("showUser_LoginId");
         user_name = show_profile.getStringExtra("showUser_Name");
         user_number = show_profile.getStringExtra("showUser_Number");
+        user_profile = show_profile.getStringExtra("showUser_Profile");
 
         apiClient = APIClient.getInstance(this, address,4500).createBaseApi();
 
@@ -74,6 +76,11 @@ public class ImageSelect extends AppCompatActivity {
         profile_name.setText(user_name);
         profile_id.setText(user_id);
         profile_number.setText(user_number);
+
+        ImageView profile_image = findViewById(R.id.Profile_image);
+        if ( user_profile != null){
+            Glide.with(this).load(user_profile).dontAnimate().into(profile_image);
+        }
 
         galleryGridView = (GridView) findViewById(R.id.galleryGridView);
 
