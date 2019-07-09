@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Friend Camp</string>
+    <string name="app_name">Friends Camp</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="tab_text_3">Tab 3</string>
@@ -13,5 +13,5 @@
 
     <string name="facebook_app_id">3449776238373236</string>
     <string name="fb_login_protocol_scheme">fb3449776238373236</string>
-    
+
 </resources>
