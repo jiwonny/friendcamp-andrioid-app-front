@@ -7,16 +7,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.week1.R;
@@ -42,6 +45,7 @@ public class Comments extends AppCompatActivity {
     int port = ip.Port;
 
     String login_id;
+    String Image_login_id;
     String filename;
     String profile;
     RecyclerView recyclerView;
@@ -60,15 +64,12 @@ public class Comments extends AppCompatActivity {
         apiClient = APIClient.getInstance(this, address,port).createBaseApi();
 
         intent = getIntent();
-        login_id = intent.getStringExtra("Login_id");
         filename = intent.getStringExtra("url");
-        profile = intent.getStringExtra("profile");
+        Image_login_id = intent.getStringExtra("Login_id");
 
-        recyclerView = findViewById(R.id.comment_recycler);
-        adapter = new CommentAdapter(Comments);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerView.setAdapter(adapter);
-
+        SharedPreferences sf = getSharedPreferences("userFile", MODE_PRIVATE);
+        login_id =sf.getString("currentUser_email", "");
+        profile = sf.getString("currentUser_profile","");
 
         ImageView back_button = findViewById(R.id.comment_back);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +95,11 @@ public class Comments extends AppCompatActivity {
                 ci.setProfile(profile);
                 ci.setComment(c);
 
-                apiClient.update_Comment(login_id, filename, new_comments, new APICallback() {
+                InputMethodManager mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                mInputMethodManager.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+
+
+                apiClient.update_Comment(Image_login_id, filename, new_comments, new APICallback() {
                     @Override
                     public void onError(Throwable t) {
                         Log.d("commentErr","erooorroororororo");
@@ -102,17 +107,25 @@ public class Comments extends AppCompatActivity {
 
                     @Override
                     public void onSuccess(int code, Object receivedData) {
+                        Toast.makeText(Comments.this, "Comment is Uploaded", Toast.LENGTH_SHORT).show();
+                        editText.getText().clear();
                         Comments.add(ci);
                         adapter.onActivityResult(1,1);
                     }
 
                     @Override
                     public void onFailure(int code) {
+                        Toast.makeText(Comments.this, "Network Failed", Toast.LENGTH_SHORT).show();
                         Log.d("comment fail", "fffffffffffffffffffffffff");
                     }
                 });
             }
         });
+
+        recyclerView = findViewById(R.id.comment_recycler);
+        adapter = new CommentAdapter(Comments);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setAdapter(adapter);
 
         load_comments load = new load_comments();
         load.execute();
@@ -134,7 +147,7 @@ public class Comments extends AppCompatActivity {
         // load all Posts from Friends
         protected String doInBackground(String... args) {
             Log.d("commentaaaaaa","ssssssssssssssssssss"+login_id +"sssssssssss"+ filename);
-            apiClient.getImage(login_id, filename, new APICallback() {
+            apiClient.getImage(Image_login_id, filename, new APICallback() {
                 @Override
                 public void onError(Throwable t) { }
 
@@ -142,9 +155,8 @@ public class Comments extends AppCompatActivity {
                 public void onSuccess(int code, Object receivedData) {
                     Image_f image = (Image_f) receivedData;
                     Log.d("commmmntaaaa", receivedData.toString());
-                    ArrayList<Comment> com = new ArrayList<>();
-                    com = image.getComments();
-                    if (com.size() > 0) {
+                    ArrayList<Comment> com = image.getComments();
+                    if (com != null) {
                         for (Comment c : com) {
                             Log.d("commentaaaaaa", c.getContext());
                             new_comments.add(c);
@@ -186,6 +198,7 @@ public class Comments extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
+            adapter.onActivityResult(1,1);
         }
     }
 }

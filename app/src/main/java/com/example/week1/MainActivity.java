@@ -274,7 +274,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         Toast.makeText(this, "Back button pressed.", Toast.LENGTH_SHORT).show();
-
+        ContactDBAdapter db = new ContactDBAdapter(this);
+        if(db.delete_all_contact()){
+            Log.d("drop_table", "dropdrop");
+        }else{
+            Log.d("drop_table", "drop_실패!");
+        }
 
         finishAffinity();
         super.onBackPressed();

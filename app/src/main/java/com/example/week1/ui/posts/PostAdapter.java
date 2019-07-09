@@ -67,7 +67,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     Intent intent = new Intent(activity, Comments.class);
                     intent.putExtra("Login_id", image_f.getLogin_id());
                     intent.putExtra("url", image_f.getUrl());
-                    intent.putExtra("profile", postitem.getProfile());
+
                     activity.startActivity(intent);
                 }
             });
