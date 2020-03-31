@@ -3,7 +3,10 @@
 인스타그램과 유사한 Social Networking Service 앱 개발 프로젝트. 
 
 <b><i>Language: Java, Tool: Android Studio, Server: Node.js, Database: MongoDB</i></b>
+<br>
 [Front Repository](https://github.com/jiwonny/friendcamp-andrioid-app-front)
+<br>
+
 [Server Repository](https://github.com/jiwonny/friendcamp-android-app-server)
 
 <br>
